@@ -134,7 +134,7 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
     let cyphertext_filename = matches.value_of("cyphertext_filename").unwrap();
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
 
-    if key.owns_file(cyphertext_filename) {
+    if !key.owns_file(cyphertext_filename) {
         eprintln!(
             "{}{}",
             style("skipping file not owned by the given key: ").color256(203),
