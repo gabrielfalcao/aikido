@@ -3,7 +3,7 @@ use console::style;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use toolz::aes256cbc::b64encode;
-use toolz::aes256cbc::hmac_256_digest;
+
 use toolz::aes256cbc::Config;
 use toolz::aes256cbc::Key;
 use toolz::core;

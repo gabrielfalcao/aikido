@@ -4,6 +4,10 @@ AES256_BIN			:=$(AES256_DEBUG_BIN)
 BIP39_DEBUG_BIN			:=target/debug/bip39
 BIP39_RELEASE_BIN		:=target/release/bip39
 BIP39_BIN			:=$(BIP39_DEBUG_BIN)
+OBFUSKAT3_DEBUG_BIN		:=target/debug/obfuskat3
+OBFUSKAT3_RELEASE_BIN		:=target/release/obfuskat3
+OBFUSKAT3_BIN			:=$(OBFUSKAT3_DEBUG_BIN)
+OBFUSKAT3_TARGET_PATH		:=$(shell pwd)/tmp
 IPLEAK_DEBUG_BIN		:=target/debug/ipleak
 IPLEAK_RELEASE_BIN		:=target/release/ipleak
 IPLEAK_BIN			:=$(IPLEAK_DEBUG_BIN)
@@ -27,6 +31,7 @@ release:
 	cp target/release/aes-256-cbc ~/usr/bin/
 	cp target/release/bip39 ~/usr/bin/
 	cp target/release/ipleak ~/usr/bin/
+	cp target/release/obfuskat3 ~/usr/bin/
 
 fmt:
 	rustfmt --edition 2021 src/*.rs
@@ -92,6 +97,14 @@ aes-256: aes-256-key aes-256-password aes-256-ask
 bip39: build
 	$(BIP39_BIN)
 
+obfuskat3: 0b4sk8d.yaml
+
+0b4sk8d.yaml: $(OBFUSKAT3_BIN)
+	$(OBFUSKAT3_BIN) from $(OBFUSKAT3_TARGET_PATH)
+
+unobfuskat3:
+	$(OBFUSKAT3_BIN) undo 0b4sk8d.yaml
+
 ipleak: build
 	$(IPLEAK_BIN)
 
@@ -107,4 +120,4 @@ $(AES256_DEBUG_BIN):
 
 
 
-.PHONY: all release fmt tmp test dry-run coverage aes256 build clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak
+.PHONY: all release fmt tmp test dry-run coverage aes256 build clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3
