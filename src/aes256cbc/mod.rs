@@ -80,7 +80,6 @@ pub fn hmac_256_digest(mac_key: &[u8], iv: &[u8]) -> Vec<u8> {
     let result = mac.result();
     let mac_digest = result.code();
     let vec = mac_digest.to_vec();
-    println!("{}", vec.len());
     vec
 }
 
