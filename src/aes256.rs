@@ -93,12 +93,12 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
 
     if key.owns_file(plaintext_filename) {
-        eprintln!(
-            "{}{}",
-            style("skipping file already encrypted: ").color256(162),
-            style(plaintext_filename).color256(136)
-        );
-        return;
+        // eprintln!(
+        //     "{}{}",
+        //     style("skipping file already encrypted: ").color256(162),
+        //     style(plaintext_filename).color256(136)
+        // );
+        std::process::exit(1);
     }
 
     let plaintext = if plaintext_filename.len() > 0 {
@@ -119,7 +119,7 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let cyphertext = key.encrypt(&plaintext).ok().expect("encryption failed");
     let mut file = File::create(cyphertext_filename).expect("failed to create new file");
     file.write(&cyphertext).unwrap();
-    eprintln!(
+    println!(
         "{}{}",
         style("wrote encrypted data in: ").color256(207),
         style(cyphertext_filename).color256(205)
@@ -135,11 +135,11 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
 
     if !key.owns_file(cyphertext_filename) {
-        eprintln!(
-            "{}{}",
-            style("skipping file not owned by the given key: ").color256(203),
-            style(cyphertext_filename).color256(208)
-        );
+        // eprintln!(
+        //     "{}{}",
+        //     style("skipping file not owned by the given key: ").color256(203),
+        //     style(cyphertext_filename).color256(208)
+        // );
         return;
     }
 
@@ -151,7 +151,7 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
                 let mut file = File::create(plaintext_filename).expect("failed to create new file");
                 file.write(&decrypted_data)
                     .expect("failed to write to output filename");
-                eprintln!(
+                println!(
                     "{}{}",
                     style("wrote plaintext data in: ").color256(49),
                     style(plaintext_filename).color256(45)
@@ -161,16 +161,16 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
             }
         }
         None => {
-            eprintln!(
-                "{}",
-                style(format!(
-                    "failed to decrypt {} {} {}",
-                    style(cyphertext_filename).color256(49),
-                    style("with key").color256(202),
-                    style(key_filename).color256(45),
-                ))
-                .color256(202)
-            );
+            // eprintln!(
+            //     "{}",
+            //     style(format!(
+            //         "failed to decrypt {} {} {}",
+            //         style(cyphertext_filename).color256(49),
+            //         style("with key").color256(202),
+            //         style(key_filename).color256(45),
+            //     ))
+            //     .color256(202)
+            // );
             std::process::exit(1);
         }
     }
