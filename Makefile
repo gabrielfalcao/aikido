@@ -46,7 +46,7 @@ tmp:
 dry-run:tmp
 	cargo run --bin slugify-filenames -- -r tmp --dry-run
 
-test: test-aes-256 test-slugify-filenames
+test: test-slugify-filenames test-aes-256 obfuskat3 unobfuskat3
 
 test-slugify-filenames: tmp cls
 	cargo run --bin slugify-filenames -- -r tmp --dry-run
