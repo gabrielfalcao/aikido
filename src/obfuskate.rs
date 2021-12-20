@@ -3,43 +3,22 @@ use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 use console::style;
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::{Read, Write};
+
+use std::fs;
 use std::path::Path;
-use std::{env, fmt, fs};
+use toolz::ioutils::{
+    delete_directory, delete_file, get_cwd, read_file, write_map_to_yaml, Result, UserFriendlyError,
+};
 use walkdir::WalkDir;
 
-type Result<T> = std::result::Result<T, ObfuskateError>;
-
-#[derive(Debug, Clone)]
-struct ObfuskateError {
-    message: String,
-}
-impl fmt::Display for ObfuskateError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "invalid first item to double")
-    }
-}
-fn read_file(filename: &str) -> String {
-    let mut file = File::open(filename).expect(format!("failed to open {}", filename).as_str());
-    let mut yaml = String::new();
-    file.read_to_string(&mut yaml)
-        .expect("failed to parse yaml");
-    yaml
-}
 fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
-    let current_dir = env::current_dir()
-        .expect("cannot retrieve current dir")
-        .as_path()
-        .canonicalize()
-        .unwrap();
+    let current_dir = get_cwd();
 
-    let current_dir = format!("{}", current_dir.as_os_str().to_str().unwrap());
     let mut result = BTreeMap::new();
     let parent = match Path::new(&current_dir).canonicalize() {
         Ok(path) => format!("{}", path.as_os_str().to_str().unwrap()),
         Err(e) => {
-            return serde::__private::Err(ObfuskateError {
+            return serde::__private::Err(UserFriendlyError {
                 message: format!("cannot get absolute path for '{}': {}", target_dir, e),
             })
         }
@@ -78,11 +57,7 @@ fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
 }
 
 fn obfuskat3_command(matches: &ArgMatches) {
-    let current_dir = env::current_dir()
-        .expect("cannot retrieve current dir")
-        .as_path()
-        .canonicalize()
-        .unwrap();
+    let current_dir = get_cwd();
 
     let mut result: BTreeMap<String, String> = if Path::new("0b4sk8d.yaml").exists() {
         let yaml = read_file("0b4sk8d.yaml");
@@ -94,12 +69,10 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
     let new = scan(target).unwrap();
     result.extend(new);
-    let mut index_file = File::create("0b4sk8d.yaml").expect("failed to create file 0b4sk8d.yaml");
-    let yaml = serde_yaml::to_string(&result).expect("failed to convert result to yaml");
-    index_file
-        .write_all(yaml.as_bytes())
-        .expect("failed to write yaml data to 0b4sk8d.yaml");
-    println!("index written to 0b4sk8d.yaml");
+
+    if write_map_to_yaml(&result, "0b4sk8d.yaml") {
+        println!("index written to 0b4sk8d.yaml");
+    }
 
     for (obfuskat3d, filename) in result.iter() {
         if Path::new(obfuskat3d).exists() {
@@ -114,7 +87,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
         let filepath = Path::new(&obfuskat3d);
         let parent = match filepath.parent() {
             Some(p) => p,
-            None => current_dir.as_path(),
+            None => Path::new(&current_dir),
         };
         if !parent.exists() {
             fs::create_dir_all(parent).unwrap_or(());
@@ -145,11 +118,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
 fn unobfuskat3_command(matches: &ArgMatches) {
     let target = matches.value_of("target").unwrap();
-    let current_dir = env::current_dir()
-        .expect("cannot retrieve current dir")
-        .as_path()
-        .canonicalize()
-        .unwrap();
+    let current_dir = get_cwd();
 
     if !Path::new(target).exists() {
         eprintln!(
@@ -176,7 +145,7 @@ fn unobfuskat3_command(matches: &ArgMatches) {
         let filepath = Path::new(&filename);
         let parent = match filepath.parent() {
             Some(p) => p,
-            None => current_dir.as_path(),
+            None => Path::new(&current_dir),
         };
         if !parent.exists() {
             println!(
@@ -207,40 +176,8 @@ fn unobfuskat3_command(matches: &ArgMatches) {
             }
         };
     }
-    match fs::remove_file(target) {
-        Ok(_) => {
-            println!(
-                "{}{}",
-                style("deleted index ").color256(241),
-                style(target).color256(246),
-            )
-        }
-        Err(error) => {
-            eprintln!(
-                "{}{}{}",
-                style("Error deleting ").color256(198),
-                style(target).color256(190),
-                style(format!("\n\t{}", error)).color256(197),
-            );
-        }
-    }
-    match fs::remove_dir_all("0b4sk8d") {
-        Ok(_) => {
-            println!(
-                "{}{}",
-                style("deleted empty directory: ").color256(241),
-                style("0b4sk8d").color256(246),
-            )
-        }
-        Err(error) => {
-            eprintln!(
-                "{}{}{}",
-                style("Error deleting ").color256(198),
-                style(target).color256(190),
-                style(format!("\n\t{}", error)).color256(197),
-            );
-        }
-    }
+    delete_file(target);
+    delete_directory("0b4sk8d");
 }
 
 fn main() {
