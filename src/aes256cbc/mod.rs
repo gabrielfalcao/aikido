@@ -324,7 +324,7 @@ impl Key {
     pub fn to_yaml(&self) -> String {
         match serde_yaml::to_string(&self) {
             Ok(val) => val,
-            Err(e) => {
+            Err(_e) => {
                 //eprintln!("failed to encode key to yaml: {}", e);
                 String::new()
             }

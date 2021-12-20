@@ -63,24 +63,32 @@ fn scan(target_dir: &str) -> Result<HashMap<String, String>> {
         let filename = full_path.replace(&parent, ".");
 
         let digest = md5::compute(full_path.as_bytes());
-        let obfuskat3d = format!("{:x}.0b4sk8d", digest);
+        let hex = format!("{:x}", digest);
+        let prefix1 = &hex[..2];
+        let prefix2 = &hex[..4];
+        let obfuskat3d = format!("{}/{}/{}.0b4sk8d", prefix1, prefix2, hex);
         result.insert(obfuskat3d, filename);
     }
     Ok(result)
 }
 
 fn obfuskat3_command(matches: &ArgMatches) {
-    if Path::new("0b4sk8d.yaml").exists() {
-        eprintln!(
-            "{} {}",
-            style("0b4sk8d.yaml").color256(122),
-            style("already exists, this path has already been obfuskat3d!").color256(197)
-        );
-        std::process::exit(1);
-    }
+    let current_dir = env::current_dir()
+        .expect("cannot retrieve current dir")
+        .as_path()
+        .canonicalize()
+        .unwrap();
+
+    let mut result: HashMap<String, String> = if Path::new("0b4sk8d.yaml").exists() {
+        let yaml = read_file("0b4sk8d.yaml");
+        serde_yaml::from_str(&yaml).expect("failed to parse yaml from 0b4sk8d.yaml")
+    } else {
+        HashMap::new()
+    };
     let target = matches.value_of("target").unwrap_or(".");
 
-    let result = scan(target).unwrap();
+    let new = scan(target).unwrap();
+    result.extend(new);
     let mut index_file = File::create("0b4sk8d.yaml").expect("failed to create file 0b4sk8d.yaml");
     let yaml = serde_yaml::to_string(&result).expect("failed to convert result to yaml");
     index_file
@@ -98,6 +106,15 @@ fn obfuskat3_command(matches: &ArgMatches) {
             );
             continue;
         }
+        let filepath = Path::new(&obfuskat3d);
+        let parent = match filepath.parent() {
+            Some(p) => p,
+            None => current_dir.as_path(),
+        };
+        if !parent.exists() {
+            fs::create_dir_all(parent).unwrap_or(());
+        }
+
         match fs::rename(filename, obfuskat3d) {
             Ok(_) => {
                 println!(

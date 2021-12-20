@@ -127,7 +127,7 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
 }
 
 fn decrypt_command(matches: &ArgMatches, config: &Config) {
-    let key_filename = matches.value_of("key_filename").unwrap_or("");
+    // let key_filename = matches.value_of("key_filename").unwrap_or("");
 
     let key = load_key(matches, config);
 
