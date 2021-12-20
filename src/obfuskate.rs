@@ -2,7 +2,7 @@ extern crate clap;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 use console::style;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
@@ -27,7 +27,7 @@ fn read_file(filename: &str) -> String {
         .expect("failed to parse yaml");
     yaml
 }
-fn scan(target_dir: &str) -> Result<HashMap<String, String>> {
+fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
     let current_dir = env::current_dir()
         .expect("cannot retrieve current dir")
         .as_path()
@@ -35,7 +35,7 @@ fn scan(target_dir: &str) -> Result<HashMap<String, String>> {
         .unwrap();
 
     let current_dir = format!("{}", current_dir.as_os_str().to_str().unwrap());
-    let mut result = HashMap::new();
+    let mut result = BTreeMap::new();
     let parent = match Path::new(&current_dir).canonicalize() {
         Ok(path) => format!("{}", path.as_os_str().to_str().unwrap()),
         Err(e) => {
@@ -84,11 +84,11 @@ fn obfuskat3_command(matches: &ArgMatches) {
         .canonicalize()
         .unwrap();
 
-    let mut result: HashMap<String, String> = if Path::new("0b4sk8d.yaml").exists() {
+    let mut result: BTreeMap<String, String> = if Path::new("0b4sk8d.yaml").exists() {
         let yaml = read_file("0b4sk8d.yaml");
         serde_yaml::from_str(&yaml).expect("failed to parse yaml from 0b4sk8d.yaml")
     } else {
-        HashMap::new()
+        BTreeMap::new()
     };
     let target = matches.value_of("target").unwrap_or(".");
 
@@ -160,7 +160,8 @@ fn unobfuskat3_command(matches: &ArgMatches) {
         std::process::exit(1);
     }
     let yaml = read_file(target);
-    let index: HashMap<String, String> = serde_yaml::from_str(&yaml).expect("failed to parse yaml");
+    let index: BTreeMap<String, String> =
+        serde_yaml::from_str(&yaml).expect("failed to parse yaml");
 
     for (obfuskat3d, filename) in index.iter() {
         if Path::new(filename).exists() {
