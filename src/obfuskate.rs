@@ -69,7 +69,7 @@ fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
         let prefix2 = &hex[..4];
         let prefix3 = &hex[..6];
         let obfuskat3d = format!(
-            "0b4sk8d/{}/{}/{}/{}/{}",
+            "0b4sk8d/{}/{}/{}/{}/{}.0b4sk8d",
             prefix0, prefix1, prefix2, prefix3, hex
         );
         result.insert(obfuskat3d, filename);
