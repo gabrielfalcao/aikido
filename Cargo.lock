@@ -1329,7 +1329,7 @@ dependencies = [
 
 [[package]]
 name = "rustic-toolz"
-version = "1.4.4"
+version = "1.4.5"
 dependencies = [
  "base64",
  "clap",
