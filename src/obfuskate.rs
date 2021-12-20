@@ -64,9 +64,14 @@ fn scan(target_dir: &str) -> Result<HashMap<String, String>> {
 
         let digest = md5::compute(full_path.as_bytes());
         let hex = format!("{:x}", digest);
+        let prefix0 = &hex[..1];
         let prefix1 = &hex[..2];
         let prefix2 = &hex[..4];
-        let obfuskat3d = format!("{}/{}/{}.0b4sk8d", prefix1, prefix2, hex);
+        let prefix3 = &hex[..6];
+        let obfuskat3d = format!(
+            "0b4sk8d/{}/{}/{}/{}/{}",
+            prefix0, prefix1, prefix2, prefix3, hex
+        );
         result.insert(obfuskat3d, filename);
     }
     Ok(result)
