@@ -48,22 +48,32 @@ pub fn delete_file(target: &str) -> bool {
     }
 }
 pub fn delete_directory(target: &str) -> bool {
+    delete_directory_with_verbosity(target, true)
+}
+pub fn rm_rf(target: &str) -> bool {
+    delete_directory_with_verbosity(target, false)
+}
+pub fn delete_directory_with_verbosity(target: &str, verbose: bool) -> bool {
     match fs::remove_dir_all(target) {
         Ok(_) => {
-            println!(
-                "{}{}",
-                style("deleted empty directory: ").color256(241),
-                style(target).color256(246),
-            );
+            if verbose {
+                println!(
+                    "{}{}",
+                    style("deleted empty directory: ").color256(241),
+                    style(target).color256(246),
+                );
+            }
             true
         }
         Err(error) => {
-            eprintln!(
-                "{}{}{}",
-                style("Error deleting ").color256(colors::ERR_MSG),
-                style(target).color256(colors::ERR_VAR),
-                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            if verbose {
+                eprintln!(
+                    "{}{}{}",
+                    style("Error deleting ").color256(colors::ERR_MSG),
+                    style(target).color256(colors::ERR_VAR),
+                    style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+                );
+            }
             false
         }
     }

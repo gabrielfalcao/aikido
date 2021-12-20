@@ -7,7 +7,8 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 use toolz::ioutils::{
-    delete_directory, delete_file, get_cwd, read_file, write_map_to_yaml, Result, UserFriendlyError,
+    delete_directory, delete_file, get_cwd, read_file, rm_rf, write_map_to_yaml, Result,
+    UserFriendlyError,
 };
 use walkdir::WalkDir;
 
@@ -73,6 +74,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
     if write_map_to_yaml(&result, "0b4sk8d.yaml") {
         println!("index written to 0b4sk8d.yaml");
     }
+    let mut parents: Vec<String> = Vec::new();
 
     for (obfuskat3d, filename) in result.iter() {
         if Path::new(obfuskat3d).exists() {
@@ -83,12 +85,22 @@ fn obfuskat3_command(matches: &ArgMatches) {
                 style("already exists").color256(247)
             );
             continue;
+        } else {
+            match Path::new(&filename).parent() {
+                Some(p) => {
+                    match p.as_os_str().to_str() {
+                        Some(parent_dir) => {
+                            parents.push(String::from(parent_dir));
+                        }
+                        None => {}
+                    };
+                }
+                None => {}
+            };
         }
         let filepath = Path::new(&obfuskat3d);
-        let parent = match filepath.parent() {
-            Some(p) => p,
-            None => Path::new(&current_dir),
-        };
+        let parent = filepath.parent().unwrap_or(Path::new(&current_dir));
+
         if !parent.exists() {
             fs::create_dir_all(parent).unwrap_or(());
         }
@@ -113,6 +125,15 @@ fn obfuskat3_command(matches: &ArgMatches) {
                 );
             }
         };
+    }
+    for parent in parents {
+        if rm_rf(&parent) {
+            println!(
+                "{}{}",
+                style("deleted old directory").color256(241),
+                style(parent).color256(246),
+            )
+        }
     }
 }
 
