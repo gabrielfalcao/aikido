@@ -20,7 +20,7 @@ PLAINTEXT			:="Hello World"
 all: fmt release
 
 clean:
-	rm -f *.aes *.yaml
+	rm -fr *.aes *.yaml 0b4sk8d
 
 cls:
 	@echo -e "\033[H\033[2J"
