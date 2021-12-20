@@ -224,6 +224,23 @@ fn unobfuskat3_command(matches: &ArgMatches) {
             );
         }
     }
+    match fs::remove_dir_all("0b4sk8d") {
+        Ok(_) => {
+            println!(
+                "{}{}",
+                style("deleted empty directory: ").color256(241),
+                style("0b4sk8d").color256(246),
+            )
+        }
+        Err(error) => {
+            eprintln!(
+                "{}{}{}",
+                style("Error deleting ").color256(198),
+                style(target).color256(190),
+                style(format!("\n\t{}", error)).color256(197),
+            );
+        }
+    }
 }
 
 fn main() {
