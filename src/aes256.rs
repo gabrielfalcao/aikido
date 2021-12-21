@@ -193,23 +193,27 @@ fn check_command(matches: &ArgMatches, config: &Config) {
 
     let key = load_key(matches, config);
     let cyphertext_filename = matches.value_of("cyphertext_filename").unwrap();
+    let fail_if_not_encrypted = !matches.is_present("try");
 
     match key.owns_file(cyphertext_filename) {
         true => {
             logger::err::ok(format!(
                 "{}{}",
-                style(cyphertext_filename).color256(190),
-                style(" is owned by given key").color256(220),
+                style(cyphertext_filename).color256(207),
+                style(" is encrypted by given key").color256(226),
             ));
             std::process::exit(0);
         }
         false => {
             logger::err::error(format!(
                 "{}{}",
-                style(cyphertext_filename).color256(117),
-                style(" is not encrypted by the given key").color256(190),
+                style(cyphertext_filename).color256(213),
+                style(" is not encrypted by the given key").color256(208),
             ));
-            std::process::exit(1);
+            std::process::exit(match fail_if_not_encrypted {
+                true => 1,
+                false => 0,
+            });
         }
     };
 }
@@ -290,17 +294,17 @@ fn main() {
             SubCommand::with_name("encrypt")
                 .about("encrypt file or string")
                 .arg(
-                    Arg::with_name("string")
-                        .long("string")
-                        .short("s")
-                        .takes_value(true),
-                )
-                .arg(
                     Arg::with_name("try")
                         .long("try")
                         .short("t")
                         .required(false)
                         .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("string")
+                        .long("string")
+                        .short("s")
+                        .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("plaintext_filename")
@@ -343,6 +347,13 @@ fn main() {
             SubCommand::with_name("decrypt")
                 .about("decrypt file")
                 .arg(
+                    Arg::with_name("try")
+                        .long("try")
+                        .short("t")
+                        .required(false)
+                        .takes_value(false),
+                )
+                .arg(
                     Arg::with_name("password")
                         .long("password")
                         .short("P")
@@ -355,13 +366,6 @@ fn main() {
                         .short("k")
                         .required(false)
                         .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("try")
-                        .long("try")
-                        .short("t")
-                        .required(false)
-                        .takes_value(false),
                 )
                 .arg(
                     Arg::with_name("ask_password")
@@ -387,6 +391,13 @@ fn main() {
         .subcommand(
             SubCommand::with_name("check")
                 .about("check file")
+                .arg(
+                    Arg::with_name("try")
+                        .long("try")
+                        .short("t")
+                        .required(false)
+                        .takes_value(false),
+                )
                 .arg(
                     Arg::with_name("password")
                         .long("password")
