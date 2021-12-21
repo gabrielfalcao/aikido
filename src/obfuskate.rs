@@ -3,14 +3,16 @@ use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 use console::style;
 use std::collections::BTreeMap;
+use std::collections::HashSet;
 
 use std::fs;
 use std::path::Path;
 use toolz::ioutils::{
-    delete_directory, delete_file, get_cwd, read_file, rm_rf, write_map_to_yaml, Result,
-    UserFriendlyError,
+    delete_directory, delete_file, directory_is_empty, get_cwd, read_file, rm_rf,
+    write_map_to_yaml, Result, UserFriendlyError,
 };
-use toolz::progress;
+use toolz::logger;
+
 use walkdir::WalkDir;
 
 fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
@@ -75,7 +77,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
     if write_map_to_yaml(&result, "0b4sk8d.yaml") {
         println!("index written to 0b4sk8d.yaml");
     }
-    let mut parents: Vec<String> = Vec::new();
+    let mut parents: HashSet<String> = HashSet::new();
 
     for (obfuskat3d, filename) in result.iter() {
         if Path::new(obfuskat3d).exists() {
@@ -91,7 +93,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
                 Some(p) => {
                     match p.as_os_str().to_str() {
                         Some(parent_dir) => {
-                            parents.push(String::from(parent_dir));
+                            parents.insert(String::from(parent_dir));
                         }
                         None => {}
                     };
@@ -116,26 +118,31 @@ fn obfuskat3_command(matches: &ArgMatches) {
                 )
             }
             Err(error) => {
-                eprintln!(
+                logger::error(format!(
                     "{}{}{}{}{}",
-                    style("Error renaming ").color256(198),
+                    style("renaming ").color256(198),
                     style(filename).color256(190),
                     style(" to ").color256(198),
                     style(obfuskat3d).color256(159),
                     style(format!("\n\t{}", error)).color256(197),
-                );
+                ));
             }
         };
     }
-    // for parent in parents {
-    //     if rm_rf(&parent) {
-    //         println!(
-    //             "{}{}",
-    //             style("deleted old directory").color256(241),
-    //             style(parent).color256(246),
-    //         )
-    //     }
-    // }
+    let mut parents = parents.into_iter().collect::<Vec<String>>();
+    parents.sort_by(|a, b| b.cmp(a));
+
+    for parent in &parents {
+        if directory_is_empty(parent) {
+            if rm_rf(&parent) {
+                logger::warning(format!(
+                    "{}{}",
+                    style("deleted empty directory: ").color256(246),
+                    style(parent).color256(222)
+                ));
+            }
+        }
+    }
 }
 
 fn unobfuskat3_command(matches: &ArgMatches) {

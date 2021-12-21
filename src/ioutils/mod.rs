@@ -4,6 +4,7 @@ use crate::colors;
 use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
+use std::path::Path;
 use std::{env, fmt, fs};
 
 pub type Result<T> = std::result::Result<T, UserFriendlyError>;
@@ -50,6 +51,15 @@ pub fn delete_file(target: &str) -> bool {
 pub fn delete_directory(target: &str) -> bool {
     delete_directory_with_verbosity(target, true)
 }
+pub fn directory_is_empty(target: &str) -> bool {
+    let path = Path::new(&target);
+    let entries = match fs::read_dir(&path) {
+        Ok(values) => values,
+        Err(_) => return false,
+    };
+    entries.count() == 0
+}
+
 pub fn rm_rf(target: &str) -> bool {
     delete_directory_with_verbosity(target, false)
 }
