@@ -10,6 +10,7 @@ use toolz::ioutils::{
     delete_directory, delete_file, get_cwd, read_file, rm_rf, write_map_to_yaml, Result,
     UserFriendlyError,
 };
+use toolz::progress;
 use walkdir::WalkDir;
 
 fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
@@ -126,15 +127,15 @@ fn obfuskat3_command(matches: &ArgMatches) {
             }
         };
     }
-    for parent in parents {
-        if rm_rf(&parent) {
-            println!(
-                "{}{}",
-                style("deleted old directory").color256(241),
-                style(parent).color256(246),
-            )
-        }
-    }
+    // for parent in parents {
+    //     if rm_rf(&parent) {
+    //         println!(
+    //             "{}{}",
+    //             style("deleted old directory").color256(241),
+    //             style(parent).color256(246),
+    //         )
+    //     }
+    // }
 }
 
 fn unobfuskat3_command(matches: &ArgMatches) {
