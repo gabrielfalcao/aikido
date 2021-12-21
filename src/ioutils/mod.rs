@@ -1,6 +1,7 @@
 use console::style;
 
 use crate::colors;
+use crate::logger;
 use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
@@ -30,20 +31,20 @@ pub fn read_file(filename: &str) -> String {
 pub fn delete_file(target: &str) -> bool {
     match fs::remove_file(target) {
         Ok(_) => {
-            println!(
+            logger::err::warning(format!(
                 "{}{}",
                 style("deleted index ").color256(241),
                 style(target).color256(246),
-            );
+            ));
             true
         }
         Err(error) => {
-            eprintln!(
+            logger::err::error(format!(
                 "{}{}{}",
                 style("Error deleting ").color256(colors::ERR_MSG),
                 style(target).color256(colors::ERR_VAR),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            ));
             false
         }
     }
@@ -67,22 +68,22 @@ pub fn delete_directory_with_verbosity(target: &str, verbose: bool) -> bool {
     match fs::remove_dir_all(target) {
         Ok(_) => {
             if verbose {
-                println!(
+                logger::err::warning(format!(
                     "{}{}",
                     style("deleted empty directory: ").color256(241),
                     style(target).color256(246),
-                );
+                ));
             }
             true
         }
         Err(error) => {
             if verbose {
-                eprintln!(
+                logger::err::error(format!(
                     "{}{}{}",
                     style("Error deleting ").color256(colors::ERR_MSG),
                     style(target).color256(colors::ERR_VAR),
                     style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-                );
+                ));
             }
             false
         }
@@ -92,13 +93,13 @@ pub fn open_write(target: &str) -> Option<std::fs::File> {
     match OpenOptions::new().create(true).write(true).open(target) {
         Ok(file) => Some(file),
         Err(error) => {
-            eprintln!(
+            logger::err::error(format!(
                 "{}{}{}{}",
                 style("failed to open ").color256(colors::ERR_MSG),
                 style(target).color256(colors::ERR_VAR),
                 style("in write mode").color256(colors::ERR_MSG),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            ));
             None
         }
     }
@@ -109,12 +110,12 @@ pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> bool
     let yaml = match serde_yaml::to_string(map) {
         Ok(s) => s,
         Err(error) => {
-            eprintln!(
+            logger::err::error(format!(
                 "{}{}{}",
                 style("failed to serialze data to yaml ").color256(colors::ERR_MSG),
                 style(filename).color256(colors::ERR_VAR),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            ));
             return false;
         }
     };
@@ -123,12 +124,12 @@ pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> bool
             return true;
         }
         Err(error) => {
-            eprintln!(
+            logger::err::error(format!(
                 "{}{}{}",
                 style("failed to write yaml data to: ").color256(colors::ERR_MSG),
                 style(filename).color256(colors::ERR_VAR),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            ));
             return false;
         }
     }
@@ -140,29 +141,29 @@ pub fn get_cwd() -> String {
             Ok(current_dir) => match current_dir.as_os_str().to_str() {
                 Some(path) => String::from(path),
                 None => {
-                    eprintln!(
+                    logger::err::error(format!(
                         "{}",
                         style("failed convert cwd path to string").color256(colors::ERR_HLT),
-                    );
+                    ));
                     std::process::exit(1);
                 }
             },
             Err(error) => {
-                eprintln!(
+                logger::err::error(format!(
                     "{}{}",
                     style("failed to calculate absolute path of current working directory")
                         .color256(colors::ERR_MSG),
                     style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-                );
+                ));
                 std::process::exit(1);
             }
         },
         Err(error) => {
-            eprintln!(
+            logger::err::error(format!(
                 "{}{}",
                 style("failed to retrieve current working directory").color256(colors::ERR_HLT),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            );
+            ));
             std::process::exit(1);
         }
     }

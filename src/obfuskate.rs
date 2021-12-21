@@ -81,12 +81,12 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
     for (obfuskat3d, filename) in result.iter() {
         if Path::new(obfuskat3d).exists() {
-            eprintln!(
+            logger::err::warning(format!(
                 "{} {}: {}",
                 style("skipping").color256(247),
                 style(obfuskat3d).color256(178),
                 style("already exists").color256(247)
-            );
+            ));
             continue;
         } else {
             match Path::new(&filename).parent() {
@@ -110,15 +110,15 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
         match fs::rename(filename, obfuskat3d) {
             Ok(_) => {
-                println!(
+                logger::out::success(format!(
                     "{}{}{}",
                     style("obfuskat3d ").color256(241),
                     style(filename).color256(246),
                     style("...").color256(241),
-                )
+                ));
             }
             Err(error) => {
-                logger::error(format!(
+                logger::out::error(format!(
                     "{}{}{}{}{}",
                     style("renaming ").color256(198),
                     style(filename).color256(190),
@@ -135,7 +135,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
     for parent in &parents {
         if directory_is_empty(parent) {
             if rm_rf(&parent) {
-                logger::warning(format!(
+                logger::out::warning(format!(
                     "{}{}",
                     style("deleted empty directory: ").color256(246),
                     style(parent).color256(222)
@@ -163,12 +163,12 @@ fn unobfuskat3_command(matches: &ArgMatches) {
 
     for (obfuskat3d, filename) in index.iter() {
         if Path::new(filename).exists() {
-            eprintln!(
+            logger::err::warning(format!(
                 "{} {}: {}",
                 style("skipping").color256(247),
                 style(filename).color256(178),
                 style("already unobfuskat3d").color256(247)
-            );
+            ));
             continue;
         }
         let filepath = Path::new(&filename);
@@ -177,21 +177,21 @@ fn unobfuskat3_command(matches: &ArgMatches) {
             None => Path::new(&current_dir),
         };
         if !parent.exists() {
-            println!(
+            logger::out::info(format!(
                 "{}{}",
-                style("unobfuskat3d ").color256(241),
+                style("creating parent ").color256(241),
                 style(format!("{:?}", parent)).color256(246),
-            );
+            ));
             fs::create_dir_all(parent).unwrap_or(());
         }
         match fs::rename(obfuskat3d, filename) {
             Ok(_) => {
-                println!(
+                logger::out::success(format!(
                     "{}{}{}",
                     style("unobfuskat3d ").color256(241),
                     style(filename).color256(246),
                     style("...").color256(241),
-                )
+                ));
             }
             Err(error) => {
                 eprintln!(
@@ -243,10 +243,10 @@ fn main() {
         }
         ("undo", Some(matches)) => unobfuskat3_command(&matches),
         (cmd, Some(_matches)) => {
-            eprintln!("command not implemented: {}", cmd);
+            logger::err::error(format!("command not implemented: {}", cmd));
         }
         (cmd, None) => {
-            eprintln!("unhandled command: {}", cmd);
+            logger::err::error(format!("unhandled command: {}", cmd));
         }
     }
 }

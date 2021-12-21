@@ -19,7 +19,7 @@ PLAINTEXT			:="Hello World"
 
 all: fmt release
 
-clean:
+clean: cls
 	rm -fr *.aes *.yaml 0b4sk8d
 
 cls:
@@ -46,7 +46,7 @@ tmp:
 dry-run:tmp
 	cargo run --bin slugify-filenames -- -r tmp --dry-run
 
-test: test-slugify-filenames test-aes-256 obfuskat3 unobfuskat3
+test: test-slugify-filenames test-aes-256 test-obfuskat3
 
 test-slugify-filenames: tmp cls
 	cargo run --bin slugify-filenames -- -r tmp --dry-run
@@ -54,6 +54,7 @@ test-slugify-filenames: tmp cls
 
 test-aes-256: aes-256-key aes-256-password
 
+test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
 build:
 	cargo build
@@ -94,10 +95,10 @@ aes-256-password: cls build
 
 aes-256: aes-256-key aes-256-password aes-256-ask
 
-bip39: build
+bip39: build cls
 	$(BIP39_BIN)
 
-obfuskat3: 0b4sk8d.yaml
+obfuskat3: cls 0b4sk8d.yaml
 
 0b4sk8d.yaml: $(OBFUSKAT3_BIN)
 	$(OBFUSKAT3_BIN) from $(OBFUSKAT3_TARGET_PATH)
@@ -105,7 +106,7 @@ obfuskat3: 0b4sk8d.yaml
 unobfuskat3:
 	$(OBFUSKAT3_BIN) undo 0b4sk8d.yaml
 
-ipleak: build
+ipleak: cls build
 	$(IPLEAK_BIN)
 
 load: clean build
