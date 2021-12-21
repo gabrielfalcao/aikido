@@ -198,17 +198,19 @@ fn check_command(matches: &ArgMatches, config: &Config) {
     match key.owns_file(cyphertext_filename) {
         true => {
             logger::err::ok(format!(
-                "{}{}",
-                style(cyphertext_filename).color256(207),
-                style(" is encrypted by given key").color256(226),
+                "{}{}{}",
+                cyphertext_filename,
+                style(" is ").color256(logger::colors::TYPE_OK),
+                style("encrypted.").color256(156),
             ));
             std::process::exit(0);
         }
         false => {
             logger::err::error(format!(
-                "{}{}",
-                style(cyphertext_filename).color256(213),
-                style(" is not encrypted by the given key").color256(208),
+                "{}{}{}",
+                cyphertext_filename,
+                style(" is ").color256(logger::colors::TYPE_ERROR),
+                style("encrypted.").color256(202),
             ));
             std::process::exit(match fail_if_not_encrypted {
                 true => 1,
