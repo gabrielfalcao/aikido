@@ -33,6 +33,7 @@ assert_eq!((*plaintext).to_vec(), decrypted);
 extern crate crypto;
 extern crate rand;
 
+use crate::logger;
 use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
@@ -192,7 +193,7 @@ impl Config {
         match serde_yaml::to_string(&self) {
             Ok(val) => val,
             Err(e) => {
-                eprintln!("failed to encode key to yaml: {}", e);
+                logger::err::error(format!("failed to encode key to yaml: {}", e));
                 String::new()
             }
         }
@@ -325,7 +326,7 @@ impl Key {
         match serde_yaml::to_string(&self) {
             Ok(val) => val,
             Err(_e) => {
-                //eprintln!("failed to encode key to yaml: {}", e);
+                logger::err::error(format!("failed to serialize key as YAML"));
                 String::new()
             }
         }
@@ -425,7 +426,9 @@ impl Key {
         let mut plaintext = Vec::<u8>::new();
         let hmac_bytes: [u8; DIGEST_SIZE] = cyphertext[..DIGEST_SIZE].try_into().unwrap();
         if !self.check_digest(&hmac_bytes) {
-            eprintln!("Cannot decrypt: data was not encrypted by this key");
+            logger::err::warning(format!(
+                "Cannot decrypt: data was not encrypted with the provided key. Leaving file as is."
+            ));
             return Ok((*cyphertext).to_vec());
         }
 

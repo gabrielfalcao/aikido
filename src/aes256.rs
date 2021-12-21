@@ -6,7 +6,7 @@ use toolz::aes256cbc::b64encode;
 
 use toolz::aes256cbc::Config;
 use toolz::aes256cbc::Key;
-use toolz::core;
+use toolz::{core, logger};
 
 pub fn read_bytes(filename: &str) -> Vec<u8> {
     let f = File::open(filename).expect("failed to open file");
@@ -23,7 +23,10 @@ pub fn confirm_password() -> Option<String> {
     let confirmation = rpassword::prompt_password_stderr("Confirm password: ").unwrap();
 
     if password != confirmation {
-        eprintln!("{}", style("Password/Confirmation mismatch").color256(202));
+        logger::err::error(format!(
+            "{}",
+            style("Password/Confirmation mismatch").color256(202)
+        ));
         None
     } else {
         Some(password)
@@ -80,11 +83,11 @@ fn generate_command(matches: &ArgMatches, config: &Config) {
     let filename = matches.value_of("key_filename").unwrap();
     //let key_yaml = key.to_yaml();
     let key_path = key.export(filename);
-    eprintln!(
+    logger::err::ok(format!(
         "{}{}",
         style("generated key: ").color256(44),
         style(key_path).color256(45)
-    );
+    ));
 }
 fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let key = load_key(matches, config);
@@ -119,11 +122,11 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let cyphertext = key.encrypt(&plaintext).ok().expect("encryption failed");
     let mut file = File::create(cyphertext_filename).expect("failed to create new file");
     file.write(&cyphertext).unwrap();
-    println!(
+    logger::err::ok(format!(
         "{}{}",
         style("wrote encrypted data in: ").color256(207),
         style(cyphertext_filename).color256(205)
-    );
+    ));
 }
 
 fn decrypt_command(matches: &ArgMatches, config: &Config) {
@@ -151,11 +154,11 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
                 let mut file = File::create(plaintext_filename).expect("failed to create new file");
                 file.write(&decrypted_data)
                     .expect("failed to write to output filename");
-                println!(
+                logger::err::ok(format!(
                     "{}{}",
                     style("wrote plaintext data in: ").color256(49),
                     style(plaintext_filename).color256(45)
-                );
+                ));
             } else {
                 println!("{}", b64encode(&decrypted_data));
             }
@@ -324,10 +327,10 @@ fn main() {
             decrypt_command(matches, &config);
         }
         (cmd, Some(_matches)) => {
-            eprintln!("command not implemented: {}", cmd);
+            logger::err::warning(format!("command not implemented: {}", cmd));
         }
         (cmd, None) => {
-            eprintln!("unhandled command: {}", cmd);
+            logger::err::warning(format!("unhandled command: {}", cmd));
         }
     }
 }

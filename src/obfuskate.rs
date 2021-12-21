@@ -75,7 +75,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
     result.extend(new);
 
     if write_map_to_yaml(&result, "0b4sk8d.yaml") {
-        println!("index written to 0b4sk8d.yaml");
+        logger::out::info(format!("index written to 0b4sk8d.yaml"));
     }
     let mut parents: HashSet<String> = HashSet::new();
 
@@ -110,7 +110,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
         match fs::rename(filename, obfuskat3d) {
             Ok(_) => {
-                logger::out::success(format!(
+                logger::out::ok(format!(
                     "{}{}{}",
                     style("obfuskat3d ").color256(241),
                     style(filename).color256(246),
@@ -150,11 +150,11 @@ fn unobfuskat3_command(matches: &ArgMatches) {
     let current_dir = get_cwd();
 
     if !Path::new(target).exists() {
-        eprintln!(
+        logger::err::error(format!(
             "{} {}",
             style(target).color256(122),
             style("does not exist!").color256(197)
-        );
+        ));
         std::process::exit(1);
     }
     let yaml = read_file(target);
@@ -186,7 +186,7 @@ fn unobfuskat3_command(matches: &ArgMatches) {
         }
         match fs::rename(obfuskat3d, filename) {
             Ok(_) => {
-                logger::out::success(format!(
+                logger::out::ok(format!(
                     "{}{}{}",
                     style("unobfuskat3d ").color256(241),
                     style(filename).color256(246),
@@ -194,14 +194,14 @@ fn unobfuskat3_command(matches: &ArgMatches) {
                 ));
             }
             Err(error) => {
-                eprintln!(
+                logger::err::error(format!(
                     "{}{}{}{}{}",
-                    style("Error renaming ").color256(198),
+                    style("renaming ").color256(198),
                     style(filename).color256(190),
                     style(" to ").color256(198),
                     style(obfuskat3d).color256(159),
                     style(format!("\n\t{}", error)).color256(197),
-                );
+                ));
             }
         };
     }
