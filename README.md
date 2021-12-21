@@ -95,10 +95,25 @@ This step is optional if you want to provide a password in every encryption/decr
 **`-P` or `--password`** `<password>`
 > Input the password as command-line argument.
 
+**`-K` or `--key`** `<number>` _(optional)_
+> Number of PBKDF2 cycles for key derivation
+> **default:** 1000
+
+**`-S` or `--salt`** `<number>` _(optional)_
+> Number of PBKDF2 cycles for salt derivation
+> **default:** 1000
+
+**`-I` or `--iv`** `<number>` _(optional)_
+> Number of PBKDF2 cycles for iv derivation
+> **default:** 1000
+
 ##### Example
 
 ```bash
 aes-256-cbc generate \
+    --key 10000 \
+    --salt 10000 \
+    --iv 10000 \
     --key-filename ~/.personal-aes-key.yml \
     --ask-password
 ```

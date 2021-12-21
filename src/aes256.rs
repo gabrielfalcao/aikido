@@ -65,11 +65,28 @@ fn load_key(matches: &ArgMatches, config: &Config) -> Key {
     }
 }
 
-fn generate_command(matches: &ArgMatches, config: &Config) {
+fn generate_command(matches: &ArgMatches) {
     let ask_password = matches.is_present("ask_password");
+    let key_cycles = matches
+        .value_of("key_cycles")
+        .unwrap_or("")
+        .parse::<u32>()
+        .unwrap_or(1000);
+    let salt_cycles = matches
+        .value_of("salt_cycles")
+        .unwrap_or("")
+        .parse::<u32>()
+        .unwrap_or(1000);
+    let iv_cycles = matches
+        .value_of("iv_cycles")
+        .unwrap_or("")
+        .parse::<u32>()
+        .unwrap_or(1000);
+
     // test
     // C-x C-s to save, just like in emacs
-
+    let vec: [u32; 3] = [key_cycles, salt_cycles, iv_cycles];
+    let custom_config = Config::from_vec(&vec);
     let password = if ask_password {
         match confirm_password() {
             Some(password) => password,
@@ -78,7 +95,7 @@ fn generate_command(matches: &ArgMatches, config: &Config) {
     } else {
         String::from(matches.value_of("password").unwrap_or(""))
     };
-    let key = Key::from_password(&password.as_bytes(), config);
+    let key = Key::from_password(&password.as_bytes(), &custom_config);
 
     let filename = matches.value_of("key_filename").unwrap();
     //let key_yaml = key.to_yaml();
@@ -224,6 +241,24 @@ fn main() {
                         .short("p")
                         .required_unless_one(&["password", "ask_password"])
                         .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("key_cycles")
+                        .long("key")
+                        .short("K")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("salt_cycles")
+                        .long("salt")
+                        .short("S")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("iv_cycles")
+                        .long("iv")
+                        .short("I")
+                        .takes_value(true),
                 ),
         )
         .subcommand(
@@ -318,7 +353,7 @@ fn main() {
 
     match matches.subcommand() {
         ("generate", Some(matches)) => {
-            generate_command(matches, &config);
+            generate_command(matches);
         }
         ("encrypt", Some(matches)) => {
             encrypt_command(matches, &config);

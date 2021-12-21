@@ -80,9 +80,9 @@ aes-256-key: cls build
 	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
 	@echo "$@"
 	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
-	$(AES256_BIN) generate --key-filename ~/aes-256-cbc.yaml --password $(PASSWORD)
-	$(AES256_BIN) encrypt --key-filename ~/aes-256-cbc.yaml --output-filename README.md.aes --input-filename README.md
-	$(AES256_BIN) decrypt --key-filename ~/aes-256-cbc.yaml --input-filename README.md.aes --output-filename README.md
+	$(AES256_BIN) generate --key 1000 --salt 2000 --iv 3000 --key-filename ./aes-256-key.yaml --password $(PASSWORD)
+	$(AES256_BIN) encrypt --key-filename ./aes-256-key.yaml --output-filename README.md.aes --input-filename README.md
+	$(AES256_BIN) decrypt --key-filename ./aes-256-key.yaml --input-filename README.md.aes --output-filename README.md
 	cargo check
 
 aes-256-password: cls build
