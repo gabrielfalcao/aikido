@@ -57,9 +57,9 @@ fn load_key(matches: &ArgMatches, config: &Config) -> Key {
         panic!(
             "{}{}{}{}{}",
             style("either").color256(195),
-            style("--password, --key-filename").color256(49),
+            style("--password, --key-filename").color256(190),
             style(" or ").color256(195),
-            style("--ask-password").color256(49),
+            style("--ask-password").color256(190),
             style(" is required").color256(195),
         );
     }
@@ -100,11 +100,7 @@ fn generate_command(matches: &ArgMatches) {
     let filename = matches.value_of("key_filename").unwrap();
     //let key_yaml = key.to_yaml();
     let key_path = key.export(filename);
-    logger::err::ok(format!(
-        "{}{}",
-        style("generated key: ").color256(44),
-        style(key_path).color256(45)
-    ));
+    logger::err::ok(format!("generated key: {}", style(key_path).color256(214)));
 }
 fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let key = load_key(matches, config);
@@ -112,13 +108,13 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let plaintext_string = matches.value_of("string").unwrap_or("");
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
 
+    let fail_if_already_encrypted = !matches.is_present("try");
+
     if key.owns_file(plaintext_filename) {
-        // eprintln!(
-        //     "{}{}",
-        //     style("skipping file already encrypted: ").color256(162),
-        //     style(plaintext_filename).color256(136)
-        // );
-        std::process::exit(1);
+        std::process::exit(match fail_if_already_encrypted {
+            true => 1,
+            false => 0,
+        })
     }
 
     let plaintext = if plaintext_filename.len() > 0 {
@@ -129,9 +125,9 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
         panic!(
             "{}{}{}{}{}",
             style("either").color256(195),
-            style("--string").color256(49),
+            style("--string").color256(190),
             style(" or ").color256(195),
-            style("--input-filename").color256(49),
+            style("--input-filename").color256(190),
             style(" is required").color256(195),
         );
     };
@@ -140,9 +136,8 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
     let mut file = File::create(cyphertext_filename).expect("failed to create new file");
     file.write(&cyphertext).unwrap();
     logger::err::ok(format!(
-        "{}{}",
-        style("wrote encrypted data in: ").color256(207),
-        style(cyphertext_filename).color256(205)
+        "wrote encrypted data in: {}",
+        style(cyphertext_filename).color256(207)
     ));
 }
 
@@ -153,14 +148,13 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
 
     let cyphertext_filename = matches.value_of("cyphertext_filename").unwrap();
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
+    let fail_if_cannot_decrypt = !matches.is_present("try");
 
     if !key.owns_file(cyphertext_filename) {
-        // eprintln!(
-        //     "{}{}",
-        //     style("skipping file not owned by the given key: ").color256(203),
-        //     style(cyphertext_filename).color256(208)
-        // );
-        return;
+        std::process::exit(match fail_if_cannot_decrypt {
+            true => 1,
+            false => 0,
+        })
     }
 
     let cyphertext = read_bytes(cyphertext_filename);
@@ -172,9 +166,8 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
                 file.write(&decrypted_data)
                     .expect("failed to write to output filename");
                 logger::err::ok(format!(
-                    "{}{}",
-                    style("wrote plaintext data in: ").color256(49),
-                    style(plaintext_filename).color256(45)
+                    "wrote plaintext data in: {}",
+                    style(plaintext_filename).color256(190)
                 ));
             } else {
                 println!("{}", b64encode(&decrypted_data));
@@ -185,9 +178,9 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
             //     "{}",
             //     style(format!(
             //         "failed to decrypt {} {} {}",
-            //         style(cyphertext_filename).color256(49),
+            //         style(cyphertext_filename).color256(190),
             //         style("with key").color256(202),
-            //         style(key_filename).color256(45),
+            //         style(key_filename).color256(117),
             //     ))
             //     .color256(202)
             // );
@@ -195,8 +188,37 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
         }
     }
 }
+fn check_command(matches: &ArgMatches, config: &Config) {
+    // let key_filename = matches.value_of("key_filename").unwrap_or("");
+
+    let key = load_key(matches, config);
+    let cyphertext_filename = matches.value_of("cyphertext_filename").unwrap();
+
+    match key.owns_file(cyphertext_filename) {
+        true => {
+            logger::err::ok(format!(
+                "{}{}",
+                style(cyphertext_filename).color256(190),
+                style(" is owned by given key").color256(220),
+            ));
+            std::process::exit(0);
+        }
+        false => {
+            logger::err::error(format!(
+                "{}{}",
+                style(cyphertext_filename).color256(117),
+                style(" is not encrypted by the given key").color256(190),
+            ));
+            std::process::exit(1);
+        }
+    };
+}
 
 fn main() {
+    let config = Config::default().expect("cannot read default config: ~/.toolz.yaml");
+    let key_cycles = config.cycles.key.to_string();
+    let salt_cycles = config.cycles.salt.to_string();
+    let iv_cycles = config.cycles.iv.to_string();
     let app = App::new("aes256")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version(core::VERSION)
@@ -244,18 +266,21 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("key_cycles")
+                        .default_value(&key_cycles)
                         .long("key")
                         .short("K")
                         .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("salt_cycles")
+                        .default_value(&salt_cycles)
                         .long("salt")
                         .short("S")
                         .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("iv_cycles")
+                        .default_value(&iv_cycles)
                         .long("iv")
                         .short("I")
                         .takes_value(true),
@@ -269,6 +294,13 @@ fn main() {
                         .long("string")
                         .short("s")
                         .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("try")
+                        .long("try")
+                        .short("t")
+                        .required(false)
+                        .takes_value(false),
                 )
                 .arg(
                     Arg::with_name("plaintext_filename")
@@ -325,6 +357,13 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
+                    Arg::with_name("try")
+                        .long("try")
+                        .short("t")
+                        .required(false)
+                        .takes_value(false),
+                )
+                .arg(
                     Arg::with_name("ask_password")
                         .long("ask-password")
                         .short("p")
@@ -344,12 +383,42 @@ fn main() {
                         .required(true)
                         .takes_value(true),
                 ),
+        )
+        .subcommand(
+            SubCommand::with_name("check")
+                .about("check file")
+                .arg(
+                    Arg::with_name("password")
+                        .long("password")
+                        .short("P")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("key_filename")
+                        .long("key-filename")
+                        .short("k")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("ask_password")
+                        .long("ask-password")
+                        .short("p")
+                        .required(false)
+                        .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("cyphertext_filename")
+                        .long("input-filename")
+                        .short("i")
+                        .required(true)
+                        .takes_value(true),
+                ),
         );
 
     let matches = app.get_matches();
     //let dry_run = matches.is_present("dry_run");
-
-    let config = Config::default().expect("cannot read default config: ~/.toolz.yaml");
 
     match matches.subcommand() {
         ("generate", Some(matches)) => {
@@ -360,6 +429,9 @@ fn main() {
         }
         ("decrypt", Some(matches)) => {
             decrypt_command(matches, &config);
+        }
+        ("check", Some(matches)) => {
+            check_command(matches, &config);
         }
         (cmd, Some(_matches)) => {
             logger::err::warning(format!("command not implemented: {}", cmd));

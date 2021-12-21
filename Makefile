@@ -26,7 +26,7 @@ cls:
 	@echo -e "\033[H\033[2J"
 
 release:
-	cargo build --release
+	@cargo build --release
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
 	cp target/release/bip39 ~/usr/bin/
@@ -44,54 +44,57 @@ tmp:
 	@for name in $$(find tmp -type f); do uuidgen > $$name; done
 
 dry-run:tmp
-	cargo run --bin slugify-filenames -- -r tmp --dry-run
+	@cargo run --bin slugify-filenames -- -r tmp --dry-run
 
 test: test-slugify-filenames test-aes-256 test-obfuskat3
 
 test-slugify-filenames: tmp cls
-	cargo run --bin slugify-filenames -- -r tmp --dry-run
-	cargo run --bin slugify-filenames -- -r tmp
+	@cargo run --bin slugify-filenames -- -r tmp --dry-run
+	@cargo run --bin slugify-filenames -- -r tmp
 
 test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
 build:
-	cargo build
+	@cargo build
 
 silent: tmp cls
-	cargo run --bin slugify-filenames -- -r tmp --silent
+	@cargo run --bin slugify-filenames -- -r tmp --silent
 
 
 coverage: cls
 	grcov . --binary-path target/debug/slugify-filenames -s . -t html --branch --ignore-not-existing -o ./coverage/
 
 aes-256-ask: cls build
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
+	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
+	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
 	@echo $(PASSWORD) | pbcopy
 	@echo "\033[38;5;227mPASSWORD COPIED TO CLIPBOARD: \033[38;5;49m"$(PASSWORD)"\033[0m"
-	$(AES256_BIN) encrypt --ask-password --output-filename README.md.aes --input-filename README.md
-	$(AES256_BIN) decrypt --ask-password --input-filename README.md.aes --output-filename README.md
-	cargo check
+	@$(AES256_BIN) encrypt --ask-password --output-filename README.md.aes --input-filename README.md
+	@$(AES256_BIN) check --ask-password --input-filename README.md.aes
+	@$(AES256_BIN) decrypt --ask-password --input-filename README.md.aes --output-filename README.md
+	@cargo check
 
 aes-256-key: cls build
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
+	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
-	$(AES256_BIN) generate --key 1000 --salt 2000 --iv 3000 --key-filename ./aes-256-key.yaml --password $(PASSWORD)
-	$(AES256_BIN) encrypt --key-filename ./aes-256-key.yaml --output-filename README.md.aes --input-filename README.md
-	$(AES256_BIN) decrypt --key-filename ./aes-256-key.yaml --input-filename README.md.aes --output-filename README.md
-	cargo check
+	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
+	@$(AES256_BIN) generate --key 1000 --salt 2000 --iv 3000 --key-filename ./aes-256-key.yaml --password $(PASSWORD)
+	@$(AES256_BIN) encrypt --key-filename ./aes-256-key.yaml --output-filename README.md.aes --input-filename README.md
+	@$(AES256_BIN) check --key-filename ./aes-256-key.yaml --input-filename README.md.aes
+	@$(AES256_BIN) decrypt --key-filename ./aes-256-key.yaml --input-filename README.md.aes --output-filename README.md
+	@cargo check
 
 aes-256-password: cls build
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
+	@echo $$(seq 16 | sed 's/[0-9]*/-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 10 | sed 's/[0-9]*/-/g' | tr '\n' '-')
-	$(AES256_BIN) encrypt --password $(PASSWORD) --output-filename README.md.aes --input-filename README.md
-	$(AES256_BIN) decrypt --password $(PASSWORD) --input-filename README.md.aes --output-filename README.md
-	cargo check
+	@echo $$(seq 16 | sed 's/[0-9]*/-/g' | tr -d '\n')
+	@$(AES256_BIN) encrypt --password $(PASSWORD) --output-filename README.md.aes --input-filename README.md
+	@$(AES256_BIN) check  --password $(PASSWORD) --input-filename README.md.aes
+	@$(AES256_BIN) decrypt --password $(PASSWORD) --input-filename README.md.aes --output-filename README.md
+	@cargo check
 
 aes-256: aes-256-key aes-256-password aes-256-ask
 
@@ -114,10 +117,10 @@ load: clean build
 
 
 $(AES256_RELEASE_BIN):
-	cargo build --release
+	@cargo build --release
 
 $(AES256_DEBUG_BIN):
-	cargo build
+	@cargo build
 
 
 
