@@ -9,10 +9,11 @@ use toolz::{
     aes256cbc::{Config as AesConfig, Key},
     //    colors,
     config::YamlFile,
+    ironpunk,
     logger,
-    tomb::{ui, AES256Tomb},
+    routes::app::StackedApplication,
+    tomb::{app, AES256Tomb},
 };
-
 fn load_key(matches: &ArgMatches) -> Key {
     let tomb_keypath = matches.value_of("key_filename").unwrap();
     match Key::import(tomb_keypath) {
@@ -154,7 +155,7 @@ fn ui_command(matches: &ArgMatches) {
     let tomb = load_tomb(matches);
     let aes_config = AesConfig::default().unwrap_or(AesConfig::builtin(None));
 
-    match ui::start(tomb, key, aes_config) {
+    match app::start(tomb, key, aes_config) {
         Ok(()) => {}
         Err(error) => {
             eprintln!("{}", error);

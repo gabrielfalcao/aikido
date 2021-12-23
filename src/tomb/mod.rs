@@ -1,4 +1,5 @@
-pub mod ui;
+pub mod app;
+//pub mod ui;
 use chrono::prelude::*;
 
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};

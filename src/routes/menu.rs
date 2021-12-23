@@ -115,10 +115,10 @@ impl MenuComponent {
                     Span::styled(
                         first,
                         Style::default()
-                            .fg(Color::Yellow)
+                            .fg(Color::Green)
                             .add_modifier(Modifier::UNDERLINED),
                     ),
-                    Span::styled(rest, Style::default().fg(Color::White)),
+                    Span::styled(rest, Style::default().fg(Color::Cyan)),
                 ])
             })
             .collect();
@@ -126,7 +126,7 @@ impl MenuComponent {
             .select(self.selected_index())
             .block(Block::default().title("Menu").borders(Borders::ALL))
             .style(Style::default().fg(Color::White))
-            .highlight_style(Style::default().fg(Color::Yellow))
+            .highlight_style(Style::default().fg(Color::LightGreen))
             .divider(Span::raw("|"));
 
         parent.render_widget(tabs, chunk);
