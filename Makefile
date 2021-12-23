@@ -154,7 +154,7 @@ ipleak: build cls
 load: clean build
 	./aestest.sh
 
-app pets:
+app pets: clean build
 	cargo run --bin $@
 
 $(AES256_RELEASE_BIN):

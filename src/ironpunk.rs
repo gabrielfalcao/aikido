@@ -93,6 +93,13 @@ where
 pub struct ErrorRoute {
     error: Error,
 }
+impl ErrorRoute {
+    fn new(message: String) -> ErrorRoute {
+        ErrorRoute {
+            error: Error::with_message(message.clone()),
+        }
+    }
+}
 impl Route for ErrorRoute {
     #[allow(unused_variables)]
     fn matches_path(&self, path: String) -> bool {
@@ -170,12 +177,10 @@ impl Window {
                 return route.render(terminal);
             }
         }
-        let error_route = ErrorRoute {
-            error: match self.routes.len() == 0 {
-                true => Error::with_message(format!("no routes defined")),
-                false => Error::with_message(format!("undefined route: {}", self.location)),
-            },
-        };
+        let error_route = ErrorRoute::new(match self.routes.len() == 0 {
+            true => format!("no routes defined"),
+            false => format!("undefined route: {}", self.location),
+        });
         error_route.render(terminal)
     }
     pub fn process_keyboard(
