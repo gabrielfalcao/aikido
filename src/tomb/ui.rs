@@ -41,7 +41,7 @@ impl StatefulList {
     fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.items.len() - 1 {
+                if i >= self.tomb.list("*").unwrap().len() - 1 {
                     0
                 } else {
                     i + 1
@@ -56,7 +56,7 @@ impl StatefulList {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.items.len() - 1
+                    self.tomb.list("*").unwrap().len() - 1
                 } else {
                     i - 1
                 }
@@ -100,9 +100,9 @@ impl App {
         }
     }
 
-    fn show(&mut self, *) {
+    fn show(&mut self, path: &str) {
         match self.items.current() {
-            Some(secret) => match self.tomb.get_string(secret.path.as_str(), self.key.clone()) {
+            Some(secret) => match self.tomb.get_string(path, self.key.clone()) {
                 Ok(value) => {
                     self.set_label("Value");
                     self.set_text(value.as_str());
@@ -161,7 +161,6 @@ impl App {
         Ok(false)
     }
     fn hide(&mut self) {
-        self.visible = false;
         self.set_text("(s) show / (c) copy to clipboard");
         self.set_label("actions");
     }
@@ -267,7 +266,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .highlight_symbol("▶ ");
 
     // We can now render the item list
-    f.render_stateful_widget(secrets, chunks[0], &mut app.secrets.state);
+    //f.render_stateful_widget(secrets, chunks[0], &mut app.secrets.state);
 
     let create_block = |title| {
         Block::default()
@@ -285,14 +284,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .style(Style::default().bg(Color::Red).fg(Color::Yellow))
             .block(create_block(app.label.clone()))
             .alignment(Alignment::Left)
-            .wrap(Wrap { trim: true })
-            .scroll((app.scroll, 0)),
+            .wrap(Wrap { trim: true }),
         None => Paragraph::new(app.text.clone())
             .style(Style::default().bg(Color::Black).fg(Color::Blue))
             .block(create_block(app.label.clone()))
             .alignment(Alignment::Left)
-            .wrap(Wrap { trim: true })
-            .scroll((app.scroll, 0)),
+            .wrap(Wrap { trim: true }),
     };
     f.render_widget(paragraph, chunks[1]);
 }
