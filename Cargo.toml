@@ -30,7 +30,8 @@ indicatif = "0.17.0-beta.1"
 #unwrap = "1.2.1"
 console = "0.15.0"
 rust-crypto = "0.2.36"
-rand = "0.8.4"
+rand = {version = "0.8.4", features = ["std"]}
+
 #rustc-serialize = "0.3.24"
 base64 = "0.13.0"
 serde = { version = "1.0", features = ["derive"] }
@@ -82,4 +83,10 @@ bench = false
 [[bin]]
 name = "tomb"
 path = "src/tomb-cli.rs"
+bench = false
+
+
+[[bin]]
+name = "pets"
+path = "src/pets.rs"
 bench = false

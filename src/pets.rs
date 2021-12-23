@@ -170,6 +170,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 KeyCode::Char('q') => {
                     disable_raw_mode()?;
                     terminal.show_cursor()?;
+                    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
                     break;
                 }
                 KeyCode::Char('h') => active_menu_item = MenuItem::Help,
@@ -325,16 +326,16 @@ fn add_random_secret_to_db() -> Result<Vec<Secret>, Error> {
     let mut rng = rand::thread_rng();
     let db_content = fs::read_to_string(DB_PATH)?;
     let mut parsed: Vec<Secret> = serde_json::from_str(&db_content)?;
-    let catsdogs = match rng.gen_range(0, 1) {
+    let catsdogs = match (&mut rng).gen_range(0..1) {
         0 => "cats",
         _ => "dogs",
     };
 
     let random_secret = Secret {
-        id: rng.gen_range(0, 9999999),
-        name: rng.sample_iter(Alphanumeric).take(10).collect(),
+        id: (&mut rng).gen_range(0..9999999),
+        name: String::from_utf8((&mut rng).sample_iter(Alphanumeric).take(10).collect()).unwrap(),
         category: catsdogs.to_owned(),
-        age: rng.gen_range(1, 15),
+        age: (&mut rng).gen_range(1..15),
         created_at: Utc::now(),
     };
 

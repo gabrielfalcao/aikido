@@ -2,9 +2,9 @@ extern crate clipboard;
 use super::{AES256Secret, AES256Tomb, Error as TombError};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
-use clipboard::ClipboardContext;
+// use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
-use mac_notification_sys::*;
+// use mac_notification_sys::*;
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -41,7 +41,7 @@ impl StatefulList {
     fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.tomb.list("*").unwrap().len() - 1 {
+                if i >= self.items.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -56,7 +56,7 @@ impl StatefulList {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.tomb.list("*").unwrap().len() - 1
+                    self.items.len() - 1
                 } else {
                     i - 1
                 }
@@ -100,62 +100,62 @@ impl App {
         }
     }
 
-    fn show(&mut self, path: &str) {
-        match self.items.current() {
-            Some(secret) => match self.tomb.get_string(path, self.key.clone()) {
-                Ok(value) => {
-                    self.set_label("Value");
-                    self.set_text(value.as_str());
-                }
-                Err(error) => {
-                    self.set_error(format!("{}", error));
-                }
-            },
-            None => {}
-        }
-    }
-    fn selected_secret_string(&mut self) -> Result<String, TombError> {
-        match self.items.current() {
-            Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
-            None => Err(TombError::with_message(format!("no secret selected"))),
-        }
-    }
+    // fn show(&mut self, path: &str) {
+    //     match self.items.current() {
+    //         Some(secret) => match self.tomb.get_string(path, self.key.clone()) {
+    //             Ok(value) => {
+    //                 self.set_label("Value");
+    //                 self.set_text(value.as_str());
+    //             }
+    //             Err(error) => {
+    //                 self.set_error(format!("{}", error));
+    //             }
+    //         },
+    //         None => {}
+    //     }
+    // }
+    // fn selected_secret_string(&mut self) -> Result<String, TombError> {
+    //     match self.items.current() {
+    //         Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
+    //         None => Err(TombError::with_message(format!("no secret selected"))),
+    //     }
+    // }
     fn process_keyboard(&mut self, code: KeyCode) -> io::Result<bool> {
         match code {
             KeyCode::Char('q') => return Ok(true),
-            KeyCode::Char('s') => self.show(),
-            KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
-                Some(secret) => match self.selected_secret_string() {
-                    Ok(plaintext) => {
-                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-                        ctx.set_contents(plaintext).unwrap();
-                        self.set_text("copied to clipboard");
-                        send_notification(
-                            format!("Secret {}", secret.path).as_str(),
-                            &Some("copied to clipboard"),
-                            "",
-                            &Some("Glass"),
-                        )
-                        .unwrap();
-                    }
-                    Err(error) => {
-                        self.set_error(format!("{}", error));
-                    }
-                },
-                None => {}
-            },
-            KeyCode::Left => {
-                self.hide();
-                self.items.unselect()
-            }
-            KeyCode::Down => {
-                self.hide();
-                self.items.next()
-            }
-            KeyCode::Up => {
-                self.hide();
-                self.items.previous()
-            }
+            // KeyCode::Char('s') => self.show(),
+            // KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
+            //     Some(secret) => match self.selected_secret_string() {
+            //         Ok(plaintext) => {
+            //             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+            //             ctx.set_contents(plaintext).unwrap();
+            //             self.set_text("copied to clipboard");
+            //             send_notification(
+            //                 format!("Secret {}", secret.path).as_str(),
+            //                 &Some("copied to clipboard"),
+            //                 "",
+            //                 &Some("Glass"),
+            //             )
+            //             .unwrap();
+            //         }
+            //         Err(error) => {
+            //             self.set_error(format!("{}", error));
+            //         }
+            //     },
+            //     None => {}
+            // },
+            // KeyCode::Left => {
+            //     self.hide();
+            //     self.items.unselect()
+            // }
+            // KeyCode::Down => {
+            //     self.hide();
+            //     self.items.next()
+            // }
+            // KeyCode::Up => {
+            //     self.hide();
+            //     self.items.previous()
+            // }
             _ => {}
         }
         Ok(false)
@@ -244,9 +244,8 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .split(f.size());
 
     // Iterate through all elements in the `items` app and append some debug text to it.
-    let items: Vec<ListItem> = app
-        .items
-        .items
+    let secrets = app.tomb.list("*").unwrap();
+    let items: Vec<ListItem> = secrets
         .iter()
         .map(|i| {
             let lines = vec![Spans::from(i.path.as_str())];
@@ -255,7 +254,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .collect();
 
     // Create a List from all list items and highlight the currently selected one
-    let secrets = List::new(secrets)
+    let secrets = List::new(items)
         .block(Block::default().borders(Borders::ALL).title("Secrets"))
         .highlight_style(
             Style::default()

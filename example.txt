@@ -1,4 +1,4 @@
-git clone git@github.com:zupzup/rust-commandline-example.git
-cp pets.rs rust-commandline-example/src/main.rs
+#git clone git@github.com:zupzup/rust-commandline-example.git
+cp src/pets.rs rust-commandline-example/src/main.rs
 cd rust-commandline-example
 cargo run
