@@ -104,10 +104,10 @@ fn copy_command(matches: &ArgMatches) {
         Ok(plaintext) => {
             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
             ctx.set_contents(plaintext).unwrap();
-            eprintln!("{} copied to clipboard", path);
+            eprintln!("{} secret copied to clipboard", path);
             send_notification(
-                format!("Secret {}", path).as_str(),
-                &Some("copied to clipboard"),
+                format!("{} secret", path).as_str(),
+                &Some("copied to clipboard!"),
                 "",
                 &Some(sound),
             )
