@@ -2,9 +2,9 @@ extern crate clipboard;
 use super::{AES256Secret, AES256Tomb, Error as TombError};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
-// use clipboard::ClipboardContext;
+use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
-// use mac_notification_sys::*;
+use mac_notification_sys::*;
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -85,6 +85,10 @@ pub struct App {
     pub label: String,
     pub text: String,
     pub error: Option<String>,
+    pub visible: bool,
+
+    scroll: u16,
+    items: StatefulList,
 }
 
 impl App {
@@ -96,71 +100,77 @@ impl App {
             aes_config,
             text: String::from("('s') show / (Enter or 'c') copy to clipboard"),
             label: String::from("actions"),
+            visible: false,
+            scroll: 0,
             error: None,
+            items: StatefulList::with_items(items),
         }
     }
 
-    // fn show(&mut self, path: &str) {
-    //     match self.items.current() {
-    //         Some(secret) => match self.tomb.get_string(path, self.key.clone()) {
-    //             Ok(value) => {
-    //                 self.set_label("Value");
-    //                 self.set_text(value.as_str());
-    //             }
-    //             Err(error) => {
-    //                 self.set_error(format!("{}", error));
-    //             }
-    //         },
-    //         None => {}
-    //     }
-    // }
-    // fn selected_secret_string(&mut self) -> Result<String, TombError> {
-    //     match self.items.current() {
-    //         Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
-    //         None => Err(TombError::with_message(format!("no secret selected"))),
-    //     }
-    // }
+    fn show(&mut self) {
+        self.visible = true;
+        match self.items.current() {
+            Some(secret) => match self.tomb.get_string(secret.path.as_str(), self.key.clone()) {
+                Ok(value) => {
+                    self.set_label("Value");
+                    self.set_text(value.as_str());
+                }
+                Err(error) => {
+                    self.set_error(format!("{}", error));
+                }
+            },
+            None => {}
+        }
+    }
+    fn selected_secret_string(&mut self) -> Result<String, TombError> {
+        self.visible = true;
+        match self.items.current() {
+            Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
+            None => Err(TombError::with_message(format!("no secret selected"))),
+        }
+    }
     fn process_keyboard(&mut self, code: KeyCode) -> io::Result<bool> {
         match code {
             KeyCode::Char('q') => return Ok(true),
-            // KeyCode::Char('s') => self.show(),
-            // KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
-            //     Some(secret) => match self.selected_secret_string() {
-            //         Ok(plaintext) => {
-            //             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-            //             ctx.set_contents(plaintext).unwrap();
-            //             self.set_text("copied to clipboard");
-            //             send_notification(
-            //                 format!("Secret {}", secret.path).as_str(),
-            //                 &Some("copied to clipboard"),
-            //                 "",
-            //                 &Some("Glass"),
-            //             )
-            //             .unwrap();
-            //         }
-            //         Err(error) => {
-            //             self.set_error(format!("{}", error));
-            //         }
-            //     },
-            //     None => {}
-            // },
-            // KeyCode::Left => {
-            //     self.hide();
-            //     self.items.unselect()
-            // }
-            // KeyCode::Down => {
-            //     self.hide();
-            //     self.items.next()
-            // }
-            // KeyCode::Up => {
-            //     self.hide();
-            //     self.items.previous()
-            // }
+            KeyCode::Char('s') => self.show(),
+            KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
+                Some(secret) => match self.selected_secret_string() {
+                    Ok(plaintext) => {
+                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                        ctx.set_contents(plaintext).unwrap();
+                        self.set_text("copied to clipboard");
+                        send_notification(
+                            format!("Secret {}", secret.path).as_str(),
+                            &Some("copied to clipboard"),
+                            "",
+                            &Some("Glass"),
+                        )
+                        .unwrap();
+                    }
+                    Err(error) => {
+                        self.set_error(format!("{}", error));
+                    }
+                },
+                None => {}
+            },
+            KeyCode::Left => {
+                self.hide();
+                self.items.unselect()
+            }
+            KeyCode::Down => {
+                self.hide();
+                self.items.next()
+            }
+            KeyCode::Up => {
+                self.hide();
+                self.items.previous()
+            }
             _ => {}
         }
         Ok(false)
     }
     fn hide(&mut self) {
+        self.visible = false;
         self.set_text("(s) show / (c) copy to clipboard");
         self.set_label("actions");
     }
@@ -244,8 +254,9 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .split(f.size());
 
     // Iterate through all elements in the `items` app and append some debug text to it.
-    let secrets = app.tomb.list("*").unwrap();
-    let items: Vec<ListItem> = secrets
+    let items: Vec<ListItem> = app
+        .items
+        .items
         .iter()
         .map(|i| {
             let lines = vec![Spans::from(i.path.as_str())];
@@ -254,8 +265,8 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .collect();
 
     // Create a List from all list items and highlight the currently selected one
-    let secrets = List::new(items)
-        .block(Block::default().borders(Borders::ALL).title("Secrets"))
+    let items = List::new(items)
+        .block(Block::default().borders(Borders::ALL).title("Secret"))
         .highlight_style(
             Style::default()
                 .bg(Color::Yellow)
@@ -265,7 +276,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .highlight_symbol("▶ ");
 
     // We can now render the item list
-    //f.render_stateful_widget(secrets, chunks[0], &mut app.secrets.state);
+    f.render_stateful_widget(items, chunks[0], &mut app.items.state);
 
     let create_block = |title| {
         Block::default()
@@ -283,12 +294,14 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .style(Style::default().bg(Color::Red).fg(Color::Yellow))
             .block(create_block(app.label.clone()))
             .alignment(Alignment::Left)
-            .wrap(Wrap { trim: true }),
+            .wrap(Wrap { trim: true })
+            .scroll((app.scroll, 0)),
         None => Paragraph::new(app.text.clone())
             .style(Style::default().bg(Color::Black).fg(Color::Blue))
             .block(create_block(app.label.clone()))
             .alignment(Alignment::Left)
-            .wrap(Wrap { trim: true }),
+            .wrap(Wrap { trim: true })
+            .scroll((app.scroll, 0)),
     };
     f.render_widget(paragraph, chunks[1]);
 }

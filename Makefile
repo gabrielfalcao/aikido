@@ -154,8 +154,8 @@ ipleak: build cls
 load: clean build
 	./aestest.sh
 
-pets:
-	cargo run --bin pets
+app pets:
+	cargo run --bin $@
 
 $(AES256_RELEASE_BIN):
 	@cargo build --release
@@ -165,4 +165,4 @@ $(AES256_DEBUG_BIN):
 
 
 
-.PHONY: all release fmt tmp test dry-run coverage aes256 build clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3
+.PHONY: all release fmt tmp test dry-run coverage aes256 build clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets

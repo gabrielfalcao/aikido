@@ -90,3 +90,8 @@ bench = false
 name = "pets"
 path = "src/pets.rs"
 bench = false
+
+[[bin]]
+name = "app"
+path = "src/app.rs"
+bench = false
