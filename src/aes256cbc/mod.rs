@@ -51,10 +51,7 @@ use serde::{Deserialize, Serialize};
 use shellexpand;
 use std::borrow::Borrow;
 use std::io::Read;
-use std::{
-    fmt,
-    fs::{self, File},
-};
+use std::{fmt, fs::File};
 
 const ALGO: &'static str = "aes-256-cbc";
 const DIGEST_SIZE: usize = 32;

@@ -113,7 +113,7 @@ bip39: build cls
 vaulty: build cls
 	$(VAULTY_BIN)
 
-tomb: tomb-create tomb-save tomb-list tomb-get
+tomb: tomb-create tomb-save tomb-list tomb-get tomb-copy
 
 tomb-create: build cls
 	$(AES256_BIN) generate -K 1111 -S 2222 -I 3333 -k $(TOMB_KEY) --password $(PASSWORD)
@@ -130,6 +130,9 @@ tomb-list: build cls
 
 tomb-get: build cls
 	$(TOMB_BIN) get -k $(TOMB_KEY) -t $(TOMB_FILE) another-secret
+
+tomb-copy: build cls
+	$(TOMB_BIN) copy -k $(TOMB_KEY) -t $(TOMB_FILE) last-secret
 
 tomb-delete: build cls
 	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) foo

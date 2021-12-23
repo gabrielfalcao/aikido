@@ -8,8 +8,17 @@ use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Write};
 
+use shellexpand;
 use std::path::Path;
 use std::{env, fmt, fs};
+
+pub fn absolute_path(src: &str) -> String {
+    String::from(shellexpand::tilde(src))
+}
+
+pub fn homedir() -> String {
+    absolute_path("~")
+}
 
 #[derive(Debug, Clone)]
 pub struct Error {
@@ -29,7 +38,8 @@ impl Error {
 }
 
 pub fn open_read(filename: &str) -> Result<File, Error> {
-    match File::open(filename) {
+    let filename = absolute_path(filename);
+    match File::open(filename.as_str()) {
         Ok(file) => Ok(file),
         Err(error) => {
             return Err(Error::with_message(format!(
@@ -42,7 +52,12 @@ pub fn open_read(filename: &str) -> Result<File, Error> {
     }
 }
 pub fn open_write(target: &str) -> Result<std::fs::File, Error> {
-    match OpenOptions::new().create(true).write(true).open(target) {
+    let target = absolute_path(target);
+    match OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(target.as_str())
+    {
         Ok(file) => Ok(file),
         Err(error) => {
             return Err(Error::with_message(format!(
@@ -56,7 +71,8 @@ pub fn open_write(target: &str) -> Result<std::fs::File, Error> {
     }
 }
 pub fn create_file(filename: &str) -> Result<std::fs::File, Error> {
-    match File::create(filename) {
+    let filename = absolute_path(filename);
+    match File::create(filename.as_str()) {
         Ok(file) => Ok(file),
         Err(error) => {
             return Err(Error::with_message(format!(
@@ -223,29 +239,6 @@ pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> Resu
                 "{}{}{}",
                 style("failed to write yaml data to: ").color256(colors::ERR_MSG),
                 style(filename).color256(colors::ERR_VAR),
-                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            )));
-        }
-    }
-}
-pub fn absolute_path(path: &str) -> Result<String, Error> {
-    match Path::new(path).canonicalize() {
-        Ok(current_dir) => match current_dir.as_os_str().to_str() {
-            Some(path) => Ok(String::from(path)),
-            None => {
-                return Err(Error::with_message(format!(
-                    "{}{}{}",
-                    style("failed convert path ").color256(colors::ERR_HLT),
-                    style(path).color256(colors::ERR_MSG),
-                    style("to string").color256(colors::ERR_HLT),
-                )));
-            }
-        },
-        Err(error) => {
-            return Err(Error::with_message(format!(
-                "{}{}",
-                style("failed to calculate absolute path of current working directory")
-                    .color256(colors::ERR_MSG),
                 style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
             )));
         }

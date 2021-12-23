@@ -1,5 +1,5 @@
 extern crate clipboard;
-use super::{AES256Secret, AES256Tomb};
+use super::{AES256Secret, AES256Tomb, Error as TombError};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
 use clipboard::ClipboardContext;
@@ -122,23 +122,35 @@ impl App {
             None => {}
         }
     }
+    fn selected_secret_string(&mut self) -> Result<String, TombError> {
+        self.visible = true;
+        match self.items.current() {
+            Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
+            None => Err(TombError::with_message(format!("no secret selected"))),
+        }
+    }
     fn process_keyboard(&mut self, code: KeyCode) -> io::Result<bool> {
         match code {
             KeyCode::Char('q') => return Ok(true),
             KeyCode::Char('s') => self.show(),
             KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
-                Some(secret) => {
-                    let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-                    ctx.set_contents(secret.value.to_owned()).unwrap();
-                    self.set_text("copied to clipboard");
-                    send_notification(
-                        format!("Secret {}", secret.path).as_str(),
-                        &Some("copied to clipboard"),
-                        "",
-                        &Some("Glass"),
-                    )
-                    .unwrap();
-                }
+                Some(secret) => match self.selected_secret_string() {
+                    Ok(plaintext) => {
+                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                        ctx.set_contents(plaintext).unwrap();
+                        self.set_text("copied to clipboard");
+                        send_notification(
+                            format!("Secret {}", secret.path).as_str(),
+                            &Some("copied to clipboard"),
+                            "",
+                            &Some("Glass"),
+                        )
+                        .unwrap();
+                    }
+                    Err(error) => {
+                        self.set_error(format!("{}", error));
+                    }
+                },
                 None => {}
             },
             KeyCode::Left => {

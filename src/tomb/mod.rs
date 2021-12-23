@@ -20,6 +20,13 @@ const DEFAULT_TOMB_PATH: &'static str = "~/.tomb.yaml";
 pub struct Error {
     pub message: String,
 }
+impl Error {
+    pub fn with_message(message: String) -> Error {
+        Error {
+            message: logger::paint::error(format!("{}", message)),
+        }
+    }
+}
 
 impl YamlFileError for Error {
     fn with_message(message: String) -> Error {

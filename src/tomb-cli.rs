@@ -1,5 +1,8 @@
 extern crate clap;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
+use mac_notification_sys::*;
 //use console::style;
 use std::panic;
 use toolz::{
@@ -85,6 +88,30 @@ fn get_command(matches: &ArgMatches) {
     match tomb.get_string(path, key) {
         Ok(plaintext) => {
             println!("{}", plaintext)
+        }
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
+    }
+}
+fn copy_command(matches: &ArgMatches) {
+    let path = matches.value_of("path").expect("missing key path");
+    let sound = matches.value_of("sound").unwrap_or("Glass");
+    let key = load_key(matches);
+    let tomb = load_tomb(matches);
+    match tomb.get_string(path, key) {
+        Ok(plaintext) => {
+            let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+            ctx.set_contents(plaintext).unwrap();
+            eprintln!("{} copied to clipboard", path);
+            send_notification(
+                format!("Secret {}", path).as_str(),
+                &Some("copied to clipboard"),
+                "",
+                &Some(sound),
+            )
+            .unwrap();
         }
         Err(err) => {
             eprintln!("{}", err);
@@ -254,6 +281,44 @@ fn main() {
                 ),
         )
         .subcommand(
+            SubCommand::with_name("copy")
+                .about("copy a secret to the clipboard")
+                .arg(
+                    Arg::with_name("key_filename")
+                        .long("key-filename")
+                        .help("the path to the aes256cbc key to encrypt the tomb secrets")
+                        .short("k")
+                        .default_value("~/.tomb.key")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("sound")
+                        .long("sound")
+                        .help("name of sound to play (MacOS-only)")
+                        .short("S")
+                        .default_value("Glass")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("tomb_filename")
+                        .long("tomb")
+                        .short("t")
+                        .value_name("FILENAME")
+                        .default_value("~/.tomb.yaml")
+                        .help("the path to the tomb file containing the encrypted secrets")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("path")
+                        .value_name("KEY PATH")
+                        .help("the path to the secret")
+                        .required(true)
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
             SubCommand::with_name("delete")
                 .about("delete a secret")
                 .arg(
@@ -323,6 +388,9 @@ fn main() {
         }
         ("get", Some(matches)) => {
             get_command(&matches);
+        }
+        ("copy", Some(matches)) => {
+            copy_command(&matches);
         }
         ("delete", Some(matches)) => {
             delete_command(&matches);
