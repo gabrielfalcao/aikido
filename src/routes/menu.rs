@@ -25,25 +25,29 @@ impl MenuComponent {
             error: None,
         }
     }
-    pub fn index_of(&self, item: String) -> Result<usize, Error> {
-        match self.items.iter().position(|i| i.clone() == item) {
+    pub fn index_of(&self, item: &str) -> Result<usize, Error> {
+        match self
+            .items
+            .iter()
+            .position(|i| i.clone() == String::from(item))
+        {
             Some(pos) => Ok(pos),
             None => Err(Error::with_message(format!("invalid menu item: {}", item))),
         }
     }
     pub fn selected_index(&self) -> usize {
         match self.selected.clone() {
-            Some(selected) => match self.index_of(selected) {
+            Some(selected) => match self.index_of(selected.as_str()) {
                 Ok(index) => index,
                 Err(_) => 0,
             },
             None => 0,
         }
     }
-    pub fn select(&mut self, item: String) -> Result<(), Error> {
+    pub fn select(&mut self, item: &str) -> Result<(), Error> {
         match self.index_of(item.clone()) {
             Ok(_) => {
-                self.selected = Some(item.clone());
+                self.selected = Some(String::from(item));
                 Ok(())
             }
             Err(e) => Err(e),
@@ -54,7 +58,7 @@ impl MenuComponent {
         Ok(())
     }
     pub fn remove_item(&mut self, item: &str) -> Result<(), Error> {
-        match self.index_of(String::from(item)) {
+        match self.index_of(item) {
             Ok(index) => {
                 self.items.remove(index);
                 Ok(())
@@ -104,15 +108,18 @@ impl Component for MenuComponent {
     }
     #[allow(unused_variables)]
     fn process_keyboard(
-        &self,
+        &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
-        match code {
-            KeyCode::Char('a') => {}
-            KeyCode::Char('d') => {}
-            _ => {}
+        let result = match code {
+            KeyCode::Char('s') => self.select("Settings"),
+            KeyCode::Char('c') => self.select("Config"),
+            _ => Ok(()),
+        };
+        match result {
+            Ok(()) => Ok(false),
+            Err(error) => Ok(false),
         }
-        Ok(false)
     }
 }

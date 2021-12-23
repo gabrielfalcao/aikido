@@ -67,8 +67,11 @@ pub enum Event<I> {
 pub trait Component {
     fn id(&self) -> String;
     fn name(&self) -> &str;
-    fn process_keyboard(&self, terminal: &mut Terminal<Backend>, code: KeyCode)
-        -> io::Result<bool>;
+    fn process_keyboard(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        code: KeyCode,
+    ) -> io::Result<bool>;
 }
 
 pub trait Route
@@ -128,7 +131,7 @@ impl Component for ErrorRoute {
     }
     #[allow(unused_variables)]
     fn process_keyboard(
-        &self,
+        &mut self,
         terminal: &mut Terminal<Backend>,
         code: KeyCode,
     ) -> io::Result<bool> {
@@ -170,16 +173,16 @@ impl Component for Window {
         String::from("Window")
     }
     fn process_keyboard(
-        &self,
+        &mut self,
         terminal: &mut Terminal<Backend>,
         code: KeyCode,
     ) -> io::Result<bool> {
-        for route in self.routes.iter() {
+        for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
                 return route.process_keyboard(terminal, code);
             }
         }
-        let error_route = ErrorRoute {
+        let mut error_route = ErrorRoute {
             error: match self.routes.len() == 0 {
                 true => Error::with_message(format!("no routes defined")),
                 false => Error::with_message(format!("undefined route: {}", self.location)),
@@ -245,7 +248,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let window = Window::from_routes(routes);
+    let mut window = Window::from_routes(routes);
 
     loop {
         window.render(&mut terminal)?;

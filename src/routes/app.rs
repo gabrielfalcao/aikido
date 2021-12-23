@@ -25,11 +25,17 @@ pub fn dummy_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
 
 pub struct StackedApplication {
     title: String,
+    menu: MenuComponent,
 }
 impl StackedApplication {
     pub fn new(title: &str) -> StackedApplication {
+        let mut menu = MenuComponent::new("main-menu");
+        menu.add_item("Secrets");
+        menu.add_item("Config");
+
         StackedApplication {
             title: String::from(title),
+            menu,
         }
     }
 }
@@ -42,13 +48,13 @@ impl Component for StackedApplication {
     }
     #[allow(unused_variables)]
     fn process_keyboard(
-        &self,
+        &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
         match code {
             KeyCode::Char('q') => Ok(true),
-            _ => Ok(false),
+            code => self.menu.process_keyboard(terminal, code),
         }
     }
 }
@@ -73,14 +79,11 @@ impl Route for StackedApplication {
                     .as_ref(),
                 )
                 .split(size);
-            let mut menu = MenuComponent::new("main-menu");
-            menu.add_item("Secrets");
-            menu.add_item("Config");
 
             let middle = dummy_paragraph("Middle", "This is the middle");
             let footer = dummy_paragraph("Footer", "This is the footer");
 
-            menu.render_in_parent(rect, chunks[0]);
+            self.menu.render_in_parent(rect, chunks[0]);
             rect.render_widget(middle, chunks[1]);
             rect.render_widget(footer, chunks[2]);
         })?;
