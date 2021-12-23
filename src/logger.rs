@@ -15,6 +15,31 @@ pub mod colors {
     pub const MESG_SUCCESS: u8 = 190;
 }
 
+pub mod paint {
+    use super::colors;
+    use console::style;
+
+    pub fn message(message: String, color: u8) -> String {
+        format!("{}", style(format!("{}", message)).color256(color))
+    }
+
+    pub fn warning(msg: String) -> String {
+        message(msg, colors::TYPE_WARNING)
+    }
+    pub fn ok(msg: String) -> String {
+        message(msg, colors::TYPE_OK)
+    }
+    pub fn error(msg: String) -> String {
+        message(msg, colors::TYPE_ERROR)
+    }
+    pub fn info(msg: String) -> String {
+        message(msg, colors::TYPE_INFO)
+    }
+    pub fn success(msg: String) -> String {
+        message(msg, colors::TYPE_SUCCESS)
+    }
+}
+
 pub mod format {
     use super::colors;
     use console::style;

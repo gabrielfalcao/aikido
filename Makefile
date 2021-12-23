@@ -4,6 +4,12 @@ AES256_BIN			:=$(AES256_DEBUG_BIN)
 BIP39_DEBUG_BIN			:=target/debug/bip39
 BIP39_RELEASE_BIN		:=target/release/bip39
 BIP39_BIN			:=$(BIP39_DEBUG_BIN)
+TOMB_DEBUG_BIN			:=target/debug/tomb
+TOMB_RELEASE_BIN		:=target/release/tomb
+TOMB_BIN			:=$(TOMB_DEBUG_BIN)
+VAULTY_DEBUG_BIN		:=target/debug/vaulty
+VAULTY_RELEASE_BIN		:=target/release/vaulty
+VAULTY_BIN			:=$(VAULTY_DEBUG_BIN)
 OBFUSKAT3_DEBUG_BIN		:=target/debug/obfuskat3
 OBFUSKAT3_RELEASE_BIN		:=target/release/obfuskat3
 OBFUSKAT3_BIN			:=$(OBFUSKAT3_DEBUG_BIN)
@@ -30,6 +36,7 @@ release:
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
 	cp target/release/bip39 ~/usr/bin/
+	cp target/release/tomb ~/usr/bin/
 	cp target/release/ipleak ~/usr/bin/
 	cp target/release/obfuskat3 ~/usr/bin/
 
@@ -46,7 +53,7 @@ tmp:
 dry-run:tmp
 	@cargo run --bin slugify-filenames -- -r tmp --dry-run
 
-test: test-slugify-filenames test-aes-256 test-obfuskat3
+test: test-slugify-filenames test-aes-256 test-obfuskat3 tomb
 
 test-slugify-filenames: tmp cls
 	@cargo run --bin slugify-filenames -- -r tmp --dry-run
@@ -66,40 +73,67 @@ silent: tmp cls
 coverage: cls
 	grcov . --binary-path target/debug/slugify-filenames -s . -t html --branch --ignore-not-existing -o ./coverage/
 
-aes-256-ask: cls build
-	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
+aes-256-ask: build cls
+	@echo $$(seq 11 | sed 's/./-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
+	@echo $$(seq 11 | sed 's/./-/g' | tr -d '\n')
 	@echo $(PASSWORD) | pbcopy
 	@echo "\033[38;5;227mPASSWORD COPIED TO CLIPBOARD: \033[38;5;49m"$(PASSWORD)"\033[0m"
-	@$(AES256_BIN) encrypt --ask-password --output-filename README.md.aes --input-filename README.md
-	@$(AES256_BIN) check --ask-password --input-filename README.md.aes
-	@$(AES256_BIN) decrypt --ask-password --input-filename README.md.aes --output-filename README.md
+	$(AES256_BIN) encrypt --ask-password --output-filename README.md.aes --input-filename README.md
+	$(AES256_BIN) check --try --ask-password --input-filename README.md.aes
+	$(AES256_BIN) decrypt --ask-password --input-filename README.md.aes --output-filename README.md
 	@cargo check
 
-aes-256-key: cls build
-	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
+aes-256-key: build cls
+	@echo $$(seq 11 | sed 's/./-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 11 | sed 's/[0-9]*/-/g' | tr -d '\n')
-	@$(AES256_BIN) generate --key 1000 --salt 2000 --iv 3000 --key-filename ./aes-256-key.yaml --password $(PASSWORD)
-	@$(AES256_BIN) encrypt --key-filename ./aes-256-key.yaml --output-filename README.md.aes --input-filename README.md
-	@$(AES256_BIN) check --key-filename ./aes-256-key.yaml --input-filename README.md.aes
-	@$(AES256_BIN) decrypt --key-filename ./aes-256-key.yaml --input-filename README.md.aes --output-filename README.md
+	@echo $$(seq 11 | sed 's/./-/g' | tr -d '\n')
+	$(AES256_BIN) generate --key 1000 --salt 2000 --iv 3000 --key-filename ./aes-256-key.yaml --password $(PASSWORD)
+	$(AES256_BIN) encrypt --key-filename ./aes-256-key.yaml --output-filename README.md.aes --input-filename README.md
+	$(AES256_BIN) check --try --key-filename ./aes-256-key.yaml --input-filename README.md.aes
+	$(AES256_BIN) decrypt --key-filename ./aes-256-key.yaml --input-filename README.md.aes --output-filename README.md
 	@cargo check
 
-aes-256-password: cls build
-	@echo $$(seq 16 | sed 's/[0-9]*/-/g' | tr -d '\n')
+aes-256-password: build cls
+	@echo $$(seq 16 | sed 's/./-/g' | tr -d '\n')
 	@echo "$@"
-	@echo $$(seq 16 | sed 's/[0-9]*/-/g' | tr -d '\n')
-	@$(AES256_BIN) encrypt --password $(PASSWORD) --output-filename README.md.aes --input-filename README.md
-	@$(AES256_BIN) check  --password $(PASSWORD) --input-filename README.md.aes
-	@$(AES256_BIN) decrypt --password $(PASSWORD) --input-filename README.md.aes --output-filename README.md
+	@echo $$(seq 16 | sed 's/./-/g' | tr -d '\n')
+	$(AES256_BIN) encrypt --password $(PASSWORD) --output-filename README.md.aes --input-filename README.md
+	$(AES256_BIN) check --try --password $(PASSWORD) --input-filename README.md.aes
+	$(AES256_BIN) decrypt --password $(PASSWORD) --input-filename README.md.aes --output-filename README.md
 	@cargo check
 
 aes-256: aes-256-key aes-256-password aes-256-ask
 
 bip39: build cls
 	$(BIP39_BIN)
+
+vaulty: build cls
+	$(VAULTY_BIN)
+
+tomb: tomb-create tomb-save tomb-list tomb-get
+
+tomb-create: build cls
+	$(AES256_BIN) generate -K 1111 -S 2222 -I 3333 -k ./tomb-key.yaml --password $(PASSWORD)
+	$(TOMB_BIN) create -k ./tomb-key.yaml -t ./tomb.yaml
+
+tomb-save: build cls
+	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml first-secret "first value"
+	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml foo bar
+	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml another-secret "another value"
+	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml last-secret "last value"
+
+tomb-list: build cls
+	$(TOMB_BIN) list -k ./tomb-key.yaml -t ./tomb.yaml
+
+tomb-get: build cls
+	$(TOMB_BIN) get -k ./tomb-key.yaml -t ./tomb.yaml another-secret
+
+tomb-delete: build cls
+	$(TOMB_BIN) delete -k ./tomb-key.yaml -t ./tomb.yaml foo
+
+tomb-ui: build cls
+	$(TOMB_BIN) ui -k ./tomb-key.yaml -t ./tomb.yaml
 
 obfuskat3: cls 0b4sk8d.yaml
 
@@ -109,7 +143,7 @@ obfuskat3: cls 0b4sk8d.yaml
 unobfuskat3:
 	$(OBFUSKAT3_BIN) undo 0b4sk8d.yaml
 
-ipleak: cls build
+ipleak: build cls
 	$(IPLEAK_BIN)
 
 load: clean build

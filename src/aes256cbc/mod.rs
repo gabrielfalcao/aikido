@@ -33,24 +33,34 @@ assert_eq!((*plaintext).to_vec(), decrypted);
 extern crate crypto;
 extern crate rand;
 
-use crate::logger;
+use crate::{
+    colors,
+    config::{YamlFile, YamlFileError},
+    ioutils::{b64decode, b64encode},
+    logger,
+};
+
+use console::style;
 use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
 use crypto::sha2::Sha256;
-use crypto::{aes, blockmodes, buffer, pbkdf2, symmetriccipher};
+use crypto::{aes, blockmodes, buffer, pbkdf2};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use shellexpand;
 use std::borrow::Borrow;
-use std::fs;
-use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::Read;
+use std::{
+    fmt,
+    fs::{self, File},
+};
 
 const ALGO: &'static str = "aes-256-cbc";
 const DIGEST_SIZE: usize = 32;
 ///The path used by `Config::default()`
 const DEFAULT_CONFIG_PATH: &'static str = "~/.rustic-toolz.yaml";
+const DEFAULT_KEY_PATH: &'static str = "~/.rustic-toolz.key";
 
 ///The builtin number of cycles for a key derivation
 const KEY_CYCLES: u32 = 1000;
@@ -63,16 +73,25 @@ const KEY_SIZE: usize = 256;
 const IV_SIZE: usize = 16;
 const BUF_SIZE: usize = 4096;
 
-/// Reads the given filename as Vec<u8>
-pub fn read_bytes(filename: &str) -> Vec<u8> {
-    let f = File::open(filename).expect("failed to open file");
-    let mut reader = BufReader::new(f);
-    let mut buffer = Vec::new();
-    reader
-        .read_to_end(&mut buffer)
-        .expect("failed to read file");
-    buffer
+pub type Digest = [u8; DIGEST_SIZE];
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Error {
+    pub message: String,
 }
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+impl YamlFileError for Error {
+    fn with_message(message: String) -> Error {
+        Error {
+            message: logger::paint::error(format!("{}", message)),
+        }
+    }
+}
+
 pub fn bytes_match(a: &[u8], b: &[u8]) -> bool {
     let diff = a
         .iter()
@@ -82,38 +101,20 @@ pub fn bytes_match(a: &[u8], b: &[u8]) -> bool {
     diff == 0 && a.len() == b.len()
 }
 /// Dummy example of hmac_256_digest
-pub fn hmac_256_digest(mac_key: &[u8], iv: &[u8]) -> [u8; DIGEST_SIZE] {
+pub fn hmac_256_digest(mac_key: &[u8], iv: &[u8]) -> Result<Digest, Error> {
     let mut mac = Hmac::new(Sha256::new(), &mac_key);
     mac.input(&iv);
     let result = mac.result();
     let mac_digest = result.code();
-    mac_digest[..DIGEST_SIZE].try_into().unwrap()
-}
-
-/// Encodes &[u8] to a base64 string
-///
-/// # Example
-///
-/// ```
-/// use toolz::aes256cbc::b64encode;
-/// assert_eq!("SGVsbG8=", b64encode(b"Hello"));
-/// ```
-pub fn b64encode(bytes: &[u8]) -> String {
-    let string = base64::encode(bytes);
-    string
-}
-
-/// Encodes base64 string into a Vec<8>
-///
-/// # Example
-///
-/// ```
-/// use toolz::aes256cbc::b64decode;
-/// assert_eq!(b"Hello".to_vec(), b64decode(b"SGVsbG8="));
-/// ```
-pub fn b64decode(bytes: &[u8]) -> Vec<u8> {
-    let bytes = base64::decode(&bytes).unwrap();
-    bytes
+    Ok(match mac_digest[..DIGEST_SIZE].try_into() {
+        Ok(digest) => digest,
+        Err(err) => {
+            return Err(Error::with_message(format!(
+                "failed to convert digest into [u8] {}",
+                err
+            )))
+        }
+    })
 }
 
 /// Generates a random KEY;
@@ -157,18 +158,19 @@ impl CyclesConfig {
 /// The configuration for the Key.
 ///
 /// It contains the cycles for key, salt and iv used in key derivation.
-#[derive(PartialEq, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub cycles: CyclesConfig,
     pub default_key_path: Option<String>,
 }
 
-impl Config {
-    /// Creates a new config based on a YAML-serialized string
-    pub fn from_yaml(data: String) -> Config {
-        let key: Config = serde_yaml::from_str(&data).expect("failed to deserialized yaml key");
-        key
+impl YamlFile<Error> for Config {
+    fn default() -> Result<Config, Error> {
+        let filename = shellexpand::tilde(DEFAULT_CONFIG_PATH);
+        Config::import(filename.borrow())
     }
+}
+impl Config {
     /// Creates a new config based on a &Vec<u32>
     pub fn from_vec(vec: &[u32; 3]) -> Config {
         Config {
@@ -188,29 +190,6 @@ impl Config {
         }
     }
 
-    /// Exports config to a yaml string
-    pub fn to_yaml(&self) -> String {
-        match serde_yaml::to_string(&self) {
-            Ok(val) => val,
-            Err(e) => {
-                logger::err::error(format!("failed to encode key to yaml: {}", e));
-                String::new()
-            }
-        }
-    }
-
-    /// Loads the default config from `DEFAULT_CONFIG_PATH`
-    pub fn default() -> Option<Config> {
-        let filename = shellexpand::tilde(DEFAULT_CONFIG_PATH);
-        Config::import(filename.borrow())
-    }
-    /// Loads the default config from a yaml file
-    pub fn import(filename: &str) -> Option<Config> {
-        match fs::read_to_string(filename) {
-            Ok(yaml) => Some(Config::from_yaml(yaml)),
-            Err(_) => Some(Config::builtin(None)),
-        }
-    }
     pub fn iv_cycles(&self) -> u32 {
         self.cycles.iv
     }
@@ -240,7 +219,7 @@ impl Config {
     }
 }
 /// AES-256 Key data
-#[derive(PartialEq, Serialize, Deserialize)]
+#[derive(PartialEq, Serialize, Deserialize, Clone)]
 pub struct Key {
     pub algo: String,
     pub key: String,
@@ -248,12 +227,13 @@ pub struct Key {
     pub iv: String,
     pub magic: Option<Vec<u32>>,
 }
-impl Key {
-    /// Load a key from a yaml string
-    pub fn from_yaml(data: String) -> Key {
-        let key: Key = serde_yaml::from_str(&data).expect("failed to deserialized yaml key");
-        key
+impl YamlFile<Error> for Key {
+    fn default() -> Result<Key, Error> {
+        let filename = shellexpand::tilde(DEFAULT_KEY_PATH);
+        Key::import(filename.borrow())
     }
+}
+impl Key {
     /// Derive a key from a password using the cycles from the given config
     pub fn from_password(password: &[u8], config: &Config) -> Key {
         let iv = config.derive_iv(password);
@@ -288,64 +268,75 @@ impl Key {
         }
     }
     /// Checks if a file is encrypted with this key
-    pub fn owns_file(&self, filename: &str) -> bool {
+    pub fn owns_file(&self, filename: &str) -> Result<bool, Error> {
         let mut fd =
             File::open(filename).expect(format!("failed to open file {}", filename).as_str());
         let mut buffer = [0; DIGEST_SIZE];
-        fd.read(&mut buffer)
-            .expect(format!("failed to read the first bytes of {}", filename).as_str());
+        match fd.read(&mut buffer) {
+            Ok(_) => {}
+            Err(error) => {
+                return Err(Error::with_message(format!(
+                    "{}{}{}",
+                    style("reading the first {:?} bytes from file ").color256(colors::ERR_MSG),
+                    style(filename).color256(colors::ERR_VAR),
+                    style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+                )))
+            }
+        };
 
-        self.check_digest(&buffer)
+        Ok(self.check_digest(&buffer))
     }
     /// Checks the digest of the given bytes
-    pub fn check_digest(&self, buffer: &[u8; DIGEST_SIZE]) -> bool {
+    pub fn check_digest(&self, buffer: &Digest) -> bool {
         let digest = self.digest();
         bytes_match(buffer, &digest)
     }
     /// Load key from a YAML file
-    pub fn import(filename: &str) -> Key {
-        let yaml = fs::read_to_string(filename).expect("cannot read key file");
+    pub fn import(filename: &str) -> Result<Key, Error> {
+        let yaml = match fs::read_to_string(filename) {
+            Ok(val) => val,
+            Err(error) => {
+                return Err(Error::with_message(format!(
+                    "{}{}{}",
+                    style("failed to import key from file ").color256(colors::ERR_MSG),
+                    style(filename).color256(colors::ERR_VAR),
+                    style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+                )))
+            }
+        };
         Key::from_yaml(yaml)
     }
-    pub fn digest(&self) -> [u8; DIGEST_SIZE] {
-        let mac = self.mac_bytes();
-        let iv = self.iv_bytes();
-        hmac_256_digest(&mac, &iv)
+    pub fn digest(&self) -> Digest {
+        let mac = self.mac_bytes().unwrap();
+        let iv = self.iv_bytes().unwrap();
+        hmac_256_digest(&mac, &iv).unwrap()
     }
-    pub fn iv_bytes(&self) -> Vec<u8> {
-        b64decode(self.iv.as_bytes())
-    }
-    pub fn key_bytes(&self) -> Vec<u8> {
-        b64decode(self.key.as_bytes())
-    }
-    pub fn mac_bytes(&self) -> Vec<u8> {
-        b64decode(self.mac.as_bytes())
-    }
-    /// Serialize key into a YAML string
-    pub fn to_yaml(&self) -> String {
-        match serde_yaml::to_string(&self) {
-            Ok(val) => val,
-            Err(_e) => {
-                logger::err::error(format!("failed to serialize key as YAML"));
-                String::new()
-            }
+    pub fn iv_bytes(&self) -> Result<Vec<u8>, Error> {
+        match b64decode(self.iv.as_bytes()) {
+            Ok(v) => Ok(v),
+            Err(e) => Err(Error::with_message(format!("parse base64 iv: {}", e))),
         }
     }
-    /// Store YAML-serialized key into a file
-    pub fn export(&self, filename: &str) -> String {
-        let yaml = self.to_yaml();
-        let mut file = File::create(filename).expect("failed to create new file");
-        file.write(yaml.as_ref()).unwrap();
-        String::from(filename)
+    pub fn key_bytes(&self) -> Result<Vec<u8>, Error> {
+        match b64decode(self.key.as_bytes()) {
+            Ok(v) => Ok(v),
+            Err(e) => Err(Error::with_message(format!("parse base64 key: {}", e))),
+        }
+    }
+    pub fn mac_bytes(&self) -> Result<Vec<u8>, Error> {
+        match b64decode(self.mac.as_bytes()) {
+            Ok(v) => Ok(v),
+            Err(e) => Err(Error::with_message(format!("parse base64 mac: {}", e))),
+        }
     }
 
     /// Encrypt a buffer with the key
     /// AES-256/CBC/Pkcs encryption.
-    pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
+    pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, Error> {
         // Create an encryptor instance of the best performing
         // type available for the platform.
-        let enc_key = self.key_bytes();
-        let iv = self.iv_bytes();
+        let enc_key = self.key_bytes().unwrap();
+        let iv = self.iv_bytes().unwrap();
         let mut encryptor = aes::cbc_encryptor(
             aes::KeySize::KeySize256,
             &enc_key,
@@ -388,7 +379,15 @@ impl Key {
         // us that it stopped processing data due to not having any more data in the
         // input buffer.
         loop {
-            let result = encryptor.encrypt(&mut read_buffer, &mut write_buffer, true)?;
+            let result = match encryptor.encrypt(&mut read_buffer, &mut write_buffer, true) {
+                Ok(result) => result,
+                Err(error) => {
+                    return Err(Error::with_message(format!(
+                        "failed to encrypt data: {:?}",
+                        error
+                    )))
+                }
+            };
 
             // "write_buffer.take_read_buffer().take_remaining()" means:
             // from the writable buffer, create a new readable buffer which
@@ -412,24 +411,34 @@ impl Key {
 
     /// Decrypts a buffer with the key
     /// AES-256/CBC/Pkcs decryption.
-    pub fn decrypt(
-        &self,
-        cyphertext: &[u8],
-    ) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
+    pub fn decrypt(&self, cyphertext: &[u8]) -> Result<Vec<u8>, Error> {
         let mut decryptor = aes::cbc_decryptor(
             aes::KeySize::KeySize256,
-            &self.key_bytes(),
-            &self.iv_bytes(),
+            &match self.key_bytes() {
+                Ok(bytes) => bytes,
+                Err(e) => return Err(e),
+            },
+            &match self.iv_bytes() {
+                Ok(bytes) => bytes,
+                Err(e) => return Err(e),
+            },
             blockmodes::PkcsPadding,
         );
 
         let mut plaintext = Vec::<u8>::new();
-        let hmac_bytes: [u8; DIGEST_SIZE] = cyphertext[..DIGEST_SIZE].try_into().unwrap();
+        let hmac_bytes: Digest = match cyphertext[..DIGEST_SIZE].try_into() {
+            Ok(digest) => digest,
+            Err(error) => {
+                return Err(Error::with_message(format!(
+                    "failed to convert digest to u8: {}",
+                    error
+                )))
+            }
+        };
         if !self.check_digest(&hmac_bytes) {
-            logger::err::warning(format!(
+            return Err(Error::with_message(format!(
                 "Cannot decrypt: data was not encrypted with the provided key. Leaving file as is."
-            ));
-            return Ok((*cyphertext).to_vec());
+            )));
         }
 
         let cyphertext = &cyphertext[DIGEST_SIZE..];
@@ -438,7 +447,15 @@ impl Key {
         let mut write_buffer = buffer::RefWriteBuffer::new(&mut buffer);
 
         loop {
-            let result = decryptor.decrypt(&mut read_buffer, &mut write_buffer, true)?;
+            let result = match decryptor.decrypt(&mut read_buffer, &mut write_buffer, true) {
+                Ok(result) => result,
+                Err(error) => {
+                    return Err(Error::with_message(format!(
+                        "cannot decrypt data: {:?}",
+                        error
+                    )))
+                }
+            };
 
             plaintext.extend(
                 write_buffer

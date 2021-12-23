@@ -1,22 +1,13 @@
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use console::style;
-use std::fs::File;
-use std::io::{BufReader, Read, Write};
-use toolz::aes256cbc::b64encode;
+use std::io::Write;
+use std::{fs::File, panic};
+use toolz::ioutils::{b64encode, create_file};
 
 use toolz::aes256cbc::Config;
 use toolz::aes256cbc::Key;
-use toolz::{core, logger};
-
-pub fn read_bytes(filename: &str) -> Vec<u8> {
-    let f = File::open(filename).expect("failed to open file");
-    let mut reader = BufReader::new(f);
-    let mut buffer = Vec::new();
-    reader
-        .read_to_end(&mut buffer)
-        .expect("failed to read file");
-    buffer
-}
+use toolz::config::YamlFile;
+use toolz::{colors, core, ioutils::read_bytes, logger};
 
 pub fn confirm_password() -> Option<String> {
     let password = rpassword::prompt_password_stderr("Password: ").unwrap();
@@ -50,18 +41,19 @@ fn load_key(matches: &ArgMatches, config: &Config) -> Key {
     let key_filename = matches.value_of("key_filename").unwrap_or("");
 
     if key_filename.len() > 0 {
-        Key::import(key_filename)
+        Key::import(key_filename).unwrap()
     } else if password.len() > 0 {
         Key::from_password(&password.as_bytes(), config)
     } else {
-        panic!(
+        logger::err::error(format!(
             "{}{}{}{}{}",
             style("either").color256(195),
             style("--password, --key-filename").color256(190),
             style(" or ").color256(195),
             style("--ask-password").color256(190),
             style(" is required").color256(195),
-        );
+        ));
+        std::process::exit(1);
     }
 }
 
@@ -99,7 +91,13 @@ fn generate_command(matches: &ArgMatches) {
 
     let filename = matches.value_of("key_filename").unwrap();
     //let key_yaml = key.to_yaml();
-    let key_path = key.export(filename);
+    let key_path = match key.export(filename) {
+        Ok(path) => path,
+        Err(error) => {
+            eprintln!("{}", error);
+            std::process::exit(1);
+        }
+    };
     logger::err::ok(format!("generated key: {}", style(key_path).color256(214)));
 }
 fn encrypt_command(matches: &ArgMatches, config: &Config) {
@@ -110,57 +108,105 @@ fn encrypt_command(matches: &ArgMatches, config: &Config) {
 
     let fail_if_already_encrypted = !matches.is_present("try");
 
-    if key.owns_file(plaintext_filename) {
-        std::process::exit(match fail_if_already_encrypted {
-            true => 1,
-            false => 0,
-        })
-    }
+    match key.owns_file(plaintext_filename) {
+        Ok(owns_file) => {
+            if owns_file {
+                std::process::exit(match fail_if_already_encrypted {
+                    true => 1,
+                    false => 0,
+                });
+            }
+        }
+        Err(error) => {
+            eprintln!("{}", error);
+            std::process::exit(1);
+        }
+    };
 
     let plaintext = if plaintext_filename.len() > 0 {
-        read_bytes(plaintext_filename)
+        read_bytes(plaintext_filename).unwrap()
     } else if plaintext_string.len() > 0 {
         plaintext_string.as_bytes().to_vec()
     } else {
-        panic!(
+        logger::err::error(format!(
             "{}{}{}{}{}",
             style("either").color256(195),
             style("--string").color256(190),
             style(" or ").color256(195),
             style("--input-filename").color256(190),
             style(" is required").color256(195),
-        );
+        ));
+        std::process::exit(1);
     };
 
-    let cyphertext = key.encrypt(&plaintext).ok().expect("encryption failed");
-    let mut file = File::create(cyphertext_filename).expect("failed to create new file");
-    file.write(&cyphertext).unwrap();
-    logger::err::ok(format!(
-        "wrote encrypted data in: {}",
-        style(cyphertext_filename).color256(207)
-    ));
+    let cyphertext = match key.encrypt(&plaintext) {
+        Ok(cypher) => cypher,
+        Err(error) => {
+            logger::err::error(format!(
+                "{}{}{}",
+                style("cannot encrypt contents of file ").color256(colors::ERR_MSG),
+                style(plaintext_filename).color256(colors::ERR_VAR),
+                style(format!("\n\t{:?}", error)).color256(colors::ERR_HLT),
+            ));
+            std::process::exit(1);
+        }
+    };
+    let mut file = match create_file(cyphertext_filename) {
+        Ok(file) => file,
+        Err(error) => {
+            logger::err::error(format!(
+                "cannot write encrypted data to: {}\n{}",
+                style(cyphertext_filename).color256(207),
+                error
+            ));
+            std::process::exit(1);
+        }
+    };
+    match file.write(&cyphertext) {
+        Ok(_) => {
+            logger::err::ok(format!(
+                "wrote encrypted data in: {}",
+                style(cyphertext_filename).color256(207)
+            ));
+        }
+        Err(error) => {
+            logger::err::error(format!(
+                "cannot write encrypted data to: {}\n{}",
+                style(cyphertext_filename).color256(207),
+                error
+            ));
+            std::process::exit(1);
+        }
+    }
 }
 
 fn decrypt_command(matches: &ArgMatches, config: &Config) {
     // let key_filename = matches.value_of("key_filename").unwrap_or("");
-
     let key = load_key(matches, config);
 
     let cyphertext_filename = matches.value_of("cyphertext_filename").unwrap();
     let plaintext_filename = matches.value_of("plaintext_filename").unwrap_or("");
     let fail_if_cannot_decrypt = !matches.is_present("try");
 
-    if !key.owns_file(cyphertext_filename) {
-        std::process::exit(match fail_if_cannot_decrypt {
-            true => 1,
-            false => 0,
-        })
-    }
+    match key.owns_file(cyphertext_filename) {
+        Ok(owns_file) => {
+            if !owns_file {
+                std::process::exit(match fail_if_cannot_decrypt {
+                    true => 1,
+                    false => 0,
+                });
+            }
+        }
+        Err(error) => {
+            eprintln!("{}", error);
+            std::process::exit(1);
+        }
+    };
 
-    let cyphertext = read_bytes(cyphertext_filename);
+    let cyphertext = read_bytes(cyphertext_filename).unwrap();
 
-    match key.decrypt(&cyphertext).ok() {
-        Some(decrypted_data) => {
+    match key.decrypt(&cyphertext) {
+        Ok(decrypted_data) => {
             if plaintext_filename.len() > 0 {
                 let mut file = File::create(plaintext_filename).expect("failed to create new file");
                 file.write(&decrypted_data)
@@ -173,17 +219,8 @@ fn decrypt_command(matches: &ArgMatches, config: &Config) {
                 println!("{}", b64encode(&decrypted_data));
             }
         }
-        None => {
-            // eprintln!(
-            //     "{}",
-            //     style(format!(
-            //         "failed to decrypt {} {} {}",
-            //         style(cyphertext_filename).color256(190),
-            //         style("with key").color256(202),
-            //         style(key_filename).color256(117),
-            //     ))
-            //     .color256(202)
-            // );
+        Err(error) => {
+            eprintln!("{}", error);
             std::process::exit(1);
         }
     }
@@ -196,7 +233,7 @@ fn check_command(matches: &ArgMatches, config: &Config) {
     let fail_if_not_encrypted = !matches.is_present("try");
 
     match key.owns_file(cyphertext_filename) {
-        true => {
+        Ok(true) => {
             logger::err::ok(format!(
                 "{}{}{}",
                 cyphertext_filename,
@@ -205,7 +242,7 @@ fn check_command(matches: &ArgMatches, config: &Config) {
             ));
             std::process::exit(0);
         }
-        false => {
+        Ok(false) => {
             logger::err::error(format!(
                 "{}{}{}",
                 cyphertext_filename,
@@ -217,10 +254,17 @@ fn check_command(matches: &ArgMatches, config: &Config) {
                 false => 0,
             });
         }
+        Err(error) => {
+            logger::err::error(format!("{}", error));
+            std::process::exit(1);
+        }
     };
 }
 
 fn main() {
+    panic::set_hook(Box::new(|e| {
+        eprintln!("PANIC: {:?}", e);
+    }));
     let config = Config::default().expect("cannot read default config: ~/.toolz.yaml");
     let key_cycles = config.cycles.key.to_string();
     let salt_cycles = config.cycles.salt.to_string();

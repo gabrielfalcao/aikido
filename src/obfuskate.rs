@@ -5,24 +5,25 @@ use console::style;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 
-use std::fs;
 use std::path::Path;
+
+use std::{fs, panic};
 use toolz::ioutils::{
     delete_directory, delete_file, directory_is_empty, get_cwd, read_file, rm_rf,
-    write_map_to_yaml, Result, UserFriendlyError,
+    write_map_to_yaml, Error,
 };
 use toolz::logger;
 
 use walkdir::WalkDir;
 
-fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
-    let current_dir = get_cwd();
+fn scan(target_dir: &str) -> Result<BTreeMap<String, String>, Error> {
+    let current_dir = get_cwd().unwrap();
 
     let mut result = BTreeMap::new();
     let parent = match Path::new(&current_dir).canonicalize() {
         Ok(path) => format!("{}", path.as_os_str().to_str().unwrap()),
         Err(e) => {
-            return serde::__private::Err(UserFriendlyError {
+            return serde::__private::Err(Error {
                 message: format!("cannot get absolute path for '{}': {}", target_dir, e),
             })
         }
@@ -61,10 +62,10 @@ fn scan(target_dir: &str) -> Result<BTreeMap<String, String>> {
 }
 
 fn obfuskat3_command(matches: &ArgMatches) {
-    let current_dir = get_cwd();
+    let current_dir = get_cwd().unwrap();
 
     let mut result: BTreeMap<String, String> = if Path::new("0b4sk8d.yaml").exists() {
-        let yaml = read_file("0b4sk8d.yaml");
+        let yaml = read_file("0b4sk8d.yaml").unwrap();
         serde_yaml::from_str(&yaml).expect("failed to parse yaml from 0b4sk8d.yaml")
     } else {
         BTreeMap::new()
@@ -74,7 +75,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
     let new = scan(target).unwrap();
     result.extend(new);
 
-    if write_map_to_yaml(&result, "0b4sk8d.yaml") {
+    if write_map_to_yaml(&result, "0b4sk8d.yaml").is_ok() {
         logger::out::info(format!("index written to 0b4sk8d.yaml"));
     }
     let mut parents: HashSet<String> = HashSet::new();
@@ -147,7 +148,7 @@ fn obfuskat3_command(matches: &ArgMatches) {
 
 fn unobfuskat3_command(matches: &ArgMatches) {
     let target = matches.value_of("target").unwrap();
-    let current_dir = get_cwd();
+    let current_dir = get_cwd().unwrap();
 
     if !Path::new(target).exists() {
         logger::err::error(format!(
@@ -157,7 +158,7 @@ fn unobfuskat3_command(matches: &ArgMatches) {
         ));
         std::process::exit(1);
     }
-    let yaml = read_file(target);
+    let yaml = read_file(target).unwrap();
     let index: BTreeMap<String, String> =
         serde_yaml::from_str(&yaml).expect("failed to parse yaml");
 
@@ -205,11 +206,15 @@ fn unobfuskat3_command(matches: &ArgMatches) {
             }
         };
     }
-    delete_file(target);
-    delete_directory("0b4sk8d");
+    delete_file(target).unwrap();
+    delete_directory("0b4sk8d").unwrap();
 }
 
 fn main() {
+    panic::set_hook(Box::new(|e| {
+        eprintln!("PANIC: {:?}", e);
+    }));
+
     let app = App::new("obfuskat3")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .about("Obfuskat3 file tree")
