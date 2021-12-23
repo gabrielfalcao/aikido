@@ -22,6 +22,8 @@ SLUGIFY_FILENAMES_RELEASE_BIN	:=target/release/slugify-filenames
 SLUGIFY_FILENAMES_BIN		:=$(SLUGIFY_FILENAMES_DEBUG_BIN)
 PASSWORD			:="I X@X@ Nickelback <3"
 PLAINTEXT			:="Hello World"
+TOMB_KEY			:= ~/.test-tomb-key.yaml
+TOMB_FILE			:= ~/.test-tomb-file.yaml
 
 all: fmt release
 
@@ -114,26 +116,26 @@ vaulty: build cls
 tomb: tomb-create tomb-save tomb-list tomb-get
 
 tomb-create: build cls
-	$(AES256_BIN) generate -K 1111 -S 2222 -I 3333 -k ./tomb-key.yaml --password $(PASSWORD)
-	$(TOMB_BIN) create -k ./tomb-key.yaml -t ./tomb.yaml
+	$(AES256_BIN) generate -K 1111 -S 2222 -I 3333 -k $(TOMB_KEY) --password $(PASSWORD)
+	$(TOMB_BIN) create -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 tomb-save: build cls
-	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml first-secret "first value"
-	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml foo bar
-	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml another-secret "another value"
-	$(TOMB_BIN) save -k ./tomb-key.yaml -t ./tomb.yaml last-secret "last value"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) first-secret "first value"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) foo bar
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) another-secret "another value"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) last-secret "last value"
 
 tomb-list: build cls
-	$(TOMB_BIN) list -k ./tomb-key.yaml -t ./tomb.yaml
+	$(TOMB_BIN) list -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 tomb-get: build cls
-	$(TOMB_BIN) get -k ./tomb-key.yaml -t ./tomb.yaml another-secret
+	$(TOMB_BIN) get -k $(TOMB_KEY) -t $(TOMB_FILE) another-secret
 
 tomb-delete: build cls
-	$(TOMB_BIN) delete -k ./tomb-key.yaml -t ./tomb.yaml foo
+	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) foo
 
 tomb-ui: build cls
-	$(TOMB_BIN) ui -k ./tomb-key.yaml -t ./tomb.yaml
+	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 obfuskat3: cls 0b4sk8d.yaml
 

@@ -13,23 +13,9 @@ pub fn absolute_path(path: &str) -> Result<String, String> {
     match Path::new(path).canonicalize() {
         Ok(current_dir) => match current_dir.as_os_str().to_str() {
             Some(path) => Ok(String::from(path)),
-            None => {
-                return Err(format!(
-                    "{}{}{}",
-                    style("failed convert path ").color256(colors::ERR_HLT),
-                    style(path).color256(colors::ERR_MSG),
-                    style("to string").color256(colors::ERR_HLT),
-                ));
-            }
+            None => Ok(String::from(path)),
         },
-        Err(error) => {
-            return Err(format!(
-                "{}{}",
-                style("failed to calculate absolute path of current working directory")
-                    .color256(colors::ERR_MSG),
-                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            ));
-        }
+        Err(_) => Ok(String::from(path)),
     }
 }
 

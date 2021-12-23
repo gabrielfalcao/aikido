@@ -291,21 +291,6 @@ impl Key {
         let digest = self.digest();
         bytes_match(buffer, &digest)
     }
-    /// Load key from a YAML file
-    pub fn import(filename: &str) -> Result<Key, Error> {
-        let yaml = match fs::read_to_string(filename) {
-            Ok(val) => val,
-            Err(error) => {
-                return Err(Error::with_message(format!(
-                    "{}{}{}",
-                    style("failed to import key from file ").color256(colors::ERR_MSG),
-                    style(filename).color256(colors::ERR_VAR),
-                    style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-                )))
-            }
-        };
-        Key::from_yaml(yaml)
-    }
     pub fn digest(&self) -> Digest {
         let mac = self.mac_bytes().unwrap();
         let iv = self.iv_bytes().unwrap();
