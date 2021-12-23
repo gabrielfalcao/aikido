@@ -28,10 +28,10 @@ TOMB_FILE			:= ~/.test-tomb-file.yaml
 all: fmt release
 
 clean: cls
-	rm -fr *.aes *.yaml 0b4sk8d
+	@rm -fr *.aes *.yaml 0b4sk8d
 
 cls:
-	@echo -e "\033[H\033[2J"
+	@echo -en "\033[H\033[2J"
 
 release:
 	@cargo build --release
@@ -65,8 +65,11 @@ test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
-build:
-	@cargo build
+build: check
+	cargo build
+
+check:
+	cargo check
 
 silent: tmp cls
 	@cargo run --bin slugify-filenames -- -r tmp --silent
@@ -154,7 +157,7 @@ ipleak: build cls
 load: clean build
 	./aestest.sh
 
-app pets: clean build
+app pets: clean build check
 	cargo run --bin $@
 
 $(AES256_RELEASE_BIN):
@@ -165,4 +168,4 @@ $(AES256_DEBUG_BIN):
 
 
 
-.PHONY: all release fmt tmp test dry-run coverage aes256 build clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets
+.PHONY: all release fmt tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets

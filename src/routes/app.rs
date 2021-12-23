@@ -1,3 +1,4 @@
+use super::menu::MenuComponent;
 use crate::ironpunk::*;
 use crossterm::event::KeyCode;
 use std::io;
@@ -25,12 +26,6 @@ pub fn dummy_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
 pub struct StackedApplication {
     title: String,
 }
-impl Route for StackedApplication {
-    #[allow(unused_variables)]
-    fn matches_path(&self, path: String) -> bool {
-        path == String::from("/")
-    }
-}
 impl StackedApplication {
     pub fn new(title: &str) -> StackedApplication {
         StackedApplication {
@@ -56,6 +51,13 @@ impl Component for StackedApplication {
             _ => Ok(false),
         }
     }
+}
+
+impl Route for StackedApplication {
+    fn matches_path(&self, path: String) -> bool {
+        path == String::from("/")
+    }
+
     fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();

@@ -19,12 +19,13 @@ use std::{
 use tui::{
     backend::CrosstermBackend,
     layout::Alignment,
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Paragraph, Tabs},
+    widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
 
+pub type Backend = CrosstermBackend<io::Stdout>;
 pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Box<dyn Route>;
 pub type BoxedRoutes = Vec<BoxedRoute>;
@@ -54,7 +55,7 @@ impl From<io::Error> for Error {
 }
 
 #[allow(unused_variables)]
-pub fn quit(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+pub fn quit(terminal: &mut Terminal<Backend>) -> Result<(), Error> {
     Ok(())
 }
 
@@ -64,23 +65,10 @@ pub enum Event<I> {
 }
 
 pub trait Component {
-    // fn by_ref(self: &Self) {}
-    // fn by_ref_mut(self: &mut Self) {}
-    // fn by_box(self: Box<Self>) {}
-    // fn by_rc(self: Rc<Self>) {}
-    // fn by_arc(self: Arc<Self>) {}
-    // fn by_pin(self: Pin<&Self>) {}
-    // fn with_lifetime<'a>(self: &'a Self) {}
-    // fn nested_pin(self: Pin<Arc<Self>>) {}
-
     fn id(&self) -> String;
     fn name(&self) -> &str;
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error>;
-    fn process_keyboard(
-        &self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        code: KeyCode,
-    ) -> io::Result<bool>;
+    fn process_keyboard(&self, terminal: &mut Terminal<Backend>, code: KeyCode)
+        -> io::Result<bool>;
 }
 
 pub trait Route
@@ -88,6 +76,7 @@ where
     Self: Component,
 {
     fn matches_path(&self, path: String) -> bool;
+    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error>;
 }
 
 pub struct ErrorRoute {
@@ -105,26 +94,7 @@ impl Route for ErrorRoute {
     fn matches_path(&self, path: String) -> bool {
         true
     }
-}
-impl Component for ErrorRoute {
-    fn name(&self) -> &str {
-        "ErrorRoute"
-    }
-    fn id(&self) -> String {
-        String::from("Error")
-    }
-    #[allow(unused_variables)]
-    fn process_keyboard(
-        &self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        code: KeyCode,
-    ) -> io::Result<bool> {
-        match code {
-            KeyCode::Char('q') => Ok(true),
-            _ => Ok(false),
-        }
-    }
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
         let paragraph = Paragraph::new(vec![
             Spans::from(vec![Span::raw("Error")]),
             Spans::from(vec![Span::raw("")]),
@@ -149,6 +119,25 @@ impl Component for ErrorRoute {
         Ok(())
     }
 }
+impl Component for ErrorRoute {
+    fn name(&self) -> &str {
+        "ErrorRoute"
+    }
+    fn id(&self) -> String {
+        String::from("Error")
+    }
+    #[allow(unused_variables)]
+    fn process_keyboard(
+        &self,
+        terminal: &mut Terminal<Backend>,
+        code: KeyCode,
+    ) -> io::Result<bool> {
+        match code {
+            KeyCode::Char('q') => Ok(true),
+            _ => Ok(false),
+        }
+    }
+}
 #[allow(dead_code)]
 pub struct Window {
     routes: BoxedRoutes,
@@ -167,25 +156,22 @@ impl Window {
     pub fn new() -> Window {
         Window::from_routes(BoxedRoutes::new())
     }
-
-    pub fn render(
-        &self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-    ) -> Result<(), Error> {
-        for route in self.routes.iter() {
-            if route.matches_path(self.location.clone()) {
-                return route.render(terminal);
-            }
-        }
-        let error_route = ErrorRoute::new(match self.routes.len() == 0 {
-            true => format!("no routes defined"),
-            false => format!("undefined route: {}", self.location),
-        });
-        error_route.render(terminal)
+    #[allow(unused_variables)]
+    pub fn tick(&self, terminal: &mut Terminal<Backend>) -> io::Result<bool> {
+        Ok(true)
     }
-    pub fn process_keyboard(
+}
+
+impl Component for Window {
+    fn name(&self) -> &str {
+        "Window"
+    }
+    fn id(&self) -> String {
+        String::from("Window")
+    }
+    fn process_keyboard(
         &self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        terminal: &mut Terminal<Backend>,
         code: KeyCode,
     ) -> io::Result<bool> {
         for route in self.routes.iter() {
@@ -201,105 +187,25 @@ impl Window {
         };
         error_route.process_keyboard(terminal, code)
     }
+}
+impl Route for Window {
     #[allow(unused_variables)]
-    pub fn tick(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<bool> {
-        Ok(true)
+    fn matches_path(&self, path: String) -> bool {
+        true
     }
-}
-
-pub struct MenuComponent {
-    pub cid: String,
-    pub selected: Option<String>,
-    pub items: Vec<String>,
-    pub error: Option<String>,
-}
-impl MenuComponent {
-    pub fn new(name: &str) -> MenuComponent {
-        MenuComponent {
-            cid: String::from(name),
-            selected: None,
-            items: Vec::new(),
-            error: None,
-        }
-    }
-    pub fn index_of(&self, item: String) -> Result<usize, Error> {
-        match self.items.iter().position(|i| i.clone() == item) {
-            Some(pos) => Ok(pos),
-            None => Err(Error::with_message(format!("invalid menu item: {}", item))),
-        }
-    }
-    pub fn selected_index(&self) -> usize {
-        match self.selected.clone() {
-            Some(selected) => match self.index_of(selected) {
-                Ok(index) => index,
-                Err(_) => 0,
-            },
-            None => 0,
-        }
-    }
-    pub fn select(&mut self, item: String) -> Result<(), Error> {
-        match self.index_of(item.clone()) {
-            Ok(_) => {
-                self.selected = Some(item.clone());
-                Ok(())
+    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
+        for route in self.routes.iter() {
+            if route.matches_path(self.location.clone()) {
+                return route.render(terminal);
             }
-            Err(e) => Err(e),
         }
+        let error_route = ErrorRoute::new(match self.routes.len() == 0 {
+            true => format!("no routes defined"),
+            false => format!("undefined route: {}", self.location),
+        });
+        error_route.render(terminal)
     }
 }
-impl Component for MenuComponent {
-    fn name(&self) -> &str {
-        "Menu"
-    }
-    fn id(&self) -> String {
-        self.cid.clone()
-    }
-    #[allow(unused_variables)]
-    fn process_keyboard(
-        &self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        code: KeyCode,
-    ) -> io::Result<bool> {
-        match code {
-            KeyCode::Char('q') => return Ok(true),
-
-            KeyCode::Char('a') => {}
-            KeyCode::Char('d') => {}
-            _ => {}
-        }
-        Ok(false)
-    }
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
-        let menu = self
-            .items
-            .iter()
-            .map(|t| {
-                let (first, rest) = t.split_at(1);
-                Spans::from(vec![
-                    Span::styled(
-                        first,
-                        Style::default()
-                            .fg(Color::Yellow)
-                            .add_modifier(Modifier::UNDERLINED),
-                    ),
-                    Span::styled(rest, Style::default().fg(Color::White)),
-                ])
-            })
-            .collect();
-        let tabs = Tabs::new(menu)
-            .select(self.selected_index())
-            .block(Block::default().title("Menu").borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
-            .highlight_style(Style::default().fg(Color::Yellow))
-            .divider(Span::raw("|"));
-        terminal.draw(|parent| {
-            let chunk = parent.size();
-            parent.render_widget(tabs, chunk);
-        })?;
-        Ok(())
-    }
-}
-
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     match enable_raw_mode() {
         Ok(_) => {}
