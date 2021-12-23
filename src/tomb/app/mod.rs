@@ -2,46 +2,44 @@ pub mod menu;
 use crate::ironpunk;
 use crate::ironpunk::*;
 use menu::{dummy_paragraph, MenuComponent};
+
 extern crate clipboard;
-use super::{AES256Secret, AES256Tomb, Error as TombError};
+use super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
-use clipboard::ClipboardContext;
-use clipboard::ClipboardProvider;
+#[allow(unused_imports)]
+use clipboard::{ClipboardContext, ClipboardProvider};
+#[allow(unused_imports)]
 use mac_notification_sys::*;
 
-use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use std::{
-    io,
-    time::{Duration, Instant},
-};
+use crossterm::event::KeyCode;
+use std::{io, marker::PhantomData};
+#[allow(unused_imports)]
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph, Wrap},
+    widgets::{
+        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Wrap,
+    },
     Frame, Terminal,
 };
 
-struct StatefulList {
-    state: ListState,
-    items: Vec<AES256Secret>,
+pub struct StatefulList {
+    pub state: ListState,
+    pub items: Vec<AES256Secret>,
 }
 
 impl StatefulList {
-    fn with_items(items: Vec<AES256Secret>) -> StatefulList {
+    pub fn with_items(items: Vec<AES256Secret>) -> StatefulList {
         StatefulList {
             state: ListState::default(),
             items,
         }
     }
 
-    fn next(&mut self) {
+    pub fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
                 if i >= self.items.len() - 1 {
@@ -55,7 +53,7 @@ impl StatefulList {
         self.state.select(Some(i));
     }
 
-    fn previous(&mut self) {
+    pub fn previous(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
@@ -69,35 +67,37 @@ impl StatefulList {
         self.state.select(Some(i));
     }
 
-    fn current(&mut self) -> Option<AES256Secret> {
+    pub fn current(&mut self) -> Option<AES256Secret> {
         match self.state.selected() {
             Some(index) => Some(self.items[index].clone()),
             None => None,
         }
     }
-    fn unselect(&mut self) {
+    pub fn unselect(&mut self) {
         self.state.select(None);
     }
 }
 
 #[allow(dead_code)]
-pub struct Application {
+pub struct Application<'a> {
     key: Key,
     tomb: AES256Tomb,
     aes_config: AesConfig,
+    _s_list: PhantomData<&'a List<'a>>,
+    _s_table: PhantomData<&'a Table<'a>>,
 
     pub label: String,
     pub text: String,
     pub error: Option<String>,
     pub visible: bool,
-    menu: MenuComponent,
+    pub menu: MenuComponent,
 
-    scroll: u16,
-    items: StatefulList,
+    pub scroll: u16,
+    pub items: StatefulList,
 }
 
-impl Application {
-    fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application {
+impl<'a> Application<'a> {
+    fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let items = tomb.clone().list("*").unwrap();
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
@@ -115,24 +115,101 @@ impl Application {
             scroll: 0,
             error: None,
             items: StatefulList::with_items(items),
+            _s_list: PhantomData,
+            _s_table: PhantomData,
         }
     }
 
-    fn on_tick(&mut self) {
-        //self.events.push(event);
-    }
-    fn set_text(&mut self, text: &str) {
-        self.text = String::from(text);
-    }
-    fn set_error(&mut self, error: String) {
-        self.error = Some(error.clone());
-    }
-    fn set_label(&mut self, label: &str) {
-        self.label = String::from(label);
+    fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
+        let secrets = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::White))
+            .title("Secrets")
+            .border_type(BorderType::Plain);
+        let items: Vec<_> = self
+            .items
+            .items
+            .iter()
+            .map(|secret| {
+                ListItem::new(Spans::from(vec![Span::styled(
+                    secret.path.clone(),
+                    Style::default(),
+                )]))
+            })
+            .collect();
+
+        let selected_secret = match self.items.current() {
+            Some(secret) => secret,
+            None => match self.items.items.len() > 0 {
+                true => self.items.items[0].clone(),
+                false => return Err(Error::with_message(format!("no secrets to list"))),
+            },
+        };
+
+        let list = List::new(items).block(secrets).highlight_style(
+            Style::default()
+                .bg(Color::Yellow)
+                .fg(Color::Black)
+                .add_modifier(Modifier::BOLD),
+        );
+
+        let secret_detail = Table::new(vec![Row::new(vec![
+            Cell::from(Span::raw(format!(
+                "0x{}",
+                selected_secret
+                    .digest
+                    .iter()
+                    .map(|b| format!("{:02X}", *b))
+                    .collect::<Vec::<_>>()
+                    .join("")
+            ))),
+            Cell::from(Span::raw(selected_secret.path)),
+            Cell::from(Span::raw(selected_secret.value)),
+            Cell::from(Span::raw(selected_secret.updated_at.to_string())),
+            Cell::from(Span::raw(selected_secret.created_at.to_string())),
+        ])])
+        .header(Row::new(vec![
+            Cell::from(Span::styled(
+                "Digest",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Cell::from(Span::styled(
+                "Name",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Cell::from(Span::styled(
+                "Value",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Cell::from(Span::styled(
+                "Updated At",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Cell::from(Span::styled(
+                "Created At",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+        ]))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .title("Detail")
+                .border_type(BorderType::Plain),
+        )
+        .widths(&[
+            Constraint::Percentage(5),
+            Constraint::Percentage(20),
+            Constraint::Percentage(20),
+            Constraint::Percentage(5),
+            Constraint::Percentage(20),
+        ]);
+
+        Ok((list, secret_detail))
     }
 }
 
-impl Component for Application {
+impl Component for Application<'_> {
     fn name(&self) -> &str {
         "Application"
     }
@@ -151,12 +228,15 @@ impl Component for Application {
         }
     }
 }
-impl Route for Application {
+impl Route for Application<'_> {
     fn matches_path(&self, path: String) -> bool {
         path == String::from("/")
     }
 
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
             let chunks = Layout::default()
@@ -172,11 +252,25 @@ impl Route for Application {
                 )
                 .split(size);
 
-            let middle = dummy_paragraph("Middle", "This is the middle");
+            let secrets_chunks = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
+                .split(chunks[1]);
+
+            match self.render_secrets() {
+                Ok((left, right)) => {
+                    rect.render_stateful_widget(left, secrets_chunks[0], &mut self.items.state);
+                    rect.render_widget(right, secrets_chunks[1]);
+                }
+                Err(error) => {
+                    let error = error_text(&error.message);
+                    rect.render_widget(error, chunks[1]);
+                }
+            };
+
             let footer = dummy_paragraph("Footer", "Ironpunk");
 
             self.menu.render_in_parent(rect, chunks[0]).unwrap();
-            rect.render_widget(middle, chunks[1]);
             rect.render_widget(footer, chunks[2]);
         })?;
         Ok(())

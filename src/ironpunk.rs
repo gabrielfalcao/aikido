@@ -79,7 +79,26 @@ where
     Self: Component,
 {
     fn matches_path(&self, path: String) -> bool;
-    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error>;
+    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error>;
+}
+
+pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
+    Paragraph::new(vec![
+        Spans::from(vec![Span::raw("Error")]),
+        Spans::from(vec![Span::raw("")]),
+        Spans::from(vec![Span::raw(
+            error,
+            //console::strip_ansi_codes(self.error.message.as_str()).borrow(),
+        )]),
+    ])
+    .alignment(Alignment::Center)
+    .block(
+        Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::White))
+            .title("Error")
+            .border_type(BorderType::Plain),
+    )
 }
 
 pub struct ErrorRoute {
@@ -92,28 +111,14 @@ impl ErrorRoute {
         }
     }
 }
+
 impl Route for ErrorRoute {
     #[allow(unused_variables)]
     fn matches_path(&self, path: String) -> bool {
         true
     }
-    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
-        let paragraph = Paragraph::new(vec![
-            Spans::from(vec![Span::raw("Error")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw(
-                self.error.message.as_str(),
-                //console::strip_ansi_codes(self.error.message.as_str()).borrow(),
-            )]),
-        ])
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
-                .title("Error")
-                .border_type(BorderType::Plain),
-        );
+    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
+        let paragraph = error_text(&self.error.message);
 
         terminal.draw(|parent| {
             let chunk = parent.size();
@@ -196,13 +201,13 @@ impl Route for Window {
     fn matches_path(&self, path: String) -> bool {
         true
     }
-    fn render(&self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
-        for route in self.routes.iter() {
+    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
+        for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
                 return route.render(terminal);
             }
         }
-        let error_route = ErrorRoute::new(match self.routes.len() == 0 {
+        let mut error_route = ErrorRoute::new(match self.routes.len() == 0 {
             true => format!("no routes defined"),
             false => format!("undefined route: {}", self.location),
         });

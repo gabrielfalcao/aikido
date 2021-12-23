@@ -65,7 +65,10 @@ impl Route for StackedApplication {
         path == String::from("/")
     }
 
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
             let chunks = Layout::default()
