@@ -1,15 +1,17 @@
+use console;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use thiserror::Error;
-
 #[allow(unused_imports)]
 use toolz::{colors, logger};
 
 #[allow(unused_imports)]
 use std::{
+    borrow::Borrow,
     fmt, io,
+    ops::Deref,
     pin::Pin,
     sync::{mpsc, Arc},
     thread,
@@ -24,9 +26,11 @@ use tui::{
     text::{Span, Spans},
     widgets::{
         Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
+        Widget,
     },
     Terminal,
 };
+
 #[derive(Debug, Error, Clone)]
 pub struct Error {
     pub message: String,
@@ -49,10 +53,7 @@ impl From<io::Error> for Error {
     }
 }
 
-pub fn quit(terminal: &Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
-    disable_raw_mode()?;
-    terminal.show_cursor()?;
-    terminal.clear()?;
+pub fn quit(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
     Ok(())
 }
 
@@ -73,14 +74,10 @@ pub trait Component {
 
     fn id(&self) -> String;
     fn name(&self) -> &str;
-    fn render(
-        &self,
-        parent: &Frame<CrosstermBackend<io::Stdout>>,
-        chunk: Rect,
-    ) -> Result<(), Error>;
+    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error>;
     fn process_keyboard(
         &self,
-        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool>;
 }
@@ -109,7 +106,7 @@ impl Component for ErrorRoute {
     }
     fn process_keyboard(
         &self,
-        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
         match code {
@@ -117,15 +114,14 @@ impl Component for ErrorRoute {
             _ => Ok(false),
         }
     }
-    fn render(
-        &self,
-        parent: &Frame<CrosstermBackend<io::Stdout>>,
-        chunk: Rect,
-    ) -> Result<(), Error> {
-        let widget = Paragraph::new(vec![
+    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+        let paragraph = Paragraph::new(vec![
             Spans::from(vec![Span::raw("Error")]),
             Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw(self.error.message.as_str())]),
+            Spans::from(vec![Span::raw(
+                self.error.message.as_str(),
+                //console::strip_ansi_codes(self.error.message.as_str()).borrow(),
+            )]),
         ])
         .alignment(Alignment::Center)
         .block(
@@ -135,7 +131,11 @@ impl Component for ErrorRoute {
                 .title("Error")
                 .border_type(BorderType::Plain),
         );
-        parent.render_widget(widget, chunk);
+
+        terminal.draw(|parent| {
+            let chunk = parent.size();
+            parent.render_widget(paragraph, chunk);
+        })?;
         Ok(())
     }
 }
@@ -153,20 +153,42 @@ impl Window {
             history: Vec::new(),
         }
     }
-    pub fn route(&self) -> Box<dyn Route> {
-        if self.routes.len() == 0 {
-            return Box::new(ErrorRoute {
-                error: Error::with_message(format!("no routes defined")),
-            });
-        }
-        for route in self.routes {
+
+    pub fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) {
+        for route in self.routes.iter() {
             if route.matches_path(self.location.as_str()) {
-                return route;
+                route.render(terminal);
+                return;
             }
         }
-        return Box::new(ErrorRoute {
-            error: Error::with_message(format!("undefined route: {}", self.location)),
-        });
+        let error_route = ErrorRoute {
+            error: match self.routes.len() == 0 {
+                true => Error::with_message(format!("no routes defined")),
+                false => Error::with_message(format!("undefined route: {}", self.location)),
+            },
+        };
+        error_route.render(terminal);
+    }
+    pub fn process_keyboard(
+        &self,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        code: KeyCode,
+    ) -> io::Result<bool> {
+        for route in self.routes.iter() {
+            if route.matches_path(self.location.as_str()) {
+                return route.process_keyboard(terminal, code);
+            }
+        }
+        let error_route = ErrorRoute {
+            error: match self.routes.len() == 0 {
+                true => Error::with_message(format!("no routes defined")),
+                false => Error::with_message(format!("undefined route: {}", self.location)),
+            },
+        };
+        error_route.process_keyboard(terminal, code)
+    }
+    pub fn tick(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<bool> {
+        Ok(true)
     }
 }
 
@@ -192,7 +214,7 @@ impl MenuComponent {
         }
     }
     fn selected_index(&self) -> usize {
-        match self.selected {
+        match self.selected.clone() {
             Some(selected) => match self.index_of(selected) {
                 Ok(index) => index,
                 Err(_) => 0,
@@ -201,7 +223,7 @@ impl MenuComponent {
         }
     }
     fn select(&mut self, item: String) -> Result<(), Error> {
-        match self.index_of(item) {
+        match self.index_of(item.clone()) {
             Ok(_) => {
                 self.selected = Some(item.clone());
                 Ok(())
@@ -219,7 +241,7 @@ impl Component for MenuComponent {
     }
     fn process_keyboard(
         &self,
-        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
         match code {
@@ -231,11 +253,7 @@ impl Component for MenuComponent {
         }
         Ok(false)
     }
-    fn render(
-        &self,
-        parent: &Frame<CrosstermBackend<io::Stdout>>,
-        chunk: Rect,
-    ) -> Result<(), Error> {
+    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
         let menu = self
             .items
             .iter()
@@ -258,14 +276,17 @@ impl Component for MenuComponent {
             .style(Style::default().fg(Color::White))
             .highlight_style(Style::default().fg(Color::Yellow))
             .divider(Span::raw("|"));
-        parent.render_widget(tabs, chunk);
+        terminal.draw(|parent| {
+            let chunk = parent.size();
+            parent.render_widget(tabs, chunk);
+        })?;
         Ok(())
     }
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode().expect("can run in raw mode");
-
+    console::set_colors_enabled(false);
     let (tx, rx) = mpsc::channel();
     let tick_rate = Duration::from_millis(200);
     thread::spawn(move || {
@@ -296,20 +317,24 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let window = Window::new();
 
     loop {
-        let route = window.route();
-
-        terminal.draw(|rect| {
-            let size = rect.size();
-            route.render(&rect, size);
-        })?;
+        window.render(&mut terminal);
 
         match rx.recv()? {
-            Event::Input(event) => match route.process_keyboard(&terminal, event.code) {
-                Ok(true) => quit(&terminal),
-                Ok(false) => Ok(()),
+            Event::Input(event) => match window.process_keyboard(&mut terminal, event.code) {
+                Ok(true) => {
+                    //Ok(return Box::new(quit(&mut terminal))),
+                    disable_raw_mode()?;
+                    terminal.show_cursor()?;
+                    terminal.clear()?;
+                    return Ok(());
+                }
+                Ok(false) => continue,
                 Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
             },
-            Event::Tick => Ok(()),
+            Event::Tick => match window.tick(&mut terminal) {
+                Ok(value) => value,
+                Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+            },
         };
     }
 }
