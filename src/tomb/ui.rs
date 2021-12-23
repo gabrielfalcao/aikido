@@ -85,10 +85,6 @@ pub struct App {
     pub label: String,
     pub text: String,
     pub error: Option<String>,
-    pub visible: bool,
-
-    scroll: u16,
-    items: StatefulList,
 }
 
 impl App {
@@ -100,15 +96,11 @@ impl App {
             aes_config,
             text: String::from("('s') show / (Enter or 'c') copy to clipboard"),
             label: String::from("actions"),
-            visible: false,
-            scroll: 0,
             error: None,
-            items: StatefulList::with_items(items),
         }
     }
 
-    fn show(&mut self) {
-        self.visible = true;
+    fn show(&mut self, *) {
         match self.items.current() {
             Some(secret) => match self.tomb.get_string(secret.path.as_str(), self.key.clone()) {
                 Ok(value) => {
@@ -123,7 +115,6 @@ impl App {
         }
     }
     fn selected_secret_string(&mut self) -> Result<String, TombError> {
-        self.visible = true;
         match self.items.current() {
             Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
             None => Err(TombError::with_message(format!("no secret selected"))),
@@ -265,8 +256,8 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .collect();
 
     // Create a List from all list items and highlight the currently selected one
-    let items = List::new(items)
-        .block(Block::default().borders(Borders::ALL).title("Secret"))
+    let secrets = List::new(secrets)
+        .block(Block::default().borders(Borders::ALL).title("Secrets"))
         .highlight_style(
             Style::default()
                 .bg(Color::Yellow)
@@ -276,7 +267,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .highlight_symbol("▶ ");
 
     // We can now render the item list
-    f.render_stateful_widget(items, chunks[0], &mut app.items.state);
+    f.render_stateful_widget(secrets, chunks[0], &mut app.secrets.state);
 
     let create_block = |title| {
         Block::default()
