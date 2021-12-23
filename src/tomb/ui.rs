@@ -77,6 +77,7 @@ impl StatefulList {
     }
 }
 
+#[allow(dead_code)]
 pub struct App {
     key: Key,
     tomb: AES256Tomb,

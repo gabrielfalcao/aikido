@@ -2,33 +2,32 @@ use crossterm::{
     event::{self, Event as CEvent, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
-use rand::{distributions::Alphanumeric, prelude::*};
-use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
+#[allow(unused_imports)]
+use toolz::{colors, logger};
+
+#[allow(unused_imports)]
 use std::{
     fmt, io,
-    std::sync::mpsc,
-    std::time::{Duration, Instant},
+    pin::Pin,
+    sync::{mpsc, Arc},
     thread,
+    time::{Duration, Instant},
 };
-
+#[allow(unused_imports)]
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
+    terminal::Frame,
     text::{Span, Spans},
     widgets::{
         Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
     },
     Terminal,
 };
-pub fn quit(terminal: Terminal<dyn Backend>) {
-    disable_raw_mode()?;
-    terminal.show_cursor()?;
-    terminal.clear()?;
-    //println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
-}
-#[derive(Debug, Clone)]
+#[derive(Debug, Error, Clone)]
 pub struct Error {
     pub message: String,
 }
@@ -44,6 +43,18 @@ impl Error {
         }
     }
 }
+impl From<io::Error> for Error {
+    fn from(input: io::Error) -> Error {
+        Error::with_message(format!("{:?}", input))
+    }
+}
+
+pub fn quit(terminal: &Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Error> {
+    disable_raw_mode()?;
+    terminal.show_cursor()?;
+    terminal.clear()?;
+    Ok(())
+}
 
 pub enum Event<I> {
     Input(I),
@@ -51,17 +62,30 @@ pub enum Event<I> {
 }
 
 pub trait Component {
+    // fn by_ref(self: &Self) {}
+    // fn by_ref_mut(self: &mut Self) {}
+    // fn by_box(self: Box<Self>) {}
+    // fn by_rc(self: Rc<Self>) {}
+    // fn by_arc(self: Arc<Self>) {}
+    // fn by_pin(self: Pin<&Self>) {}
+    // fn with_lifetime<'a>(self: &'a Self) {}
+    // fn nested_pin(self: Pin<Arc<Self>>) {}
+
     fn id(&self) -> String;
     fn name(&self) -> &str;
-    fn render(&self, parent: &Rect, chunk: Rect) -> Result<(), Error>;
+    fn render(&self, parent: Frame<CrosstermBackend<io::Stdout>>, chunk: Rect)
+        -> Result<(), Error>;
     fn process_keyboard(
         &mut self,
-        terminal: Terminal<dyn Backend>,
+        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool>;
 }
 
-pub trait Route {
+pub trait Route
+where
+    Self: Component,
+{
     fn matches_path(&self, path: &str) -> bool;
 }
 
@@ -77,17 +101,19 @@ impl Component for ErrorRoute {
     }
     fn process_keyboard(
         &mut self,
-        terminal: Terminal<dyn Backend>,
+        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
         match code {
-            KeyCode::Char('q') => {
-                quit(terminal);
-            }
-            _ => {}
+            KeyCode::Char('q') => Ok(true),
+            _ => Ok(false),
         }
     }
-    fn render(&self, parent: &Rect, chunk: Rect) -> Result<(), Error> {
+    fn render(
+        &self,
+        parent: Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error> {
         let widget = Paragraph::new(vec![
             Spans::from(vec![Span::raw("Error")]),
             Spans::from(vec![Span::raw("")]),
@@ -102,21 +128,20 @@ impl Component for ErrorRoute {
                 .border_type(BorderType::Plain),
         );
         parent.render_widget(widget, chunk);
+        Ok(())
     }
 }
-pub struct Window {
-    routes: Vec<dyn Route>,
+pub struct Window<R: Route> {
+    routes: Vec<R>,
     location: String,
-    backend: dyn Backend,
     history: Vec<String>,
 }
 
-impl Window {
-    pub fn new(backend: dyn Backend) -> Window {
+impl Window<R> {
+    pub fn new() -> Window<R> {
         Window {
             routes: Vec::new(),
-            location: "/",
-            backend,
+            location: String::from("/"),
             history: Vec::new(),
         }
     }
@@ -135,24 +160,39 @@ impl Window {
 }
 
 pub struct MenuComponent {
+    cid: String,
     selected: Option<String>,
     items: Vec<String>,
     error: Option<String>,
 }
 impl MenuComponent {
+    fn new(name: &str) -> MenuComponent {
+        MenuComponent {
+            cid: String::from(name),
+            selected: None,
+            items: Vec::new(),
+            error: None,
+        }
+    }
     fn index_of(&self, item: String) -> Result<usize, Error> {
-        match self.items.iter().position(|i| i == item) {
-            Some(pos) => pos,
+        match self.items.iter().position(|i| i.clone() == item) {
+            Some(pos) => Ok(pos),
             None => Err(Error::with_message(format!("invalid menu item: {}", item))),
         }
     }
     fn selected_index(&self) -> usize {
-        self.index_of(self.selected).unwrap()
+        match self.selected {
+            Some(selected) => match self.index_of(selected) {
+                Ok(index) => index,
+                Err(_) => 0,
+            },
+            None => 0,
+        }
     }
-    fn select(&mut self, item: String) -> Result<usize, Error> {
-        match self.index_of(self.selected) {
+    fn select(&mut self, item: String) -> Result<(), Error> {
+        match self.index_of(item) {
             Ok(_) => {
-                self.selected = item.clone();
+                self.selected = Some(item.clone());
                 Ok(())
             }
             Err(e) => Err(e),
@@ -168,19 +208,23 @@ impl Component for MenuComponent {
     }
     fn process_keyboard(
         &mut self,
-        terminal: Terminal<dyn Backend>,
+        terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
         match code {
-            KeyCode::Char('q') => {
-                quit(terminal);
-            }
+            KeyCode::Char('q') => return Ok(true),
+
             KeyCode::Char('a') => {}
             KeyCode::Char('d') => {}
             _ => {}
         }
+        Ok(false)
     }
-    fn render(&self, parent: &Rect, chunk: Rect) -> Result<(), Error> {
+    fn render(
+        &self,
+        parent: Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error> {
         let menu = self
             .items
             .iter()
@@ -204,6 +248,7 @@ impl Component for MenuComponent {
             .highlight_style(Style::default().fg(Color::Yellow))
             .divider(Span::raw("|"));
         parent.render_widget(tabs, chunk);
+        Ok(())
     }
 }
 
@@ -237,29 +282,23 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut window = Window::new(bacend);
+    let mut window = Window::new();
 
     loop {
         let route = window.route();
 
         terminal.draw(|rect| {
             let size = rect.size();
-            route.render(&rect, rect.clone());
+            route.render(rect, rect);
         })?;
 
         match rx.recv()? {
-            Event::Input(event) => route.process_keyboard(terminal, event.code),
-            Event::Tick => {}
-        }
+            Event::Input(event) => match route.process_keyboard(&terminal, event.code) {
+                Ok(true) => quit(&terminal),
+                Ok(false) => Ok(()),
+                Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+            },
+            Event::Tick => Ok(()),
+        };
     }
-
-    Ok(())
 }
-
-// impl<T> Route for T
-// where
-//     T: Component,
-// {
-//     fn process_keyboard(&mut self, code: KeyCode) -> io::Result<bool> {}
-//     fn render(&self, parent: &Rect, chunk: Rect) -> io::Result<bool> {}
-// }
