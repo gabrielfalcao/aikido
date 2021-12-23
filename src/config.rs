@@ -6,7 +6,32 @@ use serde::Serialize;
 use std::{
     fs::{self, File},
     io::Write,
+    path::Path,
 };
+
+pub fn absolute_path(path: &str) -> Result<String, String> {
+    match Path::new(path).canonicalize() {
+        Ok(current_dir) => match current_dir.as_os_str().to_str() {
+            Some(path) => Ok(String::from(path)),
+            None => {
+                return Err(format!(
+                    "{}{}{}",
+                    style("failed convert path ").color256(colors::ERR_HLT),
+                    style(path).color256(colors::ERR_MSG),
+                    style("to string").color256(colors::ERR_HLT),
+                ));
+            }
+        },
+        Err(error) => {
+            return Err(format!(
+                "{}{}",
+                style("failed to calculate absolute path of current working directory")
+                    .color256(colors::ERR_MSG),
+                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+            ));
+        }
+    }
+}
 
 pub trait YamlFileError {
     fn with_message(message: String) -> Self;
@@ -56,7 +81,11 @@ pub trait YamlFile<Error: YamlFileError> {
         Self: Clone,
         Self: PartialEq,
     {
-        match fs::read_to_string(filename) {
+        let filename = match absolute_path(filename) {
+            Ok(filename) => filename,
+            Err(err) => return Err(Error::with_message(err)),
+        };
+        match fs::read_to_string(filename.as_str()) {
             Ok(yaml) => YamlFile::from_yaml(yaml),
             Err(error) => {
                 return Err(Error::with_message(format!(
@@ -73,12 +102,17 @@ pub trait YamlFile<Error: YamlFileError> {
     where
         Self: Serialize,
     {
+        let filename = match absolute_path(filename) {
+            Ok(filename) => filename,
+            Err(err) => return Err(Error::with_message(err)),
+        };
+
         let yaml = match self.to_yaml() {
             Ok(val) => val,
             Err(error) => return Err(error),
         };
-        let mut file = File::create(filename).expect("failed to create new file");
+        let mut file = File::create(filename.as_str()).expect("failed to create new file");
         file.write(yaml.as_ref()).unwrap();
-        Ok(String::from(filename))
+        Ok(filename)
     }
 }

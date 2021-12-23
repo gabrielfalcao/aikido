@@ -228,6 +228,29 @@ pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> Resu
         }
     }
 }
+pub fn absolute_path(path: &str) -> Result<String, Error> {
+    match Path::new(path).canonicalize() {
+        Ok(current_dir) => match current_dir.as_os_str().to_str() {
+            Some(path) => Ok(String::from(path)),
+            None => {
+                return Err(Error::with_message(format!(
+                    "{}{}{}",
+                    style("failed convert path ").color256(colors::ERR_HLT),
+                    style(path).color256(colors::ERR_MSG),
+                    style("to string").color256(colors::ERR_HLT),
+                )));
+            }
+        },
+        Err(error) => {
+            return Err(Error::with_message(format!(
+                "{}{}",
+                style("failed to calculate absolute path of current working directory")
+                    .color256(colors::ERR_MSG),
+                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+            )));
+        }
+    }
+}
 
 pub fn get_cwd() -> Result<String, Error> {
     match env::current_dir() {

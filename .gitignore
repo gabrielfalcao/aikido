@@ -1,6 +1,8 @@
+/*.aes
+/*.key
+/*key*.yaml
+/0b4sk8d*
+/plain.txt
 /target
 /tmp
-/*key*.yaml
-/*.aes
-/plain.txt
-/0b4sk8d*
+/tomb.yaml
