@@ -69,7 +69,7 @@ build: check
 	cargo build
 
 check:
-	cargo check
+	cargo check --all-targets
 
 silent: tmp cls
 	@cargo run --bin slugify-filenames -- -r tmp --silent
