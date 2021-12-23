@@ -49,7 +49,20 @@ impl MenuComponent {
             Err(e) => Err(e),
         }
     }
-    fn render_in_parent(
+    pub fn add_item(&mut self, item: &str) -> Result<(), Error> {
+        self.items.push(String::from(item));
+        Ok(())
+    }
+    pub fn remove_item(&mut self, item: &str) -> Result<(), Error> {
+        match self.index_of(String::from(item)) {
+            Ok(index) => {
+                self.items.remove(index);
+                Ok(())
+            }
+            Err(error) => Err(error),
+        }
+    }
+    pub fn render_in_parent(
         &self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,

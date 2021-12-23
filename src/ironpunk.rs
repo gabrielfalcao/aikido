@@ -148,7 +148,7 @@ pub struct Window {
 impl Window {
     pub fn from_routes(routes: BoxedRoutes) -> Window {
         Window {
-            routes: routes,
+            routes,
             location: String::from("/"),
             history: Vec::new(),
         }

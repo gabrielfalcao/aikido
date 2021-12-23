@@ -73,11 +73,14 @@ impl Route for StackedApplication {
                     .as_ref(),
                 )
                 .split(size);
-            let header = dummy_paragraph(self.title.as_str(), "This is the header");
+            let mut menu = MenuComponent::new("main-menu");
+            menu.add_item("Secrets");
+            menu.add_item("Config");
+
             let middle = dummy_paragraph("Middle", "This is the middle");
             let footer = dummy_paragraph("Footer", "This is the footer");
 
-            rect.render_widget(header, chunks[0]);
+            menu.render_in_parent(rect, chunks[0]);
             rect.render_widget(middle, chunks[1]);
             rect.render_widget(footer, chunks[2]);
         })?;
