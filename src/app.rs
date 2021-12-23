@@ -73,10 +73,13 @@ pub trait Component {
 
     fn id(&self) -> String;
     fn name(&self) -> &str;
-    fn render(&self, parent: Frame<CrosstermBackend<io::Stdout>>, chunk: Rect)
-        -> Result<(), Error>;
+    fn render(
+        &self,
+        parent: &Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error>;
     fn process_keyboard(
-        &mut self,
+        &self,
         terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool>;
@@ -92,6 +95,11 @@ where
 pub struct ErrorRoute {
     error: Error,
 }
+impl Route for ErrorRoute {
+    fn matches_path(&self, path: &str) -> bool {
+        true
+    }
+}
 impl Component for ErrorRoute {
     fn name(&self) -> &str {
         "ErrorRoute"
@@ -100,7 +108,7 @@ impl Component for ErrorRoute {
         String::from("Error")
     }
     fn process_keyboard(
-        &mut self,
+        &self,
         terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
@@ -111,7 +119,7 @@ impl Component for ErrorRoute {
     }
     fn render(
         &self,
-        parent: Frame<CrosstermBackend<io::Stdout>>,
+        parent: &Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
         let widget = Paragraph::new(vec![
@@ -131,31 +139,34 @@ impl Component for ErrorRoute {
         Ok(())
     }
 }
-pub struct Window<R: Route> {
-    routes: Vec<R>,
+pub struct Window {
+    routes: Vec<Box<dyn Route>>,
     location: String,
     history: Vec<String>,
 }
 
-impl Window<R> {
-    pub fn new() -> Window<R> {
+impl Window {
+    pub fn new() -> Window {
         Window {
             routes: Vec::new(),
             location: String::from("/"),
             history: Vec::new(),
         }
     }
-    pub fn route(&self) -> dyn Route {
+    pub fn route(&self) -> Box<dyn Route> {
         if self.routes.len() == 0 {
-            return ErrorRoute {
-                error: Error::with_message(format!("undefined route: {}", self.location)),
-            };
+            return Box::new(ErrorRoute {
+                error: Error::with_message(format!("no routes defined")),
+            });
         }
         for route in self.routes {
-            if route.matches_path(self.location) {
-                return Ok(route.clone());
+            if route.matches_path(self.location.as_str()) {
+                return route;
             }
         }
+        return Box::new(ErrorRoute {
+            error: Error::with_message(format!("undefined route: {}", self.location)),
+        });
     }
 }
 
@@ -207,7 +218,7 @@ impl Component for MenuComponent {
         self.cid.clone()
     }
     fn process_keyboard(
-        &mut self,
+        &self,
         terminal: &Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
@@ -222,7 +233,7 @@ impl Component for MenuComponent {
     }
     fn render(
         &self,
-        parent: Frame<CrosstermBackend<io::Stdout>>,
+        parent: &Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
         let menu = self
@@ -282,14 +293,14 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut window = Window::new();
+    let window = Window::new();
 
     loop {
         let route = window.route();
 
         terminal.draw(|rect| {
             let size = rect.size();
-            route.render(rect, rect);
+            route.render(&rect, size);
         })?;
 
         match rx.recv()? {
