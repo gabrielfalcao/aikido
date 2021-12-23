@@ -30,8 +30,9 @@ pub struct StackedApplication {
 impl StackedApplication {
     pub fn new(title: &str) -> StackedApplication {
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("Secrets");
-        menu.add_item("Config");
+        menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
+        menu.add_item("Keys", KeyCode::Char('k')).unwrap();
+        menu.add_item("Preferences", KeyCode::Char('p')).unwrap();
 
         StackedApplication {
             title: String::from(title),

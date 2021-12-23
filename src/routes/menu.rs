@@ -1,6 +1,6 @@
 use crate::ironpunk::*;
 use crossterm::event::KeyCode;
-use std::io;
+use std::{collections::BTreeMap, io};
 use tui::{
     backend::CrosstermBackend,
     layout::Rect,
@@ -10,10 +10,23 @@ use tui::{
     Frame, Terminal,
 };
 
+#[derive(PartialEq, Clone)]
+pub struct MenuItem {
+    pub label: String,
+    pub code: KeyCode,
+}
+impl MenuItem {
+    pub fn new(label: String, code: KeyCode) -> MenuItem {
+        MenuItem { label, code }
+    }
+}
+
+#[derive(PartialEq, Clone)]
 pub struct MenuComponent {
     pub cid: String,
-    pub selected: Option<String>,
-    pub items: Vec<String>,
+    pub selected: Option<usize>,
+    pub labels: Vec<String>,
+    pub items: BTreeMap<String, MenuItem>,
     pub error: Option<String>,
 }
 impl MenuComponent {
@@ -21,13 +34,14 @@ impl MenuComponent {
         MenuComponent {
             cid: String::from(name),
             selected: None,
-            items: Vec::new(),
+            labels: Vec::new(),
+            items: BTreeMap::new(),
             error: None,
         }
     }
     pub fn index_of(&self, item: &str) -> Result<usize, Error> {
         match self
-            .items
+            .labels
             .iter()
             .position(|i| i.clone() == String::from(item))
         {
@@ -36,31 +50,32 @@ impl MenuComponent {
         }
     }
     pub fn selected_index(&self) -> usize {
-        match self.selected.clone() {
-            Some(selected) => match self.index_of(selected.as_str()) {
-                Ok(index) => index,
-                Err(_) => 0,
-            },
+        match self.selected {
+            Some(selected) => selected,
             None => 0,
         }
     }
     pub fn select(&mut self, item: &str) -> Result<(), Error> {
         match self.index_of(item.clone()) {
-            Ok(_) => {
-                self.selected = Some(String::from(item));
+            Ok(index) => {
+                self.selected = Some(index);
                 Ok(())
             }
             Err(e) => Err(e),
         }
     }
-    pub fn add_item(&mut self, item: &str) -> Result<(), Error> {
-        self.items.push(String::from(item));
+    pub fn add_item(&mut self, title: &str, code: KeyCode) -> Result<(), Error> {
+        let label = String::from(title);
+        let item = MenuItem::new(label.clone(), code);
+        self.labels.push(label.clone());
+        self.items.insert(label, item);
         Ok(())
     }
     pub fn remove_item(&mut self, item: &str) -> Result<(), Error> {
         match self.index_of(item) {
             Ok(index) => {
-                self.items.remove(index);
+                self.labels.remove(index);
+                self.items.remove(item);
                 Ok(())
             }
             Err(error) => Err(error),
@@ -72,7 +87,7 @@ impl MenuComponent {
         chunk: Rect,
     ) -> Result<(), Error> {
         let menu = self
-            .items
+            .labels
             .iter()
             .map(|t| {
                 let (first, rest) = t.split_at(1);
@@ -112,14 +127,13 @@ impl Component for MenuComponent {
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
-        let result = match code {
-            KeyCode::Char('s') => self.select("Settings"),
-            KeyCode::Char('c') => self.select("Config"),
-            _ => Ok(()),
-        };
-        match result {
-            Ok(()) => Ok(false),
-            Err(error) => Ok(false),
+        for (label, item) in &self.items {
+            let label = label.clone();
+            if item.code == code {
+                self.select(&label);
+                break;
+            }
         }
+        Ok(false)
     }
 }
