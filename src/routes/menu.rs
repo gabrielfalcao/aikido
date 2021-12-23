@@ -64,6 +64,26 @@ impl MenuComponent {
             Err(e) => Err(e),
         }
     }
+    pub fn next(&mut self) {
+        match self.selected {
+            Some(selected) => {
+                if selected < self.labels.len() - 1 {
+                    self.selected = Some(selected + 1);
+                }
+            }
+            None => {}
+        }
+    }
+    pub fn previous(&mut self) {
+        match self.selected {
+            Some(selected) => {
+                if selected > 0 {
+                    self.selected = Some(selected - 1);
+                }
+            }
+            None => {}
+        }
+    }
     pub fn add_item(&mut self, title: &str, code: KeyCode) -> Result<(), Error> {
         let label = String::from(title);
         let item = MenuItem::new(label.clone(), code);
@@ -127,11 +147,20 @@ impl Component for MenuComponent {
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         code: KeyCode,
     ) -> io::Result<bool> {
-        for (label, item) in &self.items {
-            let label = label.clone();
-            if item.code == code {
-                self.select(&label);
-                break;
+        match code {
+            KeyCode::Right => self.next(),
+            KeyCode::Left => self.previous(),
+            _ => {
+                for (label, item) in &self.items {
+                    let label = label.clone();
+                    if item.code == code {
+                        match self.select(&label) {
+                            Ok(_) => {}
+                            Err(error) => return Ok(true),
+                        };
+                        return Ok(false);
+                    }
+                }
             }
         }
         Ok(false)

@@ -82,9 +82,9 @@ impl Route for StackedApplication {
                 .split(size);
 
             let middle = dummy_paragraph("Middle", "This is the middle");
-            let footer = dummy_paragraph("Footer", "This is the footer");
+            let footer = dummy_paragraph("Footer", self.title.as_ref());
 
-            self.menu.render_in_parent(rect, chunks[0]);
+            self.menu.render_in_parent(rect, chunks[0]).unwrap();
             rect.render_widget(middle, chunks[1]);
             rect.render_widget(footer, chunks[2]);
         })?;
