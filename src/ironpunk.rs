@@ -79,7 +79,11 @@ pub trait Component {
         terminal: &mut Terminal<Backend>,
         event: KeyEvent,
     ) -> Result<LoopEvent, Error>;
-    fn tick(&mut self, _terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+    fn tick(
+        &mut self,
+        _terminal: &mut Terminal<Backend>,
+        _window: &mut Window,
+    ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
 }
@@ -89,7 +93,11 @@ where
     Self: Component,
 {
     fn matches_path(&self, path: String) -> bool;
-    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error>;
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        window: &mut Window,
+    ) -> Result<(), Error>;
 }
 
 pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
@@ -150,7 +158,11 @@ impl Route for ErrorRoute {
     fn matches_path(&self, path: String) -> bool {
         true
     }
-    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        _window: &mut Window,
+    ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
                 let paragraph = error_text(&error.message);
@@ -225,17 +237,21 @@ impl Window {
         }
     }
     #[allow(unused_variables)]
-    pub fn tick(&mut self, terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+    pub fn tick(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        window: &mut Window,
+    ) -> Result<LoopEvent, Error> {
         for route in &mut self.routes {
             // tick every child route
-            match route.tick(terminal) {
+            match route.tick(terminal, window) {
                 Ok(Propagate) => {
                     // proceed to next route
                     continue;
                 }
                 Ok(Refresh) => {
                     // rerender and propagate
-                    self.render(terminal)?;
+                    self.render(terminal, window)?;
                     return Ok(Propagate);
                 }
                 Ok(any) => {
@@ -282,16 +298,20 @@ impl Route for Window {
     fn matches_path(&self, path: String) -> bool {
         true
     }
-    fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        window: &mut Window,
+    ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
-                route.render(terminal)?;
+                route.render(terminal, window)?;
                 return Ok(());
             }
         }
         self.error
             .set_error(Error::with_message(format!("no routes declared")));
-        self.error.render(terminal)
+        self.error.render(terminal, window)
     }
 }
 pub fn reset() {
@@ -372,7 +392,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     let mut window = Window::from_routes(routes);
 
     loop {
-        window.render(&mut terminal)?;
+        window.render(&mut terminal, &mut window)?;
 
         match rx.recv()? {
             Event::Input(event) => {
@@ -386,7 +406,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         std::process::exit(0);
                     }
                     Ok(Propagate | Prevent) => continue,
-                    Ok(Refresh) => match window.render(&mut terminal) {
+                    Ok(Refresh) => match window.render(&mut terminal, &mut window) {
                         Ok(_) => continue,
                         Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
                     },
@@ -394,9 +414,9 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                 };
             }
             Event::Tick => {
-                match window.tick(&mut terminal) {
+                match window.tick(&mut terminal, &mut window) {
                     Ok(Refresh) => {
-                        window.render(&mut terminal)?;
+                        window.render(&mut terminal, &mut window)?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,

@@ -438,6 +438,7 @@ impl Route for Application<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        window: &mut Window,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
