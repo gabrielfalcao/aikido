@@ -9,8 +9,10 @@ use thiserror::Error;
 use crate::logger;
 
 use std::{
+    cell::RefCell,
     collections::BTreeMap,
     fmt, io,
+    rc::Rc,
     sync::mpsc,
     thread,
     time::{Duration, Instant},
@@ -82,7 +84,7 @@ pub trait Component {
     fn tick(
         &mut self,
         _terminal: &mut Terminal<Backend>,
-        _window: &mut Window,
+        _window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -96,7 +98,7 @@ where
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: &mut Window,
+        window: Rc<RefCell<Window>>,
     ) -> Result<(), Error>;
 }
 
@@ -161,7 +163,7 @@ impl Route for ErrorRoute {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        _window: &mut Window,
+        _window: Rc<RefCell<Window>>,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
@@ -240,11 +242,11 @@ impl Window {
     pub fn tick(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: &mut Window,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         for route in &mut self.routes {
             // tick every child route
-            match route.tick(terminal, window) {
+            match route.tick(terminal, window.clone()) {
                 Ok(Propagate) => {
                     // proceed to next route
                     continue;
@@ -301,7 +303,7 @@ impl Route for Window {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: &mut Window,
+        window: Rc<RefCell<Window>>,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
@@ -389,14 +391,14 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut window = Window::from_routes(routes);
+    let window = Rc::new(RefCell::new(Window::from_routes(routes)));
 
     loop {
-        window.render(&mut terminal, &mut window)?;
+        window.borrow_mut().render(&mut terminal, window.clone())?;
 
         match rx.recv()? {
             Event::Input(event) => {
-                match window.process_keyboard(&mut terminal, event) {
+                match window.borrow_mut().process_keyboard(&mut terminal, event) {
                     Ok(Quit) => {
                         //Ok(return Box::new(quit(&mut terminal))),
                         disable_raw_mode()?;
@@ -406,17 +408,19 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         std::process::exit(0);
                     }
                     Ok(Propagate | Prevent) => continue,
-                    Ok(Refresh) => match window.render(&mut terminal, &mut window) {
-                        Ok(_) => continue,
-                        Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
-                    },
+                    Ok(Refresh) => {
+                        match window.borrow_mut().render(&mut terminal, window.clone()) {
+                            Ok(_) => continue,
+                            Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
+                        }
+                    }
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                 };
             }
             Event::Tick => {
-                match window.tick(&mut terminal, &mut window) {
+                match window.borrow_mut().tick(&mut terminal, window.clone()) {
                     Ok(Refresh) => {
-                        window.render(&mut terminal, &mut window)?;
+                        window.borrow_mut().render(&mut terminal, window.clone())?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,

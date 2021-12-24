@@ -19,7 +19,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use mac_notification_sys::*;
 
 use crossterm::event::{KeyCode, KeyEvent};
-use std::{io, marker::PhantomData};
+use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
@@ -438,7 +438,7 @@ impl Route for Application<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        window: &mut Window,
+        _window: Rc<RefCell<Window>>,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
