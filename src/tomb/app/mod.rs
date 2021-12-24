@@ -23,7 +23,8 @@ use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Wrap,
+        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Widget,
+        Wrap,
     },
     Frame, Terminal,
 };
@@ -213,6 +214,12 @@ impl<'a> Application<'a> {
     fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
+    fn set_overlay(&mut self, overlay: Overlay) {
+        self.overlay = Some(overlay);
+    }
+    fn remove_overlay(&mut self) {
+        self.overlay = None;
+    }
     fn set_error(&mut self, error: String) {
         self.error = Some(error.clone());
     }
@@ -267,10 +274,23 @@ impl Component for Application<'_> {
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
     ) -> Result<LoopEvent, Error> {
+        match &mut self.overlay {
+            Some(overlay) => {
+                return overlay.process_keyboard(terminal, event);
+            }
+            None => {}
+        }
         let code = event.code;
         match code {
-            KeyCode::Char('q') => Ok(Quit),
+            KeyCode::Char('q') => match self.overlay {
+                Some(_) => {
+                    self.remove_overlay();
+                    Ok(Propagate)
+                }
+                None => Ok(Quit),
+            },
             KeyCode::Char('O') => {
+                self.set_overlay(Overlay::new("Hello", "World"));
                 send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
 
                 Ok(Propagate)
@@ -345,22 +365,32 @@ impl Route for Application<'_> {
                 )
                 .split(size);
 
-            let secrets_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
-                .split(chunks[1]);
+            match &self.overlay {
+                Some(overlay) => overlay.render_in_parent(rect, chunks[1]).unwrap(),
+                None => {
+                    let secrets_chunks = Layout::default()
+                        .direction(Direction::Horizontal)
+                        .constraints(
+                            [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
+                        )
+                        .split(chunks[1]);
 
-            match self.render_secrets() {
-                Ok((left, right)) => {
-                    rect.render_stateful_widget(left, secrets_chunks[0], &mut self.items.state);
-                    rect.render_widget(right, secrets_chunks[1]);
+                    match self.render_secrets() {
+                        Ok((left, right)) => {
+                            rect.render_stateful_widget(
+                                left,
+                                secrets_chunks[0],
+                                &mut self.items.state,
+                            );
+                            rect.render_widget(right, secrets_chunks[1]);
+                        }
+                        Err(error) => {
+                            let error = error_text(&error.message);
+                            rect.render_widget(error, chunks[1]);
+                        }
+                    };
                 }
-                Err(error) => {
-                    let error = error_text(&error.message);
-                    rect.render_widget(error, chunks[1]);
-                }
-            };
-
+            }
             let (footer_title, footer_label) = match self.error.clone() {
                 Some(error) => (error.clone(), self.text.clone()),
                 None => (self.label.clone(), self.text.clone()),

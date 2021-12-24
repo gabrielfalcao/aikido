@@ -18,6 +18,7 @@ use tui::{
 };
 
 #[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct Overlay {
     pub title: String,
     pub text: String,
@@ -25,29 +26,34 @@ pub struct Overlay {
 
 impl Overlay {
     #[allow(dead_code)]
-    fn new(title: &str, text: &str) -> Overlay {
+    pub fn new(title: &str, text: &str) -> Overlay {
         Overlay {
             title: String::from(title),
             text: String::from(text),
         }
     }
     #[allow(dead_code)]
-    fn set_title(&mut self, title: &str) {
+    pub fn set_title(&mut self, title: &str) {
         self.title = String::from(title);
     }
     #[allow(dead_code)]
-    fn set_text(&mut self, text: &str) {
+    pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-}
-impl Widget for Overlay {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+    pub fn render_in_parent(
+        &self,
+        parent: &mut Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))
             .title("Modal")
             .border_type(BorderType::Plain);
-        secrets.render(area, buf);
+
+        parent.render_widget(secrets, chunk);
+
+        Ok(())
     }
 }
 
