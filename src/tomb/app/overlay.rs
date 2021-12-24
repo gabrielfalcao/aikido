@@ -1,11 +1,13 @@
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 
+#[allow(unused_imports)]
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::io;
+#[allow(unused_imports)]
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Paragraph, Wrap},
@@ -57,6 +59,7 @@ impl Overlay {
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
+        let chunk = get_modal_rect(chunk);
         let modal = Block::default()
             .borders(Borders::ALL)
             .style(
@@ -66,7 +69,7 @@ impl Overlay {
                     .fg(Color::Black),
             )
             .title(self.title.clone())
-            .border_type(BorderType::Plain);
+            .border_type(BorderType::Rounded);
 
         let text = vec![Spans::from(Span::styled(
             self.text.clone(),
@@ -107,6 +110,10 @@ impl Component for Overlay {
             }
             KeyCode::Esc => {
                 self.deactivate();
+                return Ok(Propagate);
+            }
+            KeyCode::Enter => {
+                self.write('\n');
                 return Ok(Propagate);
             }
             KeyCode::Char(c) => {

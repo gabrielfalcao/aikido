@@ -18,7 +18,7 @@ use std::{
 
 use tui::{
     backend::CrosstermBackend,
-    layout::Alignment,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Paragraph},
@@ -113,18 +113,26 @@ pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
 
 pub struct ErrorRoute {
     error: Option<Error>,
+    title: String,
 }
 impl ErrorRoute {
     pub fn new_with_message(message: String) -> ErrorRoute {
         ErrorRoute {
+            title: String::from("Error"),
             error: Some(Error::with_message(message.clone())),
         }
     }
     pub fn new() -> ErrorRoute {
-        ErrorRoute { error: None }
+        ErrorRoute {
+            title: String::new(),
+            error: None,
+        }
     }
     pub fn set_error(&mut self, error: Error) {
         self.error = Some(error.clone());
+    }
+    pub fn set_title(&mut self, title: String) {
+        self.title = title.clone();
     }
     pub fn clear(&mut self) {
         self.error = None;
@@ -289,7 +297,34 @@ impl Route for Window {
 pub fn reset() {
     println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
 }
+pub fn get_modal_rect(parent: Rect) -> Rect {
+    let vertical_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints(
+            [
+                Constraint::Percentage(33),
+                Constraint::Percentage(33),
+                Constraint::Percentage(33),
+            ]
+            .as_ref(),
+        )
+        .split(parent);
+    let horizontal_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage(33),
+                Constraint::Percentage(33),
+                Constraint::Percentage(33),
+            ]
+            .as_ref(),
+        )
+        .split(vertical_chunks[1]);
 
+    let center = horizontal_chunks[1];
+    center
+}
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     reset();
     match enable_raw_mode() {
@@ -370,6 +405,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         disable_raw_mode()?;
                         terminal.show_cursor()?;
                         terminal.clear()?;
+                        reset();
                         std::process::exit(0);
                     }
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),

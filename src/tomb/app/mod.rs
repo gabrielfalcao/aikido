@@ -77,7 +77,12 @@ impl StatefulList {
 
     pub fn current(&mut self) -> Option<AES256Secret> {
         match self.state.selected() {
-            Some(index) => Some(self.items[index].clone()),
+            Some(index) => {
+                if self.items.len() < index + 1 {
+                    return None;
+                }
+                Some(self.items[index].clone())
+            }
             None => None,
         }
     }
@@ -114,7 +119,7 @@ impl<'a> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("All", KeyCode::Char('a')).unwrap();
         menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
-        menu.add_item("One-Time Passwords", KeyCode::Char('s'))
+        menu.add_item("One-Time Passwords", KeyCode::Char('o'))
             .unwrap();
 
         Application {
@@ -137,6 +142,9 @@ impl<'a> Application<'a> {
             _s_table: PhantomData,
         }
     }
+    fn set_pattern(&mut self, pattern: &str) {
+        self.pattern = String::from(pattern);
+    }
 
     fn toggle_visible(&mut self) {
         self.visible = !self.visible;
@@ -148,8 +156,12 @@ impl<'a> Application<'a> {
         self.pin_visible = pin_visible;
     }
     fn filter_search(&mut self, pattern: &str) {
-        let mut items = self.tomb.clone().list(pattern).unwrap();
-        self.items.update(items);
+        match self.tomb.clone().list(pattern) {
+            Ok(items) => {
+                self.items.update(items);
+            }
+            Err(err) => self.error = Some(format!("Search error: {}", err)),
+        };
     }
     fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
@@ -332,7 +344,22 @@ impl Component for Application<'_> {
 
                 Ok(Propagate)
             }
-
+            KeyCode::Char('a') => {
+                self.set_pattern("*");
+                self.menu.process_keyboard(terminal, event)
+            }
+            KeyCode::Char('p') => {
+                self.set_pattern("passwords/*");
+                self.menu.process_keyboard(terminal, event)
+            }
+            KeyCode::Char('s') => {
+                self.set_pattern("secrets/*");
+                self.menu.process_keyboard(terminal, event)
+            }
+            KeyCode::Char('o') => {
+                self.set_pattern("otp/*");
+                self.menu.process_keyboard(terminal, event)
+            }
             KeyCode::Char('r') => {
                 match self.selected_secret_string() {
                     Ok(plaintext) => {
@@ -426,33 +453,7 @@ impl Route for Application<'_> {
                     // step 2: take the middle chunk and split into 3 horizontal chunks
                     // step 3: take the middle chunk
                     let screen = chunks[1];
-                    let vertical_chunks = Layout::default()
-                        .direction(Direction::Vertical)
-                        .margin(2)
-                        .constraints(
-                            [
-                                Constraint::Percentage(33),
-                                Constraint::Percentage(33),
-                                Constraint::Percentage(33),
-                            ]
-                            .as_ref(),
-                        )
-                        .split(screen);
-                    let horizontal_chunks = Layout::default()
-                        .direction(Direction::Horizontal)
-                        .constraints(
-                            [
-                                Constraint::Percentage(33),
-                                Constraint::Percentage(33),
-                                Constraint::Percentage(33),
-                            ]
-                            .as_ref(),
-                        )
-                        .split(vertical_chunks[1]);
-
-                    overlay
-                        .render_in_parent(rect, horizontal_chunks[1])
-                        .unwrap()
+                    overlay.render_in_parent(rect, screen).unwrap()
                 }
                 None => {
                     let secrets_chunks = Layout::default()
