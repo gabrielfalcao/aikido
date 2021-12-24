@@ -112,12 +112,27 @@ pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
 }
 
 pub struct ErrorRoute {
-    error: Error,
+    error: Option<Error>,
 }
 impl ErrorRoute {
-    fn new(message: String) -> ErrorRoute {
+    pub fn new_with_message(message: String) -> ErrorRoute {
         ErrorRoute {
-            error: Error::with_message(message.clone()),
+            error: Some(Error::with_message(message.clone())),
+        }
+    }
+    pub fn new() -> ErrorRoute {
+        ErrorRoute { error: None }
+    }
+    pub fn set_error(&mut self, error: Error) {
+        self.error = Some(error.clone());
+    }
+    pub fn clear(&mut self) {
+        self.error = None;
+    }
+    pub fn exists(&mut self) -> bool {
+        match self.error {
+            Some(_) => true,
+            None => false,
         }
     }
 }
@@ -128,12 +143,16 @@ impl Route for ErrorRoute {
         true
     }
     fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
-        let paragraph = error_text(&self.error.message);
-
-        terminal.draw(|parent| {
-            let chunk = parent.size();
-            parent.render_widget(paragraph, chunk);
-        })?;
+        match &self.error {
+            Some(error) => {
+                let paragraph = error_text(&error.message);
+                terminal.draw(|parent| {
+                    let chunk = parent.size();
+                    parent.render_widget(paragraph, chunk);
+                })?;
+            }
+            None => {}
+        };
         Ok(())
     }
 }
@@ -169,6 +188,7 @@ pub struct Window {
     routes: BoxedRoutes,
     location: String,
     history: Vec<String>,
+    error: ErrorRoute,
 }
 
 impl Window {
@@ -177,6 +197,7 @@ impl Window {
             routes,
             location: String::from("/"),
             history: Vec::new(),
+            error: ErrorRoute::new(),
         }
     }
     pub fn new() -> Window {
@@ -233,16 +254,19 @@ impl Component for Window {
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
-                return route.process_keyboard(terminal, event);
+                match route.process_keyboard(terminal, event) {
+                    Err(err) => {
+                        self.error.set_error(err);
+                        break;
+                    }
+                    ok => return ok,
+                }
             }
         }
-        let mut error_route = ErrorRoute {
-            error: match self.routes.len() == 0 {
-                true => Error::with_message(format!("no routes defined")),
-                false => Error::with_message(format!("undefined route: {}", self.location)),
-            },
-        };
-        error_route.process_keyboard(terminal, event)
+        if self.error.exists() {
+            self.error.process_keyboard(terminal, event)?;
+        }
+        Ok(Propagate)
     }
 }
 impl Route for Window {
@@ -253,14 +277,13 @@ impl Route for Window {
     fn render(&mut self, terminal: &mut Terminal<Backend>) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
-                return route.render(terminal);
+                route.render(terminal)?;
+                return Ok(());
             }
         }
-        let mut error_route = ErrorRoute::new(match self.routes.len() == 0 {
-            true => format!("no routes defined"),
-            false => format!("undefined route: {}", self.location),
-        });
-        error_route.render(terminal)
+        self.error
+            .set_error(Error::with_message(format!("no routes declared")));
+        self.error.render(terminal)
     }
 }
 pub fn reset() {
