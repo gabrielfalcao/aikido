@@ -1,14 +1,15 @@
-pub mod menu;
+pub mod components;
 pub mod navigation;
-pub mod overlay;
 use chrono::prelude::*;
 
 use crate::ironpunk;
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
-pub use menu::{dummy_paragraph, MenuComponent};
+pub use components::{
+    menu::{dummy_paragraph, MenuComponent},
+    modal::Modal,
+};
 pub use navigation::*;
-pub use overlay::Overlay;
 
 extern crate clipboard;
 use super::{AES256Secret, AES256Tomb};
@@ -109,7 +110,7 @@ pub struct Application<'a> {
     pub visible: bool,
     pub pin_visible: bool,
     pub menu: MenuComponent,
-    pub overlay: Option<Overlay>,
+    pub overlay: Option<Modal>,
     pub scroll: u16,
     pub items: StatefulList,
 }
@@ -265,7 +266,7 @@ impl<'a> Application<'a> {
     fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    fn set_overlay(&mut self, overlay: Overlay) {
+    fn set_overlay(&mut self, overlay: Modal) {
         self.overlay = Some(overlay);
     }
     fn remove_overlay(&mut self) {
@@ -344,9 +345,7 @@ impl Component for Application<'_> {
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
-                self.set_overlay(Overlay::new("Hello", "World"));
-                send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
-
+                self.set_overlay(Modal::new("Hello", "World"));
                 Ok(Propagate)
             }
             KeyCode::Char('a') => {

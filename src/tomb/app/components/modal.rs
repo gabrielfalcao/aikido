@@ -16,16 +16,16 @@ use tui::{
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
-pub struct Overlay {
+pub struct Modal {
     pub title: String,
     pub text: String,
     active: bool,
 }
-
-impl Overlay {
+/// Modal with editable content
+impl Modal {
     #[allow(dead_code)]
-    pub fn new(title: &str, text: &str) -> Overlay {
-        Overlay {
+    pub fn new(title: &str, text: &str) -> Modal {
+        Modal {
             title: String::from(title),
             text: String::from(text),
             active: true,
@@ -89,12 +89,12 @@ impl Overlay {
     }
 }
 
-impl Component for Overlay {
+impl Component for Modal {
     fn name(&self) -> &str {
-        "Overlay"
+        "Modal"
     }
     fn id(&self) -> String {
-        String::from("Overlay")
+        String::from("Modal")
     }
 
     #[allow(unused_variables)]
