@@ -119,10 +119,10 @@ impl MenuComponent {
                     Span::styled(
                         first,
                         Style::default()
-                            .fg(Color::Green)
+                            .fg(Color::Yellow)
                             .add_modifier(Modifier::UNDERLINED),
                     ),
-                    Span::styled(rest, Style::default().fg(Color::Cyan)),
+                    Span::styled(rest, Style::default().fg(Color::LightBlue)),
                 ])
             })
             .collect();

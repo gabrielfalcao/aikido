@@ -118,6 +118,7 @@ impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("All", KeyCode::Char('a')).unwrap();
+        menu.add_item("Passwords", KeyCode::Char('p')).unwrap();
         menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
         menu.add_item("One-Time Passwords", KeyCode::Char('o'))
             .unwrap();
@@ -163,6 +164,9 @@ impl<'a> Application<'a> {
             Err(err) => self.error = Some(format!("Search error: {}", err)),
         };
     }
+    fn reset_search(&mut self) {
+        self.filter_search(DEFAULT_PATTERN);
+    }
     fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
@@ -192,8 +196,8 @@ impl<'a> Application<'a> {
 
         let list = List::new(items).block(secrets).highlight_style(
             Style::default()
-                .bg(Color::Yellow)
-                .fg(Color::Black)
+                .bg(Color::Green)
+                .fg(Color::LightYellow)
                 .add_modifier(Modifier::BOLD),
         );
 
@@ -336,6 +340,7 @@ impl Component for Application<'_> {
             None => {}
         }
         let code = event.code;
+        self.menu.process_keyboard(terminal, event)?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
@@ -346,19 +351,19 @@ impl Component for Application<'_> {
             }
             KeyCode::Char('a') => {
                 self.set_pattern("*");
-                self.menu.process_keyboard(terminal, event)
+                Ok(Propagate)
             }
             KeyCode::Char('p') => {
                 self.set_pattern("passwords/*");
-                self.menu.process_keyboard(terminal, event)
+                Ok(Propagate)
             }
             KeyCode::Char('s') => {
                 self.set_pattern("secrets/*");
-                self.menu.process_keyboard(terminal, event)
+                Ok(Propagate)
             }
             KeyCode::Char('o') => {
                 self.set_pattern("otp/*");
-                self.menu.process_keyboard(terminal, event)
+                Ok(Propagate)
             }
             KeyCode::Char('r') => {
                 match self.selected_secret_string() {
@@ -395,6 +400,10 @@ impl Component for Application<'_> {
                 self.reset_statusbar();
                 Ok(Propagate)
             }
+            KeyCode::Esc => {
+                self.reset_search();
+                Ok(Propagate)
+            }
             KeyCode::Enter => match self.items.current() {
                 Some(secret) => match self.selected_secret_string() {
                     Ok(plaintext) => {
@@ -418,7 +427,7 @@ impl Component for Application<'_> {
                 },
                 None => Ok(Propagate),
             },
-            _ => self.menu.process_keyboard(terminal, event),
+            _ => Ok(Propagate),
         }
     }
 }
