@@ -242,7 +242,12 @@ impl Route for Window {
         error_route.render(terminal)
     }
 }
+pub fn reset() {
+    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
+}
+
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
+    reset();
     match enable_raw_mode() {
         Ok(_) => {}
         Err(error) => {
@@ -298,7 +303,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         disable_raw_mode()?;
                         terminal.clear()?;
                         terminal.show_cursor()?;
-                        println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
+                        reset();
                         std::process::exit(0);
                     }
                     Ok(Propagate | Prevent) => continue,

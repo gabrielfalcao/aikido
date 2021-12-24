@@ -126,6 +126,9 @@ impl<'a> Application<'a> {
         }
     }
 
+    fn toggle_visible(&mut self) {
+        self.visible = !self.visible;
+    }
     fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
@@ -159,6 +162,7 @@ impl<'a> Application<'a> {
                 .add_modifier(Modifier::BOLD),
         );
 
+        let secret = selected_secret.clone();
         let secret_detail = Table::new(vec![Row::new(vec![
             Cell::from(Span::raw(format!(
                 "{}",
@@ -170,7 +174,13 @@ impl<'a> Application<'a> {
                     .join("")
             ))),
             Cell::from(Span::raw(selected_secret.path)),
-            Cell::from(Span::raw(selected_secret.value)),
+            Cell::from(Span::raw(match self.visible {
+                true => match self.get_plaintext(&secret) {
+                    Ok(plaintext) => plaintext,
+                    Err(err) => format!("{}", err),
+                },
+                false => secret.value,
+            })),
             Cell::from(Span::raw(selected_secret.updated_at.to_string())),
             Cell::from(Span::raw(selected_secret.created_at.to_string())),
         ])])
@@ -296,11 +306,16 @@ impl Component for Application<'_> {
 
                 Ok(Propagate)
             }
+
             KeyCode::Char('s') => {
                 match self.selected_secret_string() {
                     Ok(plaintext) => {
+                        self.toggle_visible();
                         self.reset_statusbar();
-                        self.set_text(&plaintext);
+                        self.set_text(match self.visible {
+                            true => "Secrets visible. (Press 's' again to toggle)",
+                            false => "Secrets hidden. (Press 's' again to toggle)",
+                        });
                     }
                     Err(error) => return Err(error),
                 }

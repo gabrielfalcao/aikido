@@ -1,5 +1,6 @@
 # tomb
 
+- [X] toggle visibility
 - [ ] switch window route when changing tabs
 - [ ] filter secrets
 - [ ] edit a secret
