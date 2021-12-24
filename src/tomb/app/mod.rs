@@ -1,8 +1,11 @@
 pub mod menu;
+pub mod overlay;
+
 use crate::ironpunk;
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
-use menu::{dummy_paragraph, MenuComponent};
+pub use menu::{dummy_paragraph, MenuComponent};
+pub use overlay::Overlay;
 
 extern crate clipboard;
 use super::{AES256Secret, AES256Tomb};
@@ -90,7 +93,7 @@ pub struct Application<'a> {
     pub error: Option<String>,
     pub visible: bool,
     pub menu: MenuComponent,
-
+    pub overlay: Option<Overlay>,
     pub scroll: u16,
     pub items: StatefulList,
 }
@@ -99,15 +102,16 @@ impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let items = tomb.clone().list("*").unwrap();
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
-        menu.add_item("Keys", KeyCode::Char('k')).unwrap();
-        menu.add_item("Preferences", KeyCode::Char('p')).unwrap();
+        menu.add_item("Secrets", KeyCode::Char('S')).unwrap();
+        menu.add_item("Keys", KeyCode::Char('K')).unwrap();
+        menu.add_item("Preferences", KeyCode::Char('P')).unwrap();
 
         Application {
             key,
             menu,
             tomb,
             aes_config,
+            overlay: None,
             text: String::from("Welcome to Tomb!"),
             label: String::from("actions"),
             visible: false,
@@ -235,10 +239,10 @@ impl<'a> Application<'a> {
     }
     fn reset_statusbar(&mut self) {
         match self.selected_secret() {
-            Ok(secret) => {
-                let label = format!("Secret: {}", secret.path);
+            Ok(_) => {
+                let label = format!("Keyboard Shortcuts");
                 self.set_label(label.as_str());
-                self.set_text("('S') show / (Enter or 'C') copy to clipboard");
+                self.set_text("'s' shows the plaintext of the current secret / 'Enter' copies it to clipboard / 'O' shows overlay");
             }
             Err(err) => {
                 let error = format!("{}", err);
@@ -266,7 +270,12 @@ impl Component for Application<'_> {
         let code = event.code;
         match code {
             KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('S') => {
+            KeyCode::Char('O') => {
+                send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
+
+                Ok(Propagate)
+            }
+            KeyCode::Char('s') => {
                 match self.selected_secret_string() {
                     Ok(plaintext) => {
                         self.reset_statusbar();
@@ -286,7 +295,7 @@ impl Component for Application<'_> {
                 self.reset_statusbar();
                 Ok(Propagate)
             }
-            KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
+            KeyCode::Enter => match self.items.current() {
                 Some(secret) => match self.selected_secret_string() {
                     Ok(plaintext) => {
                         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();

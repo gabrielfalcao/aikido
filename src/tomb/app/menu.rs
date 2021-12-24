@@ -90,6 +90,9 @@ impl MenuComponent {
         let item = MenuItem::new(label.clone(), code);
         self.labels.push(label.clone());
         self.items.insert(label, item);
+        if self.selected == None {
+            self.selected = Some(0)
+        }
         Ok(())
     }
     pub fn remove_item(&mut self, item: &str) -> Result<(), Error> {

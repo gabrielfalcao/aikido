@@ -68,7 +68,7 @@ pub enum LoopEvent {
     Quit,
 }
 
-use LoopEvent::*;
+pub use LoopEvent::*;
 pub trait Component {
     fn id(&self) -> String;
     fn name(&self) -> &str;
