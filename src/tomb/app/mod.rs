@@ -7,9 +7,7 @@ extern crate clipboard;
 use super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
-#[allow(unused_imports)]
 use clipboard::{ClipboardContext, ClipboardProvider};
-#[allow(unused_imports)]
 use mac_notification_sys::*;
 
 use crossterm::event::KeyCode;
@@ -207,6 +205,15 @@ impl<'a> Application<'a> {
 
         Ok((list, secret_detail))
     }
+    fn set_text(&mut self, text: &str) {
+        self.text = String::from(text);
+    }
+    fn set_error(&mut self, error: String) {
+        self.error = Some(error.clone());
+    }
+    fn set_label(&mut self, label: &str) {
+        self.label = String::from(label);
+    }
 }
 
 impl Component for Application<'_> {
@@ -216,6 +223,13 @@ impl Component for Application<'_> {
     fn id(&self) -> String {
         String::from("Application")
     }
+    fn selected_secret_string(&mut self) -> Result<String, Error> {
+        match self.items.current() {
+            Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
+            None => Err(Error::with_message(format!("no secret selected"))),
+        }
+    }
+
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
@@ -224,6 +238,36 @@ impl Component for Application<'_> {
     ) -> io::Result<bool> {
         match code {
             KeyCode::Char('q') => Ok(true),
+            KeyCode::Up => {
+                self.items.previous();
+                Ok(false)
+            }
+            KeyCode::Down => {
+                self.items.next();
+                Ok(false)
+            }
+            KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
+                Some(secret) => match self.selected_secret_string() {
+                    Ok(plaintext) => {
+                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                        ctx.set_contents(plaintext).unwrap();
+                        self.set_text("copied to clipboard");
+                        send_notification(
+                            format!("Secret {}", secret.path).as_str(),
+                            &Some("copied to clipboard"),
+                            "",
+                            &Some("Glass"),
+                        )
+                        .unwrap();
+                        Ok(false)
+                    }
+                    Err(error) => {
+                        self.set_error(format!("{}", error));
+                        Ok(false)
+                    }
+                },
+                None => Ok(false),
+            },
             code => self.menu.process_keyboard(terminal, code),
         }
     }
@@ -268,8 +312,11 @@ impl Route for Application<'_> {
                 }
             };
 
-            let footer = dummy_paragraph("Footer", "Ironpunk");
-
+            let (footer_title, footer_label) = match self.error {
+                Some(error) => (error.message.clone(), self.text.clone()),
+                None => (self.label.clone(), self.text.clone()),
+            };
+            let footer = dummy_paragraph(&footer_title, &footer_label);
             self.menu.render_in_parent(rect, chunks[0]).unwrap();
             rect.render_widget(footer, chunks[2]);
         })?;
