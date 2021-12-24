@@ -17,7 +17,7 @@ use crate::aes256cbc::{Config as AesConfig, Key};
 use clipboard::{ClipboardContext, ClipboardProvider};
 use mac_notification_sys::*;
 
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent};
 use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
@@ -40,7 +40,13 @@ impl StatefulList {
             items,
         }
     }
+    pub fn empty() -> StatefulList {
+        StatefulList::with_items(Vec::new())
+    }
 
+    pub fn update(&mut self, items: Vec<AES256Secret>) {
+        self.items = items;
+    }
     pub fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
@@ -80,6 +86,8 @@ impl StatefulList {
     }
 }
 
+const DEFAULT_PATTERN: &'static str = "*";
+
 #[allow(dead_code)]
 pub struct Application<'a> {
     key: Key,
@@ -89,6 +97,7 @@ pub struct Application<'a> {
     _s_table: PhantomData<&'a Table<'a>>,
     started_at: DateTime<Utc>,
     navigation: Navigation,
+    pattern: String,
     pub label: String,
     pub text: String,
     pub error: Option<String>,
@@ -102,7 +111,6 @@ pub struct Application<'a> {
 
 impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
-        let items = tomb.clone().list("*").unwrap();
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("All", KeyCode::Char('a')).unwrap();
         menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
@@ -120,10 +128,11 @@ impl<'a> Application<'a> {
             text: String::from("Welcome to Tomb!"),
             label: String::from("actions"),
             visible: false,
+            pattern: String::from(DEFAULT_PATTERN),
             pin_visible: false,
             scroll: 0,
             error: None,
-            items: StatefulList::with_items(items),
+            items: StatefulList::empty(),
             _s_list: PhantomData,
             _s_table: PhantomData,
         }
@@ -134,6 +143,13 @@ impl<'a> Application<'a> {
     }
     fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
+    }
+    fn set_pinned(&mut self, pin_visible: bool) {
+        self.pin_visible = pin_visible;
+    }
+    fn filter_search(&mut self, pattern: &str) {
+        let mut items = self.tomb.clone().list(pattern).unwrap();
+        self.items.update(items);
     }
     fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
@@ -153,6 +169,7 @@ impl<'a> Application<'a> {
             })
             .collect();
 
+        self.filter_search(self.pattern.clone().as_str());
         let selected_secret = match self.items.current() {
             Some(secret) => secret,
             None => match self.items.items.len() > 0 {
@@ -309,7 +326,7 @@ impl Component for Application<'_> {
         let code = event.code;
         match code {
             KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('K') => {
+            KeyCode::Char('k') | KeyCode::Char('K') => {
                 self.set_overlay(Overlay::new("Hello", "World"));
                 send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
 
@@ -321,6 +338,7 @@ impl Component for Application<'_> {
                     Ok(plaintext) => {
                         self.reset_statusbar();
                         self.set_visible(true);
+                        self.set_pinned(false);
                     }
                     Err(error) => return Err(error),
                 }
@@ -329,7 +347,7 @@ impl Component for Application<'_> {
             KeyCode::Char('t') => {
                 match self.selected_secret_string() {
                     Ok(plaintext) => {
-                        self.pin_visible = true;
+                        self.set_pinned(true);
                         self.toggle_visible();
                         self.set_text(match self.visible {
                             true => "Secrets visible. (Press 't' again to toggle)",

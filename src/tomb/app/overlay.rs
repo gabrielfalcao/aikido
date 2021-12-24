@@ -5,9 +5,10 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::io;
 use tui::{
     backend::CrosstermBackend,
-    layout::Rect,
-    style::{Color, Style},
-    widgets::{Block, BorderType, Borders},
+    layout::{Alignment, Rect},
+    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    widgets::{Block, BorderType, Borders, Paragraph, Wrap},
     Frame, Terminal,
 };
 
@@ -56,7 +57,7 @@ impl Overlay {
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        let secrets = Block::default()
+        let modal = Block::default()
             .borders(Borders::ALL)
             .style(
                 Style::default()
@@ -64,10 +65,22 @@ impl Overlay {
                     .bg(Color::White)
                     .fg(Color::Black),
             )
-            .title("Modal")
+            .title(self.title.clone())
             .border_type(BorderType::Plain);
 
-        parent.render_widget(secrets, chunk);
+        let text = vec![Spans::from(Span::styled(
+            self.text.clone(),
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        ))];
+        let paragraph = Paragraph::new(text)
+            .block(modal)
+            .style(Style::default().bg(Color::White).fg(Color::Black))
+            .alignment(Alignment::Left)
+            .wrap(Wrap { trim: true });
+
+        parent.render_widget(paragraph, chunk);
 
         Ok(())
     }

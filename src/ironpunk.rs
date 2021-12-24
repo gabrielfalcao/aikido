@@ -80,7 +80,7 @@ pub trait Component {
         event: KeyEvent,
     ) -> Result<LoopEvent, Error>;
     fn tick(&mut self, _terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
-        Ok(Propagate)
+        Ok(Refresh)
     }
 }
 
