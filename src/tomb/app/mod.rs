@@ -1,5 +1,6 @@
 pub mod menu;
 use crate::ironpunk;
+use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 use menu::{dummy_paragraph, MenuComponent};
 
@@ -261,20 +262,29 @@ impl Component for Application<'_> {
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
-    ) -> io::Result<bool> {
+    ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {
-            KeyCode::Char('q') => Ok(true),
-            KeyCode::Char('S') => Ok(true),
+            KeyCode::Char('q') => Ok(Quit),
+            KeyCode::Char('S') => {
+                match self.selected_secret_string() {
+                    Ok(plaintext) => {
+                        self.reset_statusbar();
+                        self.set_text(&plaintext);
+                    }
+                    Err(error) => return Err(error),
+                }
+                Ok(Propagate)
+            }
             KeyCode::Up => {
                 self.items.previous();
                 self.reset_statusbar();
-                Ok(false)
+                Ok(Propagate)
             }
             KeyCode::Down => {
                 self.items.next();
                 self.reset_statusbar();
-                Ok(false)
+                Ok(Propagate)
             }
             KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
                 Some(secret) => match self.selected_secret_string() {
@@ -289,14 +299,14 @@ impl Component for Application<'_> {
                             &Some("Glass"),
                         )
                         .unwrap();
-                        Ok(false)
+                        Ok(Propagate)
                     }
                     Err(error) => {
                         self.set_error(format!("{}", error));
-                        Ok(false)
+                        Ok(Propagate)
                     }
                 },
-                None => Ok(false),
+                None => Ok(Propagate),
             },
             _ => self.menu.process_keyboard(terminal, event),
         }

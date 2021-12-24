@@ -31,7 +31,6 @@ pub type BoxedRoute = Box<dyn Route>;
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
 pub type RouteMap = BTreeMap<String, BoxedRoute>;
-
 #[derive(Debug, Error, Clone)]
 pub struct Error {
     pub message: String,
@@ -64,6 +63,12 @@ pub enum Event<I> {
     Tick,
 }
 
+pub enum LoopEvent {
+    Propagate,
+    Quit,
+}
+
+use LoopEvent::*;
 pub trait Component {
     fn id(&self) -> String;
     fn name(&self) -> &str;
@@ -71,7 +76,7 @@ pub trait Component {
         &mut self,
         terminal: &mut Terminal<Backend>,
         event: KeyEvent,
-    ) -> io::Result<bool>;
+    ) -> Result<LoopEvent, Error>;
 }
 
 pub trait Route
@@ -139,10 +144,10 @@ impl Component for ErrorRoute {
         &mut self,
         terminal: &mut Terminal<Backend>,
         event: KeyEvent,
-    ) -> io::Result<bool> {
+    ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Char('q') => Ok(true),
-            _ => Ok(false),
+            KeyCode::Char('q') => Ok(Quit),
+            _ => Ok(Propagate),
         }
     }
 }
@@ -165,8 +170,8 @@ impl Window {
         Window::from_routes(BoxedRoutes::new())
     }
     #[allow(unused_variables)]
-    pub fn tick(&self, terminal: &mut Terminal<Backend>) -> io::Result<bool> {
-        Ok(true)
+    pub fn tick(&self, terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+        Ok(Quit)
     }
 }
 
@@ -181,7 +186,7 @@ impl Component for Window {
         &mut self,
         terminal: &mut Terminal<Backend>,
         event: KeyEvent,
-    ) -> io::Result<bool> {
+    ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
                 return route.process_keyboard(terminal, event);
@@ -260,14 +265,14 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
 
         match rx.recv()? {
             Event::Input(event) => match window.process_keyboard(&mut terminal, event) {
-                Ok(true) => {
+                Ok(Quit) => {
                     //Ok(return Box::new(quit(&mut terminal))),
                     disable_raw_mode()?;
                     terminal.show_cursor()?;
                     terminal.clear()?;
                     return Ok(());
                 }
-                Ok(false) => continue,
+                Ok(Propagate) => continue,
                 Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
             },
             Event::Tick => match window.tick(&mut terminal) {

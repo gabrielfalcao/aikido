@@ -1,3 +1,4 @@
+use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
@@ -150,7 +151,7 @@ impl Component for MenuComponent {
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
-    ) -> io::Result<bool> {
+    ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {
             KeyCode::Right => self.next(),
@@ -160,14 +161,14 @@ impl Component for MenuComponent {
                     let label = label.clone();
                     if item.code == code {
                         match self.select(&label) {
-                            Ok(_) => return Ok(false),
-                            Err(error) => return Ok(true),
+                            Ok(_) => return Ok(Propagate),
+                            Err(error) => return Ok(Quit),
                         };
                     }
                 }
             }
         }
-        Ok(false)
+        Ok(Propagate)
     }
 }
 
