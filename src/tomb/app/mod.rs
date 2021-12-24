@@ -107,7 +107,7 @@ impl<'a> Application<'a> {
             menu,
             tomb,
             aes_config,
-            text: String::from("('s') show / (Enter or 'c') copy to clipboard"),
+            text: String::from("Welcome to Tomb!"),
             label: String::from("actions"),
             visible: false,
             scroll: 0,
@@ -214,6 +214,37 @@ impl<'a> Application<'a> {
     fn set_label(&mut self, label: &str) {
         self.label = String::from(label);
     }
+    fn selected_secret(&mut self) -> Result<AES256Secret, Error> {
+        match self.items.current() {
+            Some(secret) => Ok(secret),
+            None => Err(Error::with_message(format!("no secret selected"))),
+        }
+    }
+    fn get_plaintext(&mut self, secret: &AES256Secret) -> Result<String, Error> {
+        match self.tomb.get_string(secret.path.as_str(), self.key.clone()) {
+            Ok(secret) => Ok(secret),
+            Err(err) => return Err(Error::with_message(format!("{}", err))),
+        }
+    }
+    fn selected_secret_string(&mut self) -> Result<String, Error> {
+        match self.selected_secret() {
+            Ok(secret) => self.get_plaintext(&secret),
+            Err(err) => Err(err),
+        }
+    }
+    fn reset_statusbar(&mut self) {
+        match self.selected_secret() {
+            Ok(secret) => {
+                let label = format!("Secret: {}", secret.path);
+                self.set_label(label.as_str());
+                self.set_text("('s') show / (Enter or 'c') copy to clipboard");
+            }
+            Err(err) => {
+                self.set_label("Actions");
+                self.set_text("('s') show / (Enter or 'c') copy to clipboard");
+            }
+        }
+    }
 }
 
 impl Component for Application<'_> {
@@ -222,12 +253,6 @@ impl Component for Application<'_> {
     }
     fn id(&self) -> String {
         String::from("Application")
-    }
-    fn selected_secret_string(&mut self) -> Result<String, Error> {
-        match self.items.current() {
-            Some(secret) => self.tomb.get_string(secret.path.as_str(), self.key.clone()),
-            None => Err(Error::with_message(format!("no secret selected"))),
-        }
     }
 
     #[allow(unused_variables)]
@@ -240,10 +265,12 @@ impl Component for Application<'_> {
             KeyCode::Char('q') => Ok(true),
             KeyCode::Up => {
                 self.items.previous();
+                self.reset_statusbar();
                 Ok(false)
             }
             KeyCode::Down => {
                 self.items.next();
+                self.reset_statusbar();
                 Ok(false)
             }
             KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
@@ -312,8 +339,8 @@ impl Route for Application<'_> {
                 }
             };
 
-            let (footer_title, footer_label) = match self.error {
-                Some(error) => (error.message.clone(), self.text.clone()),
+            let (footer_title, footer_label) = match self.error.clone() {
+                Some(error) => (error.clone(), self.text.clone()),
                 None => (self.label.clone(), self.text.clone()),
             };
             let footer = dummy_paragraph(&footer_title, &footer_label);
