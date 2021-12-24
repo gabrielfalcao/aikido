@@ -174,6 +174,19 @@ impl Window {
     pub fn new() -> Window {
         Window::from_routes(BoxedRoutes::new())
     }
+    pub fn goto(&mut self, location: &str) {
+        let location = String::from(location);
+        self.history.push(location.clone());
+        self.location = location;
+    }
+    pub fn goback(&mut self) {
+        match self.history.pop() {
+            Some(location) => {
+                self.location = location;
+            }
+            None => {}
+        }
+    }
     #[allow(unused_variables)]
     pub fn tick(&mut self, terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
         for route in &mut self.routes {
