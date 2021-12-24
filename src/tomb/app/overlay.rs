@@ -3,17 +3,11 @@ use crate::ironpunk::*;
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::io;
-#[allow(unused_imports)]
 use tui::{
-    backend::{Backend, CrosstermBackend},
-    buffer::Buffer,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Widget,
-        Wrap,
-    },
+    backend::CrosstermBackend,
+    layout::Rect,
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders},
     Frame, Terminal,
 };
 

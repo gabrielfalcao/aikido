@@ -17,17 +17,13 @@ use mac_notification_sys::*;
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{io, marker::PhantomData};
-#[allow(unused_imports)]
 use tui::{
-    backend::{Backend, CrosstermBackend},
-    layout::{Alignment, Constraint, Direction, Layout},
+    backend::CrosstermBackend,
+    layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Widget,
-        Wrap,
-    },
-    Frame, Terminal,
+    widgets::{Block, BorderType, Borders, Cell, List, ListItem, ListState, Row, Table},
+    Terminal,
 };
 
 pub struct StatefulList {
