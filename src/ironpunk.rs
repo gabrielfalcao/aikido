@@ -1,6 +1,6 @@
 use console;
 use crossterm::{
-    event::{self, Event as CEvent, KeyCode},
+    event::{self, Event as CEvent, KeyCode, KeyEvent},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use route_recognizer::Router;
@@ -70,7 +70,7 @@ pub trait Component {
     fn process_keyboard(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        code: KeyCode,
+        event: KeyEvent,
     ) -> io::Result<bool>;
 }
 
@@ -138,9 +138,9 @@ impl Component for ErrorRoute {
     fn process_keyboard(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        code: KeyCode,
+        event: KeyEvent,
     ) -> io::Result<bool> {
-        match code {
+        match event.code {
             KeyCode::Char('q') => Ok(true),
             _ => Ok(false),
         }
@@ -180,11 +180,11 @@ impl Component for Window {
     fn process_keyboard(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        code: KeyCode,
+        event: KeyEvent,
     ) -> io::Result<bool> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
-                return route.process_keyboard(terminal, code);
+                return route.process_keyboard(terminal, event);
             }
         }
         let mut error_route = ErrorRoute {
@@ -193,7 +193,7 @@ impl Component for Window {
                 false => Error::with_message(format!("undefined route: {}", self.location)),
             },
         };
-        error_route.process_keyboard(terminal, code)
+        error_route.process_keyboard(terminal, event)
     }
 }
 impl Route for Window {
@@ -259,7 +259,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
         window.render(&mut terminal)?;
 
         match rx.recv()? {
-            Event::Input(event) => match window.process_keyboard(&mut terminal, event.code) {
+            Event::Input(event) => match window.process_keyboard(&mut terminal, event) {
                 Ok(true) => {
                     //Ok(return Box::new(quit(&mut terminal))),
                     disable_raw_mode()?;

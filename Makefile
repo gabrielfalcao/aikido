@@ -140,7 +140,7 @@ tomb-copy: build cls
 tomb-delete: build cls
 	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) foo
 
-tomb-ui: build cls
+tomb-ui: tomb
 	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 obfuskat3: cls 0b4sk8d.yaml
@@ -156,9 +156,6 @@ ipleak: build cls
 
 load: clean build
 	./aestest.sh
-
-app pets: clean build check
-	cargo run --bin $@
 
 $(AES256_RELEASE_BIN):
 	@cargo build --release

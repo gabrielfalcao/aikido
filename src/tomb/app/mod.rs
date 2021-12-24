@@ -10,7 +10,7 @@ use crate::aes256cbc::{Config as AesConfig, Key};
 use clipboard::{ClipboardContext, ClipboardProvider};
 use mac_notification_sys::*;
 
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyEvent};
 use std::{io, marker::PhantomData};
 #[allow(unused_imports)]
 use tui::{
@@ -237,11 +237,12 @@ impl<'a> Application<'a> {
             Ok(secret) => {
                 let label = format!("Secret: {}", secret.path);
                 self.set_label(label.as_str());
-                self.set_text("('s') show / (Enter or 'c') copy to clipboard");
+                self.set_text("('S') show / (Enter or 'C') copy to clipboard");
             }
             Err(err) => {
-                self.set_label("Actions");
-                self.set_text("('s') show / (Enter or 'c') copy to clipboard");
+                let error = format!("{}", err);
+                self.set_label("Error");
+                self.set_text(&error);
             }
         }
     }
@@ -259,10 +260,12 @@ impl Component for Application<'_> {
     fn process_keyboard(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        code: KeyCode,
+        event: KeyEvent,
     ) -> io::Result<bool> {
+        let code = event.code;
         match code {
             KeyCode::Char('q') => Ok(true),
+            KeyCode::Char('S') => Ok(true),
             KeyCode::Up => {
                 self.items.previous();
                 self.reset_statusbar();
@@ -295,7 +298,7 @@ impl Component for Application<'_> {
                 },
                 None => Ok(false),
             },
-            code => self.menu.process_keyboard(terminal, code),
+            _ => self.menu.process_keyboard(terminal, event),
         }
     }
 }

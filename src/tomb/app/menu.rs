@@ -1,5 +1,5 @@
 use crate::ironpunk::*;
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
 use tui::{
     backend::CrosstermBackend,
@@ -149,20 +149,20 @@ impl Component for MenuComponent {
     fn process_keyboard(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        code: KeyCode,
+        event: KeyEvent,
     ) -> io::Result<bool> {
+        let code = event.code;
         match code {
             KeyCode::Right => self.next(),
             KeyCode::Left => self.previous(),
-            _ => {
+            code => {
                 for (label, item) in &self.items {
                     let label = label.clone();
                     if item.code == code {
                         match self.select(&label) {
-                            Ok(_) => {}
+                            Ok(_) => return Ok(false),
                             Err(error) => return Ok(true),
                         };
-                        return Ok(false);
                     }
                 }
             }
