@@ -1,7 +1,10 @@
 # tomb
 
 - [X] toggle visibility
-- [ ] switch window route when changing tabs
+- SPIKE: switch window route when changing tabs
+  - not viable to implement with current architecture: the routing
+    should be done in the application side, not inside of ironpunk.
+
 - [ ] filter secrets
 - [ ] edit a secret
 - [ ] delete a secret

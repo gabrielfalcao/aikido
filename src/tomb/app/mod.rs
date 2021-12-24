@@ -1,4 +1,5 @@
 pub mod menu;
+pub mod navigation;
 pub mod overlay;
 use chrono::prelude::*;
 
@@ -6,6 +7,7 @@ use crate::ironpunk;
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 pub use menu::{dummy_paragraph, MenuComponent};
+pub use navigation::*;
 pub use overlay::Overlay;
 
 extern crate clipboard;
@@ -86,6 +88,7 @@ pub struct Application<'a> {
     _s_list: PhantomData<&'a List<'a>>,
     _s_table: PhantomData<&'a Table<'a>>,
     started_at: DateTime<Utc>,
+    navigation: Navigation,
     pub label: String,
     pub text: String,
     pub error: Option<String>,
@@ -109,6 +112,7 @@ impl<'a> Application<'a> {
             menu,
             tomb,
             aes_config,
+            navigation: Navigation::new("/"),
             started_at: Utc::now(),
             overlay: None,
             text: String::from("Welcome to Tomb!"),

@@ -7,3 +7,5 @@
 /tmp
 /tomb.yaml
 /.idea
+*#*
+*.#*
