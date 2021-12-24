@@ -156,6 +156,14 @@ impl Component for ErrorRoute {
         }
     }
 }
+
+pub fn call_callback<'a, F>(value: &'a str, callback: F) -> String
+where
+    F: Fn(&str) -> String,
+{
+    callback(value)
+}
+
 #[allow(dead_code)]
 pub struct Window {
     routes: BoxedRoutes,
