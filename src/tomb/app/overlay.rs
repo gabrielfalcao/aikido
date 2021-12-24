@@ -1,7 +1,7 @@
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::io;
 #[allow(unused_imports)]
 use tui::{
@@ -22,6 +22,7 @@ use tui::{
 pub struct Overlay {
     pub title: String,
     pub text: String,
+    active: bool,
 }
 
 impl Overlay {
@@ -30,6 +31,7 @@ impl Overlay {
         Overlay {
             title: String::from(title),
             text: String::from(text),
+            active: true,
         }
     }
     #[allow(dead_code)]
@@ -40,6 +42,21 @@ impl Overlay {
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
+    #[allow(dead_code)]
+    pub fn write(&mut self, c: char) {
+        self.text.push(c);
+    }
+    #[allow(dead_code)]
+    pub fn backspace(&mut self) {
+        self.text.pop();
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.active
+    }
+    pub fn deactivate(&mut self) {
+        self.active = false;
+    }
     pub fn render_in_parent(
         &self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
@@ -47,7 +64,7 @@ impl Overlay {
     ) -> Result<(), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
+            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
             .title("Modal")
             .border_type(BorderType::Plain);
 
@@ -72,7 +89,18 @@ impl Component for Overlay {
         event: KeyEvent,
     ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Char('q') => Ok(Quit),
+            KeyCode::Backspace => {
+                self.backspace();
+                Ok(Propagate)
+            }
+            KeyCode::Char(c) => {
+                if c == 'q' && event.modifiers == KeyModifiers::CONTROL {
+                    self.deactivate();
+                    return Ok(Propagate);
+                }
+                self.write(c);
+                Ok(Propagate)
+            }
             _ => Ok(Propagate),
         }
     }

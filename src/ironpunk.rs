@@ -65,6 +65,8 @@ pub enum Event<I> {
 
 pub enum LoopEvent {
     Propagate,
+    Prevent,
+    Refresh,
     Quit,
 }
 
@@ -77,6 +79,9 @@ pub trait Component {
         terminal: &mut Terminal<Backend>,
         event: KeyEvent,
     ) -> Result<LoopEvent, Error>;
+    fn tick(&mut self, _terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+        Ok(Propagate)
+    }
 }
 
 pub trait Route
@@ -170,8 +175,26 @@ impl Window {
         Window::from_routes(BoxedRoutes::new())
     }
     #[allow(unused_variables)]
-    pub fn tick(&self, terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
-        Ok(Quit)
+    pub fn tick(&mut self, terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+        for route in &mut self.routes {
+            // tick every child route
+            match route.tick(terminal) {
+                Ok(Propagate) => {
+                    // proceed to next route
+                    continue;
+                }
+                Ok(Refresh) => {
+                    // rerender and propagate
+                    self.render(terminal)?;
+                    return Ok(Propagate);
+                }
+                Ok(any) => {
+                    return Ok(any);
+                }
+                Err(err) => return Err(Error::with_message(format!("{}", err))),
+            }
+        }
+        Ok(Propagate)
     }
 }
 
@@ -272,13 +295,30 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     terminal.clear()?;
                     return Ok(());
                 }
-                Ok(Propagate) => continue,
+                Ok(Propagate | Prevent) => continue,
+                Ok(Refresh) => match window.render(&mut terminal) {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(Error::with_message(format!("{}", e))),
+                },
                 Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
             },
-            Event::Tick => match window.tick(&mut terminal) {
-                Ok(value) => value,
-                Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
-            },
+            Event::Tick => {
+                match window.tick(&mut terminal) {
+                    Ok(Refresh) => {
+                        window.render(&mut terminal)?;
+                        Ok(())
+                    }
+                    Ok(Prevent | Propagate) => continue,
+                    Ok(Quit) => {
+                        //Ok(return Box::new(quit(&mut terminal))),
+                        disable_raw_mode()?;
+                        terminal.show_cursor()?;
+                        terminal.clear()?;
+                        return Ok(());
+                    }
+                    Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+                }
+            }
         };
     }
 }

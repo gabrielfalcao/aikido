@@ -127,6 +127,12 @@ tomb-save: build cls
 	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) foo bar
 	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) another-secret "another value"
 	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) last-secret "last value"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/work/gmail" "Sup@DupAs3cr3T"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/work/vpn" "Sup@1wadsaa"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/work/employee_id" "42069"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/personal/gmail" "s(22;@dup3cr3t"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/personal/spotify" "COCCOp@d99"
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) "passwords/personal/employee_id" "42069"
 
 tomb-list: build cls
 	$(TOMB_BIN) list -k $(TOMB_KEY) -t $(TOMB_FILE)
@@ -140,7 +146,7 @@ tomb-copy: build cls
 tomb-delete: build cls
 	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) foo
 
-tomb-ui: tomb
+tomb-ui: tomb-create tomb-save
 	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 obfuskat3: cls 0b4sk8d.yaml

@@ -1,5 +1,6 @@
 pub mod menu;
 pub mod overlay;
+use chrono::prelude::*;
 
 use crate::ironpunk;
 use crate::ironpunk::LoopEvent::*;
@@ -14,7 +15,7 @@ use crate::aes256cbc::{Config as AesConfig, Key};
 use clipboard::{ClipboardContext, ClipboardProvider};
 use mac_notification_sys::*;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{io, marker::PhantomData};
 #[allow(unused_imports)]
 use tui::{
@@ -88,7 +89,7 @@ pub struct Application<'a> {
     aes_config: AesConfig,
     _s_list: PhantomData<&'a List<'a>>,
     _s_table: PhantomData<&'a Table<'a>>,
-
+    started_at: DateTime<Utc>,
     pub label: String,
     pub text: String,
     pub error: Option<String>,
@@ -112,6 +113,7 @@ impl<'a> Application<'a> {
             menu,
             tomb,
             aes_config,
+            started_at: Utc::now(),
             overlay: None,
             text: String::from("Welcome to Tomb!"),
             label: String::from("actions"),
@@ -159,11 +161,11 @@ impl<'a> Application<'a> {
 
         let secret_detail = Table::new(vec![Row::new(vec![
             Cell::from(Span::raw(format!(
-                "0x{}",
+                "{}",
                 selected_secret
                     .digest
                     .iter()
-                    .map(|b| format!("{:02X}", *b))
+                    .map(|b| format!("{:02x}", *b))
                     .collect::<Vec::<_>>()
                     .join("")
             ))),
@@ -174,23 +176,23 @@ impl<'a> Application<'a> {
         ])])
         .header(Row::new(vec![
             Cell::from(Span::styled(
-                "Digest",
+                "digest",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "Name",
+                "name",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "Value",
+                "base64-encoded cyphertext",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "Updated At",
+                "updated at",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "Created At",
+                "created at",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
         ]))
@@ -276,19 +278,18 @@ impl Component for Application<'_> {
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
-                return overlay.process_keyboard(terminal, event);
+                if event.code == KeyCode::Char('q') && event.modifiers == KeyModifiers::CONTROL {
+                    self.remove_overlay();
+                    return Ok(Propagate);
+                } else {
+                    return overlay.process_keyboard(terminal, event);
+                }
             }
             None => {}
         }
         let code = event.code;
         match code {
-            KeyCode::Char('q') => match self.overlay {
-                Some(_) => {
-                    self.remove_overlay();
-                    Ok(Propagate)
-                }
-                None => Ok(Quit),
-            },
+            KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('O') => {
                 self.set_overlay(Overlay::new("Hello", "World"));
                 send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
