@@ -332,7 +332,8 @@ impl Component for Application<'_> {
                     Ok(plaintext) => {
                         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
                         ctx.set_contents(plaintext).unwrap();
-                        self.set_text("copied to clipboard");
+                        let text = format!("{} copied to clipboard", secret.path);
+                        self.set_text(&text);
                         send_notification(
                             format!("Secret {}", secret.path).as_str(),
                             &Some("copied to clipboard"),
