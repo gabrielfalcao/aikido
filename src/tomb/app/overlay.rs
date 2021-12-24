@@ -58,7 +58,12 @@ impl Overlay {
     ) -> Result<(), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
+            .style(
+                Style::default()
+                    .bg(Color::DarkGray)
+                    .bg(Color::White)
+                    .fg(Color::Black),
+            )
             .title("Modal")
             .border_type(BorderType::Plain);
 
@@ -87,13 +92,13 @@ impl Component for Overlay {
                 self.backspace();
                 Ok(Propagate)
             }
+            KeyCode::Esc => {
+                self.deactivate();
+                return Ok(Propagate);
+            }
             KeyCode::Char(c) => {
-                if c == 'q' && event.modifiers == KeyModifiers::CONTROL {
-                    self.deactivate();
-                    return Ok(Propagate);
-                }
                 self.write(c);
-                Ok(Propagate)
+                Ok(Refresh)
             }
             _ => Ok(Propagate),
         }

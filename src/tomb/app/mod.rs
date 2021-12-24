@@ -93,6 +93,7 @@ pub struct Application<'a> {
     pub text: String,
     pub error: Option<String>,
     pub visible: bool,
+    pub pin_visible: bool,
     pub menu: MenuComponent,
     pub overlay: Option<Overlay>,
     pub scroll: u16,
@@ -103,9 +104,10 @@ impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let items = tomb.clone().list("*").unwrap();
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("Secrets", KeyCode::Char('S')).unwrap();
-        menu.add_item("Keys", KeyCode::Char('K')).unwrap();
-        menu.add_item("Preferences", KeyCode::Char('P')).unwrap();
+        menu.add_item("All", KeyCode::Char('a')).unwrap();
+        menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
+        menu.add_item("One-Time Passwords", KeyCode::Char('s'))
+            .unwrap();
 
         Application {
             key,
@@ -118,6 +120,7 @@ impl<'a> Application<'a> {
             text: String::from("Welcome to Tomb!"),
             label: String::from("actions"),
             visible: false,
+            pin_visible: false,
             scroll: 0,
             error: None,
             items: StatefulList::with_items(items),
@@ -128,6 +131,9 @@ impl<'a> Application<'a> {
 
     fn toggle_visible(&mut self) {
         self.visible = !self.visible;
+    }
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
     fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
@@ -257,11 +263,14 @@ impl<'a> Application<'a> {
         }
     }
     fn reset_statusbar(&mut self) {
+        if !self.pin_visible {
+            self.set_visible(false);
+        }
         match self.selected_secret() {
             Ok(_) => {
                 let label = format!("Keyboard Shortcuts");
                 self.set_label(label.as_str());
-                self.set_text("'s' shows the plaintext of the current secret / 'Enter' copies it to clipboard / 'O' shows overlay");
+                self.set_text("'t' toggles the visibility of secrets / 'r' reveals the plaintext of the current secret / 'Enter' copies it to clipboard / 'O' shows overlay");
             }
             Err(err) => {
                 let error = format!("{}", err);
@@ -288,7 +297,7 @@ impl Component for Application<'_> {
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
-                if event.code == KeyCode::Char('q') && event.modifiers == KeyModifiers::CONTROL {
+                if event.code == KeyCode::Esc {
                     self.remove_overlay();
                     return Ok(Propagate);
                 } else {
@@ -300,21 +309,31 @@ impl Component for Application<'_> {
         let code = event.code;
         match code {
             KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('O') => {
+            KeyCode::Char('K') => {
                 self.set_overlay(Overlay::new("Hello", "World"));
                 send_notification("Overlay Open!", &Some("success"), "", &Some("Blow")).unwrap();
 
                 Ok(Propagate)
             }
 
-            KeyCode::Char('s') => {
+            KeyCode::Char('r') => {
                 match self.selected_secret_string() {
                     Ok(plaintext) => {
-                        self.toggle_visible();
                         self.reset_statusbar();
+                        self.set_visible(true);
+                    }
+                    Err(error) => return Err(error),
+                }
+                Ok(Propagate)
+            }
+            KeyCode::Char('t') => {
+                match self.selected_secret_string() {
+                    Ok(plaintext) => {
+                        self.pin_visible = true;
+                        self.toggle_visible();
                         self.set_text(match self.visible {
-                            true => "Secrets visible. (Press 's' again to toggle)",
-                            false => "Secrets hidden. (Press 's' again to toggle)",
+                            true => "Secrets visible. (Press 't' again to toggle)",
+                            false => "Secrets hidden. (Press 't' again to toggle)",
                         });
                     }
                     Err(error) => return Err(error),
@@ -383,7 +402,40 @@ impl Route for Application<'_> {
                 .split(size);
 
             match &self.overlay {
-                Some(overlay) => overlay.render_in_parent(rect, chunks[1]).unwrap(),
+                Some(overlay) => {
+                    // TODO: render overlay as modal in the middle of the screen
+                    // step 1: divide the screen into 3 vertical chunks
+                    // step 2: take the middle chunk and split into 3 horizontal chunks
+                    // step 3: take the middle chunk
+                    let screen = chunks[1];
+                    let vertical_chunks = Layout::default()
+                        .direction(Direction::Vertical)
+                        .margin(2)
+                        .constraints(
+                            [
+                                Constraint::Percentage(33),
+                                Constraint::Percentage(33),
+                                Constraint::Percentage(33),
+                            ]
+                            .as_ref(),
+                        )
+                        .split(screen);
+                    let horizontal_chunks = Layout::default()
+                        .direction(Direction::Horizontal)
+                        .constraints(
+                            [
+                                Constraint::Percentage(33),
+                                Constraint::Percentage(33),
+                                Constraint::Percentage(33),
+                            ]
+                            .as_ref(),
+                        )
+                        .split(vertical_chunks[1]);
+
+                    overlay
+                        .render_in_parent(rect, horizontal_chunks[1])
+                        .unwrap()
+                }
                 None => {
                     let secrets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
