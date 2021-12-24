@@ -264,8 +264,12 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                 .unwrap_or_else(|| Duration::from_secs(0));
 
             if event::poll(timeout).expect("poll works") {
-                if let CEvent::Key(key) = event::read().expect("can read events") {
-                    tx.send(Event::Input(key)).expect("can send events");
+                match event::read().expect("can read events") {
+                    CEvent::Key(event) => {
+                        tx.send(Event::Input(event)).expect("can send events");
+                    }
+                    CEvent::Mouse(_event) => {}
+                    CEvent::Resize(_width, _height) => {}
                 }
             }
 
@@ -287,27 +291,29 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
         window.render(&mut terminal)?;
 
         match rx.recv()? {
-            Event::Input(event) => match window.process_keyboard(&mut terminal, event) {
-                Ok(Quit) => {
-                    //Ok(return Box::new(quit(&mut terminal))),
-                    disable_raw_mode()?;
-                    terminal.clear()?;
-                    terminal.show_cursor()?;
-                    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
-                    return Ok(());
-                }
-                Ok(Propagate | Prevent) => continue,
-                Ok(Refresh) => match window.render(&mut terminal) {
-                    Ok(_) => Ok(()),
-                    Err(e) => Err(Error::with_message(format!("{}", e))),
-                },
-                Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
-            },
+            Event::Input(event) => {
+                match window.process_keyboard(&mut terminal, event) {
+                    Ok(Quit) => {
+                        //Ok(return Box::new(quit(&mut terminal))),
+                        disable_raw_mode()?;
+                        terminal.clear()?;
+                        terminal.show_cursor()?;
+                        println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
+                        std::process::exit(0);
+                    }
+                    Ok(Propagate | Prevent) => continue,
+                    Ok(Refresh) => match window.render(&mut terminal) {
+                        Ok(_) => continue,
+                        Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
+                    },
+                    Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+                };
+            }
             Event::Tick => {
                 match window.tick(&mut terminal) {
                     Ok(Refresh) => {
                         window.render(&mut terminal)?;
-                        Ok(())
+                        continue;
                     }
                     Ok(Prevent | Propagate) => continue,
                     Ok(Quit) => {
@@ -315,11 +321,11 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         disable_raw_mode()?;
                         terminal.show_cursor()?;
                         terminal.clear()?;
-                        return Ok(());
+                        std::process::exit(0);
                     }
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
-                }
+                };
             }
-        };
+        }
     }
 }
