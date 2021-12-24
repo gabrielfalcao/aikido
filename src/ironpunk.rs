@@ -291,8 +291,9 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                 Ok(Quit) => {
                     //Ok(return Box::new(quit(&mut terminal))),
                     disable_raw_mode()?;
-                    terminal.show_cursor()?;
                     terminal.clear()?;
+                    terminal.show_cursor()?;
+                    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
                     return Ok(());
                 }
                 Ok(Propagate | Prevent) => continue,
