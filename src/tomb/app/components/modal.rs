@@ -74,15 +74,17 @@ impl Component for Modal {
             .title(self.title.clone())
             .border_type(BorderType::Rounded);
 
+        let paragraph_style = Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD);
+
         let text = vec![Spans::from(Span::styled(
             self.text.clone(),
-            Style::default()
-                .fg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
+            paragraph_style.clone(),
         ))];
         let paragraph = Paragraph::new(text)
             .block(modal)
-            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
+            .style(paragraph_style)
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: false });
 

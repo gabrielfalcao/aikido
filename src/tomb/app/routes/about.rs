@@ -1,5 +1,5 @@
 use crate::aes256cbc::Config as AesConfig;
-use crate::core::{AUTHOR, VERSION};
+use crate::core::VERSION;
 
 use crate::ironpunk::*;
 
@@ -8,7 +8,7 @@ use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
     layout::Alignment,
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
@@ -41,20 +41,41 @@ impl Component for About<'_> {
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        let about = format!("Tomb version {} by {}", VERSION, AUTHOR);
+        let paragraph_style = Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD);
 
-        let footer = Paragraph::new(about)
-            .style(Style::default().fg(Color::LightGreen))
-            .alignment(Alignment::Center)
-            .block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .style(Style::default().fg(Color::White))
-                    .title("About")
-                    .border_type(BorderType::Plain),
-            );
+        let version = format!("Version {}", VERSION);
 
-        rect.render_widget(footer, chunk);
+        let about = Paragraph::new(vec![
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("Tomb - Password Manager")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("powered by AES-256-CBC encryption")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw(&version)]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("https://github.com/tomb/tomb")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("")]),
+            Spans::from(vec![Span::raw("Created by: Gabriel Falcão")]),
+            Spans::from(vec![Span::raw("twitter: @gabrielfalcao")]),
+        ])
+        .style(Style::default().fg(Color::LightGreen))
+        .alignment(Alignment::Center)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .title("About Tomb")
+                .border_type(BorderType::Plain),
+        );
+
+        rect.render_widget(about, chunk);
         Ok(())
     }
 

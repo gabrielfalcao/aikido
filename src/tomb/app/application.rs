@@ -59,9 +59,9 @@ impl<'a> Application<'a> {
         menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
         menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
             .unwrap(); // TODO: use route_recognizer with capture param :filter {secrets/passwords/otp}
-        menu.add_item("About", KeyCode::Char('a'), "/about")
-            .unwrap();
         menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
+            .unwrap();
+        menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
 
         Application {
@@ -445,7 +445,7 @@ impl Route for Application<'_> {
                     let secrets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
                         .constraints(
-                            [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
+                            [Constraint::Percentage(50), Constraint::Percentage(50)].as_ref(),
                         )
                         .split(chunks[1]);
                     let path = context.borrow().location.clone();

@@ -68,6 +68,7 @@ pub enum Event<I> {
     Tick,
 }
 
+#[derive(Debug)]
 pub enum LoopEvent {
     Propagate,
     Prevent,
@@ -259,14 +260,17 @@ impl Route for ErrorRoute {
         context: SharedContext,
         router: SharedRouter,
     ) -> Result<(), Error> {
+        terminal.draw(|parent| {
+            match self.render_in_parent(parent, parent.size()) {
+                Ok(_) => {}
+                Err(err) => {
+                    log(format!("error drawing ErrorRoute: {}", err));
+                }
+            };
+        })?;
+
         match &self.error {
-            Some(error) => {
-                let paragraph = error_text(&self.label, &self.title, &error.message);
-                terminal.draw(|parent| {
-                    let chunk = get_modal_rect(parent.size());
-                    parent.render_widget(paragraph, chunk);
-                })?;
-            }
+            Some(error) => {}
             None => {}
         };
         Ok(())
@@ -285,9 +289,17 @@ impl Component for ErrorRoute {
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        Err(Error::with_message(format!(
-            "not implemented by error route"
-        )))
+        match &self.error {
+            Some(error) => {
+                let paragraph = error_text(&self.label, &self.title, &error.message);
+                let chunk = get_modal_rect(parent.size());
+                parent.render_widget(paragraph, chunk);
+                Ok(())
+            }
+            None => Err(Error::with_message(format!(
+                "ErrorRoute::render_in_parent as called without containing an error to show"
+            ))),
+        }
     }
 
     #[allow(unused_variables)]

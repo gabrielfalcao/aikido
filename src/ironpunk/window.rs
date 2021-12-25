@@ -81,6 +81,10 @@ impl Component for Window<'_> {
                 context.clone(),
                 router.clone(),
             )?;
+            log(format!(
+                "window.process_keyboard() (for error) result: {:?}",
+                result
+            ));
 
             match result {
                 Quit => {
@@ -103,6 +107,12 @@ impl Component for Window<'_> {
                     router.clone(),
                 ) {
                     Err(err) => {
+                        log(format!(
+                            "window.process_keyboard() failed for route {:?}: {}",
+                            matched.handler().borrow().name(),
+                            err
+                        ));
+
                         context.borrow_mut().error.set_error(err);
                         return Ok(Refresh);
                     }
