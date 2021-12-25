@@ -44,6 +44,10 @@ release:
 
 fmt:
 	rustfmt --edition 2021 src/*.rs
+
+fix:
+	cargo fix --allow-dirty --allow-staged
+
 tmp:
 	@rm -rf tmp
 	@mkdir -p tmp/{Foo,BAR,BaZ,}/{One,TWO,THree@FouR}
@@ -65,7 +69,7 @@ test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
-build: check
+build: check fix fmt
 	cargo build
 
 check:
@@ -175,4 +179,4 @@ $(AES256_DEBUG_BIN):
 app: tomb-ui
 
 
-.PHONY: all release fmt tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets
+.PHONY: all release fmt tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets fix

@@ -1,8 +1,10 @@
 pub mod components;
 pub mod routes;
+pub mod state;
 use chrono::prelude::*;
 
 use crate::ironpunk;
+pub use state::*;
 
 use crate::ironpunk::*;
 pub use components::{
@@ -25,72 +27,72 @@ use tui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Cell, List, ListItem, ListState, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, List, ListItem, Row, Table},
     Terminal,
 };
 
-pub struct StatefulList {
-    pub state: ListState,
-    pub items: Vec<AES256Secret>,
-}
+// pub struct StatefulList {
+//     pub state: ListState,
+//     pub items: Vec<AES256Secret>,
+// }
 
-impl StatefulList {
-    pub fn with_items(items: Vec<AES256Secret>) -> StatefulList {
-        StatefulList {
-            state: ListState::default(),
-            items,
-        }
-    }
-    pub fn empty() -> StatefulList {
-        StatefulList::with_items(Vec::new())
-    }
+// impl StatefulList {
+//     pub fn with_items(items: Vec<AES256Secret>) -> StatefulList {
+//         StatefulList {
+//             state: ListState::default(),
+//             items,
+//         }
+//     }
+//     pub fn empty() -> StatefulList {
+//         StatefulList::with_items(Vec::new())
+//     }
 
-    pub fn update(&mut self, items: Vec<AES256Secret>) {
-        self.items = items;
-    }
-    pub fn next(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i >= self.items.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
+//     pub fn update(&mut self, items: Vec<AES256Secret>) {
+//         self.items = items;
+//     }
+//     pub fn next(&mut self) {
+//         let i = match self.state.selected() {
+//             Some(i) => {
+//                 if i >= self.items.len() - 1 {
+//                     0
+//                 } else {
+//                     i + 1
+//                 }
+//             }
+//             None => 0,
+//         };
+//         self.state.select(Some(i));
+//     }
 
-    pub fn previous(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.items.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
+//     pub fn previous(&mut self) {
+//         let i = match self.state.selected() {
+//             Some(i) => {
+//                 if i == 0 {
+//                     self.items.len() - 1
+//                 } else {
+//                     i - 1
+//                 }
+//             }
+//             None => 0,
+//         };
+//         self.state.select(Some(i));
+//     }
 
-    pub fn current(&mut self) -> Option<AES256Secret> {
-        match self.state.selected() {
-            Some(index) => {
-                if self.items.len() < index + 1 {
-                    return None;
-                }
-                Some(self.items[index].clone())
-            }
-            None => None,
-        }
-    }
-    pub fn unselect(&mut self) {
-        self.state.select(None);
-    }
-}
+//     pub fn current(&mut self) -> Option<AES256Secret> {
+//         match self.state.selected() {
+//             Some(index) => {
+//                 if self.items.len() < index + 1 {
+//                     return None;
+//                 }
+//                 Some(self.items[index].clone())
+//             }
+//             None => None,
+//         }
+//     }
+//     pub fn unselect(&mut self) {
+//         self.state.select(None);
+//     }
+// }
 
 const DEFAULT_PATTERN: &'static str = "*";
 
@@ -443,6 +445,10 @@ impl Component for Application<'_> {
     }
 }
 impl Route for Application<'_> {
+    fn path(&self) -> String {
+        String::from("/")
+    }
+
     fn matches_path(&self, path: String) -> bool {
         path.eq("/")
     }

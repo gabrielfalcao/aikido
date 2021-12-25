@@ -94,6 +94,9 @@ impl Component for Window<'_> {
     }
 }
 impl Route for Window<'_> {
+    fn path(&self) -> String {
+        String::from("*")
+    }
     #[allow(unused_variables)]
     fn matches_path(&self, path: String) -> bool {
         true
@@ -103,8 +106,8 @@ impl Route for Window<'_> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<(), Error> {
+        let location = context.borrow().location.clone();
         for route in self.routes.iter_mut() {
-            let location = context.borrow().location.clone();
             if route.borrow().matches_path(location.clone()) {
                 log(format!(
                     "route {} matches {}\n",
@@ -118,6 +121,7 @@ impl Route for Window<'_> {
 
         let has_error = context.borrow_mut().error.exists();
         if !has_error {
+            // let routes = context.borrow().routes
             context
                 .borrow_mut()
                 .error

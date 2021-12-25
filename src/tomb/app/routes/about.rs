@@ -59,6 +59,10 @@ impl Component for About<'_> {
     }
 }
 impl Route for About<'_> {
+    fn path(&self) -> String {
+        String::from("/about")
+    }
+
     fn matches_path(&self, path: String) -> bool {
         path.eq("/about")
     }

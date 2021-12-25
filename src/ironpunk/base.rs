@@ -147,6 +147,7 @@ pub trait Route
 where
     Self: Component,
 {
+    fn path(&self) -> String;
     fn matches_path(&self, path: String) -> bool;
     fn render(
         &mut self,
@@ -191,6 +192,9 @@ impl ErrorRoute {
 }
 
 impl Route for ErrorRoute {
+    fn path(&self) -> String {
+        String::from("*")
+    }
     #[allow(unused_variables)]
     fn matches_path(&self, path: String) -> bool {
         true
