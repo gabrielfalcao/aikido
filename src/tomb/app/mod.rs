@@ -353,6 +353,7 @@ impl Component for Application<'_> {
                 Ok(Propagate)
             }
             KeyCode::Char('A') => {
+                //let window = unsafe { *window };
                 window.borrow_mut().goto("/about");
                 Ok(Propagate)
             }

@@ -208,7 +208,6 @@ where
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
 pub struct Window {
     routes: BoxedRoutes,
     location: String,
@@ -216,22 +215,32 @@ pub struct Window {
     error: ErrorRoute,
 }
 
-// impl Clone for Window {
-//     fn clone(&self) -> Self {
-//         Window {
-//             routes: self.routes.clone(),
-//             location: self.location.clone(),
-//             history: self.history.clone(),
-//             error: self.error.clone(),
-//         }
-//     }
-//     fn clone_from(&mut self, source: &Self) {
-//         self.routes = source.routes.clone();
-//         self.location = source.location.clone();
-//         self.history = source.history.clone();
-//         self.error = source.error.clone();
-//     }
-// }
+impl Clone for Window {
+    #[allow(unused_mut)]
+    fn clone(&self) -> Self {
+        let mut routes = BoxedRoutes::new();
+        // for route in &self.routes {
+        //     routes.push(Rc::clone(route));
+        // }
+        Window {
+            routes: routes,
+            location: self.location.clone(),
+            history: self.history.clone(),
+            error: self.error.clone(),
+        }
+    }
+    #[allow(unused_mut)]
+    fn clone_from(&mut self, source: &Self) {
+        let mut routes = BoxedRoutes::new();
+        // for route in &source.routes {
+        //     routes.push(Rc::clone(route));
+        // }
+        self.routes = routes;
+        self.location = source.location.clone();
+        self.history = source.history.clone();
+        self.error = source.error.clone();
+    }
+}
 impl Window {
     pub fn from_routes(routes: BoxedRoutes) -> Window {
         Window {
@@ -330,8 +339,9 @@ impl Route for Window {
         window: Rc<RefCell<Window>>,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            if route.borrow_mut().matches_path(self.location.clone()) {
-                route.borrow_mut().render(terminal, window)?;
+            let mut route = route.borrow_mut();
+            if route.matches_path(self.location.clone()) {
+                route.render(terminal, window)?;
                 return Ok(());
             }
         }

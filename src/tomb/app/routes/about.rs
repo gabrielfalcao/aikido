@@ -15,6 +15,7 @@ use tui::{
 };
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct About<'a> {
     aes_config: AesConfig,
     phantom: PhantomData<&'a Option<()>>,
