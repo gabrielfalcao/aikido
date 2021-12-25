@@ -1,6 +1,6 @@
-use crate::aes256cbc::{Config as AesConfig, Digest, Key};
+use crate::aes256cbc::{Config as AesConfig};
 use crate::core::{AUTHOR, VERSION};
-use crate::ironpunk;
+
 use crate::ironpunk::LoopEvent::*;
 use crate::ironpunk::*;
 
@@ -8,10 +8,9 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table},
+    layout::{Alignment},
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
 

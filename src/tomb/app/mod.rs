@@ -508,7 +508,7 @@ pub fn start(
     aes_config: AesConfig,
 ) -> Result<(), ironpunk::BoxedError> {
     let app = Application::new(key, tomb, aes_config.clone());
-    let about = routes::about::About::new(aes_config);
+    let about = About::new(aes_config);
     let mut routes = ironpunk::BoxedRoutes::new();
     routes.push(Box::new(app));
     routes.push(Box::new(about));
