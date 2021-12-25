@@ -310,19 +310,24 @@ impl<'a> Window<'a> {
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         for route in &mut self.routes.clone() {
-            match route.borrow_mut().tick(terminal, context.clone()) {
-                Ok(Propagate) => {
-                    // proceed to next route
-                    continue;
-                }
-                Ok(Refresh) => {
-                    return Ok(Refresh);
-                }
-                Ok(any) => {
-                    return Ok(any);
-                }
-                Err(err) => return Err(Error::with_message(format!("{}", err))),
-            };
+            if route
+                .borrow()
+                .matches_path(context.borrow().location.clone())
+            {
+                match route.borrow_mut().tick(terminal, context.clone()) {
+                    Ok(Propagate) => {
+                        // proceed to next route
+                        continue;
+                    }
+                    Ok(Refresh) => {
+                        return Ok(Refresh);
+                    }
+                    Ok(any) => {
+                        return Ok(any);
+                    }
+                    Err(err) => return Err(Error::with_message(format!("{}", err))),
+                };
+            }
         }
         Ok(Propagate)
     }
