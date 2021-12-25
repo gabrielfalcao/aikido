@@ -214,9 +214,9 @@ where
 
 #[derive(Clone)]
 pub struct Context {
-    location: String,
-    history: Vec<String>,
-    error: ErrorRoute,
+    pub location: String,
+    pub history: Vec<String>,
+    pub error: ErrorRoute,
 }
 
 impl Context {
@@ -350,24 +350,16 @@ impl Component for Window {
         context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
-            match route.try_borrow_mut() {
-                Ok(mut route) => {
-                    if route.matches_path(self.context.location.clone()) {
-                        match route.process_keyboard(event, terminal, context.clone()) {
-                            Err(err) => {
-                                self.context.error.set_error(err);
-                                return Ok(Refresh);
-                            }
-                            ok => return ok,
-                        }
+            if route.borrow().matches_path(self.context.location.clone()) {
+                match route
+                    .borrow_mut()
+                    .process_keyboard(event, terminal, context.clone())
+                {
+                    Err(err) => {
+                        self.context.error.set_error(err);
+                        return Ok(Refresh);
                     }
-                }
-                Err(err) => {
-                    self.context.error.set_error(Error::with_message(format!(
-                        "failed to borrow route: {}",
-                        err
-                    )));
-                    return Ok(Refresh);
+                    ok => return ok,
                 }
             }
         }
@@ -390,24 +382,10 @@ impl Route for Window {
         context: Rc<RefCell<Context>>,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            let route = Rc::clone(&route);
-            match route.try_borrow_mut() {
-                Ok(mut route) => {
-                    if route.matches_path(self.context.location.clone()) {
-                        route.render(terminal, context)?;
-                        return Ok(());
-                    }
-                }
-                Err(err) => {
-                    append_to_file("context.log", format!("error: {}\n", err)).unwrap();
-                    self.set_error(Error::with_message(format!(
-                        "failed to render route: {}",
-                        err
-                    )));
-                    self.render_error(terminal, context.clone())?;
-                    return Ok(());
-                }
-            };
+            if route.borrow().matches_path(self.context.location.clone()) {
+                route.borrow_mut().render(terminal, context)?;
+                return Ok(());
+            }
         }
         self.set_error(Error::with_message(format!("no routes declared")));
         self.render_error(terminal, context.clone())

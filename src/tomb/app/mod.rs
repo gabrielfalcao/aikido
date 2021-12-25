@@ -346,19 +346,7 @@ impl Component for Application<'_> {
                 Ok(Propagate)
             }
             KeyCode::Char('A') => {
-                // match context.try_borrow_mut() {
-                //     Ok(mut context) => {
-                //         context.goto("/about");
-                //         Ok(Propagate)
-                //     }
-                //     Err(e) => Err(Error::with_message(format!(
-                //         "failed to navigate to /about: {}",
-                //         e
-                //     ))),
-                // }
-
-                let mut context = context.borrow_mut();
-                context.goto("/about");
+                context.borrow_mut().goto("/about");
                 Ok(Propagate)
             }
             KeyCode::Char('a') => {
@@ -434,7 +422,10 @@ impl Component for Application<'_> {
                         Ok(Propagate)
                     }
                     Err(error) => {
-                        self.set_error(format!("{}", error));
+                        context
+                            .borrow_mut()
+                            .error
+                            .set_error(Error::with_message(format!("{}", error)));
                         Ok(Propagate)
                     }
                 },
