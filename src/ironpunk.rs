@@ -77,7 +77,9 @@ pub enum LoopEvent {
     Refresh,
     Quit,
 }
-
+fn log(message: String) {
+    log_to_file("ironpunk.log", message).unwrap()
+}
 pub use LoopEvent::*;
 pub trait Component {
     fn id(&self) -> String;
@@ -232,12 +234,12 @@ impl<'a> Context<'_> {
         let location = String::from(location);
         self.history.push(location.clone());
         self.location = location.clone();
-        log_to_file("context.log", format!("goto: {}", location)).unwrap();
+        log(format!("goto: {}", location));
     }
     pub fn goback(&mut self) {
         match self.history.pop() {
             Some(location) => {
-                log_to_file("context.log", format!("goback: {}", location)).unwrap();
+                log(format!("goback: {}", location));
                 self.location = location;
             }
             None => {}
@@ -304,11 +306,8 @@ impl<'a> Window<'a> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
-        log_to_file(
-            "ironpunk.log",
-            format!("location: {}\n", context.borrow().location),
-        )
-        .unwrap();
+        log(format!("location: {}\n", context.borrow().location));
+
         // for route in &mut self.routes.clone() {
         //     let mut route = route.borrow_mut();
         //     // tick every child route
@@ -357,21 +356,25 @@ impl Component for Window<'_> {
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
-            if route.borrow().matches_path(self.context.location.clone()) {
+            if route
+                .borrow()
+                .matches_path(context.borrow().location.clone())
+            {
                 match route
                     .borrow_mut()
                     .process_keyboard(event, terminal, context.clone())
                 {
                     Err(err) => {
-                        self.context.error.set_error(err);
+                        context.borrow_mut().error.set_error(err);
                         return Ok(Refresh);
                     }
                     ok => return ok,
                 }
             }
         }
-        if self.context.error.exists() {
-            self.context
+        if context.borrow_mut().error.exists() {
+            context
+                .borrow_mut()
                 .error
                 .process_keyboard(event, terminal, context.clone())?;
         }
@@ -389,13 +392,13 @@ impl Route for Window<'_> {
         context: BoxedContext,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            let location = self.context.location.clone();
+            let location = context.borrow().location.clone();
             if route.borrow().matches_path(location.clone()) {
-                log_to_file(
-                    "ironpunk.log",
-                    format!("route {} matches {}\n", route.borrow().name(), location),
-                )
-                .unwrap();
+                log(format!(
+                    "route {} matches {}\n",
+                    route.borrow().name(),
+                    location
+                ));
                 route.borrow_mut().render(terminal, context)?;
                 return Ok(());
             }
@@ -456,7 +459,8 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
 
     console::set_colors_enabled(false);
     let (tx, rx) = mpsc::channel();
-    let tick_rate = Duration::from_millis(200);
+    let tick_rate = Duration::from_millis(1000);
+    // let tick_rate = Duration::from_millis(314);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
         loop {
@@ -508,13 +512,13 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
                         Ok(_) => continue,
                         Err(err) => {
-                            log_to_file("ironpunk.log", format!("{}", err)).unwrap();
+                            log(format!("{}", err));
 
                             return Err(Box::new(Error::with_message(format!("{}", err))));
                         }
                     },
                     Err(err) => {
-                        log_to_file("ironpunk.log", format!("{}", err)).unwrap();
+                        log(format!("{}", err));
 
                         window.set_error(err);
                         match window.render(&mut terminal, context.clone()) {
