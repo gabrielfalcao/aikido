@@ -42,8 +42,7 @@ pub fn start(router: SharedRouter) -> Result<(), SharedError> {
 
     console::set_colors_enabled(false);
     let (tx, rx) = mpsc::channel();
-    let tick_rate = Duration::from_millis(1000);
-    // let tick_rate = Duration::from_millis(314);
+    let tick_rate = Duration::from_millis(314);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
         loop {

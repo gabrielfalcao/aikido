@@ -60,7 +60,7 @@ pub fn exit(terminal: &mut Terminal<Backend>, code: i32) {
     std::process::exit(code);
 }
 pub fn quit(terminal: &mut Terminal<Backend>) {
-    exit(terminal, 1)
+    exit(terminal, 0)
 }
 
 pub enum Event<I> {

@@ -53,7 +53,16 @@ impl Confirmation {
     pub fn deactivate(&mut self) {
         self.active = false;
     }
-    pub fn render_in_parent(
+}
+
+impl Component for Confirmation {
+    fn name(&self) -> &str {
+        "Confirmation"
+    }
+    fn id(&self) -> String {
+        String::from("Confirmation")
+    }
+    fn render_in_parent(
         &self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
@@ -85,15 +94,6 @@ impl Confirmation {
         parent.render_widget(paragraph, chunk);
 
         Ok(())
-    }
-}
-
-impl Component for Confirmation {
-    fn name(&self) -> &str {
-        "Confirmation"
-    }
-    fn id(&self) -> String {
-        String::from("Confirmation")
     }
 
     #[allow(unused_variables)]

@@ -174,7 +174,7 @@ $(AES256_RELEASE_BIN):
 $(AES256_DEBUG_BIN):
 	@cargo build
 
-app: tomb-ui
+app: clean tomb-ui
 
 
 .PHONY: all release tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets fix

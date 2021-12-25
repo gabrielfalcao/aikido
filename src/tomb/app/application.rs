@@ -130,7 +130,12 @@ impl<'a> Application<'a> {
             Some(secret) => secret,
             None => match self.items.items.len() > 0 {
                 true => self.items.items[0].clone(),
-                false => return Err(Error::with_message(format!("no secrets to list"))),
+                false => {
+                    return Err(Error::with_message(format!(
+                        "no secrets to list using pattern: {}",
+                        pattern
+                    )))
+                }
             },
         };
 
@@ -428,14 +433,17 @@ impl Route for Application<'_> {
                         )
                         .split(chunks[1]);
                     let path = context.borrow().location.clone();
-                    let pattern = match router.recognize(&path) {
+                    let prefix = match router.recognize(&path) {
                         Ok(matched) => match matched.params().find("filter") {
                             Some(pattern) => String::from(pattern),
-                            None => String::new(),
+                            None => String::from(DEFAULT_PATTERN),
                         },
-                        Err(_err) => String::new(),
+                        Err(err) => {
+                            log(format!("route matching failed for {}: {}", path, err));
+                            String::from(DEFAULT_PATTERN)
+                        }
                     };
-
+                    let pattern = format!("{}*", prefix);
                     match self.render_secrets(pattern) {
                         Ok((left, right)) => {
                             rect.render_stateful_widget(

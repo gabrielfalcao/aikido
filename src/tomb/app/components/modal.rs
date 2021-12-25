@@ -53,7 +53,16 @@ impl Modal {
     pub fn deactivate(&mut self) {
         self.active = false;
     }
-    pub fn render_in_parent(
+}
+
+impl Component for Modal {
+    fn name(&self) -> &str {
+        "Modal"
+    }
+    fn id(&self) -> String {
+        String::from("Modal")
+    }
+    fn render_in_parent(
         &self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
@@ -85,15 +94,6 @@ impl Modal {
         parent.render_widget(paragraph, chunk);
 
         Ok(())
-    }
-}
-
-impl Component for Modal {
-    fn name(&self) -> &str {
-        "Modal"
-    }
-    fn id(&self) -> String {
-        String::from("Modal")
     }
 
     #[allow(unused_variables)]
