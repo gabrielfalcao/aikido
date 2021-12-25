@@ -130,6 +130,6 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                 };
             }
-        }
+        };
     }
 }

@@ -216,7 +216,7 @@ impl Route for ErrorRoute {
                 terminal.draw(|parent| {
                     let chunk = get_modal_rect(parent.size());
                     parent.render_widget(paragraph, chunk);
-                })?;
+                });
             }
             None => {}
         };
@@ -235,11 +235,11 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        _context: BoxedContext,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc | KeyCode::Char('q') => {
-                self.clear();
+                context.borrow_mut().goto("/");
                 Ok(Refresh)
             }
             _ => Ok(Propagate),

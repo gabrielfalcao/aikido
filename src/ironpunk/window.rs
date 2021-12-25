@@ -91,7 +91,7 @@ impl Component for Window<'_> {
                 }
             }
         }
-        if context.borrow_mut().error.exists() {
+        if context.borrow().error.exists() {
             context
                 .borrow_mut()
                 .error
@@ -125,8 +125,7 @@ impl Route for Window<'_> {
                 return Ok(());
             }
         }
-
-        let has_error = context.borrow_mut().error.exists();
+        let has_error = context.borrow().error.exists();
         if !has_error {
             let patterns = self.registered_patterns();
             let (title, message) = if patterns.len() > 0 {
