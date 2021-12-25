@@ -17,9 +17,9 @@ pub fn get_modal_rect(parent: Rect) -> Rect {
         .margin(2)
         .constraints(
             [
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
+                Constraint::Percentage(20),
+                Constraint::Percentage(60),
+                Constraint::Percentage(20),
             ]
             .as_ref(),
         )
@@ -28,9 +28,9 @@ pub fn get_modal_rect(parent: Rect) -> Rect {
         .direction(Direction::Horizontal)
         .constraints(
             [
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
+                Constraint::Percentage(20),
+                Constraint::Percentage(60),
+                Constraint::Percentage(20),
             ]
             .as_ref(),
         )
