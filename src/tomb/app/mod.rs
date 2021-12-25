@@ -442,7 +442,7 @@ impl Component for Application<'_> {
 }
 impl Route for Application<'_> {
     fn matches_path(&self, path: String) -> bool {
-        path == String::from("/")
+        path.eq("/")
     }
 
     fn render(
