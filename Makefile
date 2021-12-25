@@ -25,7 +25,7 @@ PLAINTEXT			:="Hello World"
 TOMB_KEY			:= ~/.test-tomb-key.yaml
 TOMB_FILE			:= ~/.test-tomb-file.yaml
 
-all: fmt release
+all: fix release
 
 clean: cls
 	@rm -fr *.{aes,yaml,log} 0b4sk8d
@@ -33,7 +33,7 @@ clean: cls
 cls:
 	@reset
 
-release: check fix fmt
+release: check fix
 	@cargo build --release
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
@@ -42,12 +42,10 @@ release: check fix fmt
 	cp target/release/obfuskat3 ~/usr/bin/
 	cp target/release/tomb ~/usr/bin/
 
-fmt:
-	rustfmt --edition 2021 src/*.rs
 
 fix:
 	cargo fix --allow-dirty --allow-staged
-
+	rustfmt --edition 2021 src/*.rs
 tmp:
 	@rm -rf tmp
 	@mkdir -p tmp/{Foo,BAR,BaZ,}/{One,TWO,THree@FouR}
@@ -69,7 +67,7 @@ test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
-build: check fmt fix
+build: check
 	cargo build
 
 check:
@@ -179,4 +177,4 @@ $(AES256_DEBUG_BIN):
 app: tomb-ui
 
 
-.PHONY: all release fmt tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets fix
+.PHONY: all release tmp test dry-run coverage aes256 build check clean test-e2e test-aes-256 test-slugify-filenames bip39 ipleak obfuskat3 app pets fix
