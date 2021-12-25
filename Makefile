@@ -38,9 +38,9 @@ release: check fix fmt
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
 	cp target/release/bip39 ~/usr/bin/
-	cp target/release/tomb ~/usr/bin/
 	cp target/release/ipleak ~/usr/bin/
 	cp target/release/obfuskat3 ~/usr/bin/
+	cp target/release/tomb ~/usr/bin/
 
 fmt:
 	rustfmt --edition 2021 src/*.rs
