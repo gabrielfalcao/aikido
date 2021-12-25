@@ -6,13 +6,13 @@ use crossterm::{
 use route_recognizer::Router;
 use thiserror::Error;
 
-use crate::{ioutils::open_append, logger};
+use crate::{ioutils::append_to_file, logger};
 
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
     collections::BTreeMap,
     fmt,
-    io::{self, Write},
+    io::{self},
     panic,
     sync::mpsc,
     thread,
@@ -232,13 +232,12 @@ impl Context {
         let location = String::from(location);
         self.history.push(location.clone());
         self.location = location.clone();
-        let mut file = open_append("goto.txt").unwrap();
-        file.write(location.as_bytes()).unwrap();
-        file.write('\n').unwrap();
+        append_to_file("context.log", format!("goto: {}\n", location)).unwrap();
     }
     pub fn goback(&mut self) {
         match self.history.pop() {
             Some(location) => {
+                append_to_file("context.log", format!("goback: {}\n", location)).unwrap();
                 self.location = location;
             }
             None => {}
@@ -400,6 +399,7 @@ impl Route for Window {
                     }
                 }
                 Err(err) => {
+                    append_to_file("context.log", format!("error: {}\n", err)).unwrap();
                     self.set_error(Error::with_message(format!(
                         "failed to render route: {}",
                         err
@@ -516,9 +516,15 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     Ok(Prevent) => break Ok(()),
                     Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
                         Ok(_) => continue,
-                        Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+                        Err(err) => {
+                            append_to_file("ironpunk.log", format!("{}\n", err)).unwrap();
+
+                            return Err(Box::new(Error::with_message(format!("{}", err))));
+                        }
                     },
                     Err(err) => {
+                        append_to_file("ironpunk.log", format!("{}\n", err)).unwrap();
+
                         window.set_error(err);
                         match window.render(&mut terminal, context.clone()) {
                             Ok(_) => continue,

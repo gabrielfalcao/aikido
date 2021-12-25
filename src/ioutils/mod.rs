@@ -235,7 +235,16 @@ pub fn rm_rf(target: &str) -> bool {
         Err(_) => false,
     }
 }
-
+pub fn append_to_file(filename: &str, value: String) -> Result<(), Error> {
+    let mut file = open_append(filename)?;
+    match file.write(value.as_bytes()) {
+        Ok(_) => Ok(()),
+        Err(error) => Err(Error::with_message(format!(
+            "cannot append to file {}: {}",
+            filename, error
+        ))),
+    }
+}
 pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> Result<(), Error> {
     let mut file = open_write(filename).unwrap();
     let yaml = match serde_yaml::to_string(map) {
