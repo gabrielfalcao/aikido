@@ -10,7 +10,6 @@ use crate::{ioutils::append_to_file, logger};
 
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
-    collections::BTreeMap,
     fmt,
     io::{self},
     panic,
@@ -33,9 +32,12 @@ pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedContext = Rc<RefCell<Context>>;
 
+type ContextUpdateCallback<'a> = dyn Fn(&'a Context);
+type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
+
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
-pub type RouteMap = BTreeMap<String, BoxedRoute>;
+
 #[derive(Debug, Error, Clone)]
 pub struct Error {
     pub message: String,
@@ -205,13 +207,6 @@ impl Component for ErrorRoute {
             _ => Ok(Propagate),
         }
     }
-}
-
-pub fn call_callback<'a, F>(value: &'a str, callback: F) -> String
-where
-    F: Fn(&str) -> String,
-{
-    callback(value)
 }
 
 #[derive(Clone)]
