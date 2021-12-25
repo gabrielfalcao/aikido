@@ -6,8 +6,12 @@
 - [x] filter secrets
 - [x] handle errors gracefully
 - [x] match routes with crate router-recognizer
-- [ ] edit a secret
-- [ ] delete a secret
+- [ ] Confirmation dialog
+  - [ ] delete a secret
+
+- [ ] Multiline modal editor
+  - [ ] edit a secret
+
 
 # aes-256-cbc
 
