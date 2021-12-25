@@ -43,7 +43,7 @@ impl Component for About<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        contexxt: Rc<RefCell<Context>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {
@@ -62,7 +62,7 @@ impl Route for About<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _contexxt: Rc<RefCell<Context>>,
+        _context: Rc<RefCell<Context>>,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();

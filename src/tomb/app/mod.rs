@@ -117,10 +117,14 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("All", KeyCode::Char('a')).unwrap();
-        menu.add_item("Passwords", KeyCode::Char('p')).unwrap();
-        menu.add_item("Secrets", KeyCode::Char('s')).unwrap();
-        menu.add_item("One-Time Passwords", KeyCode::Char('o'))
+        menu.add_item("All", KeyCode::Char('a'), "/").unwrap();
+        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
+            .unwrap();
+        menu.add_item("Secrets", KeyCode::Char('s'), "/secrets")
+            .unwrap();
+        menu.add_item("One-Time Passwords", KeyCode::Char('o'), "/secrets")
+            .unwrap();
+        menu.add_item("Configuration", KeyCode::Char('c'), "/config")
             .unwrap();
 
         Application {
@@ -267,6 +271,7 @@ impl<'a> Application<'a> {
     fn remove_overlay(&mut self) {
         self.overlay = None;
     }
+    #[allow(dead_code)]
     fn set_error(&mut self, error: String) {
         self.error = Some(error.clone());
     }
@@ -323,7 +328,7 @@ impl Component for Application<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
@@ -347,7 +352,7 @@ impl Component for Application<'_> {
             }
             KeyCode::Char('A') => {
                 context.borrow_mut().goto("/about");
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Char('a') => {
                 self.set_pattern("*");
@@ -443,7 +448,7 @@ impl Route for Application<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _contexxt: Rc<RefCell<Context>>,
+        _context: BoxedContext,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();

@@ -102,7 +102,7 @@ impl Component for Modal {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Backspace => {

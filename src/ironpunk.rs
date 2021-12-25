@@ -31,6 +31,8 @@ use tui::{
 pub type Backend = CrosstermBackend<io::Stdout>;
 pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
+pub type BoxedContext = Rc<RefCell<Context>>;
+
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
 pub type RouteMap = BTreeMap<String, BoxedRoute>;
@@ -81,12 +83,12 @@ pub trait Component {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error>;
     fn tick(
         &mut self,
         _terminal: &mut Terminal<Backend>,
-        _context: Rc<RefCell<Context>>,
+        _context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -100,7 +102,7 @@ where
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<(), Error>;
 }
 
@@ -166,7 +168,7 @@ impl Route for ErrorRoute {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        _context: Rc<RefCell<Context>>,
+        _context: BoxedContext,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
@@ -193,7 +195,7 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        _context: Rc<RefCell<Context>>,
+        _context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {
@@ -300,7 +302,7 @@ impl Window {
     pub fn tick(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         // for route in &mut self.routes.clone() {
         //     let mut route = route.borrow_mut();
@@ -330,7 +332,7 @@ impl Window {
     pub fn render_error(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<(), Error> {
         self.render_error(terminal, context.clone())
     }
@@ -347,7 +349,7 @@ impl Component for Window {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
             if route.borrow().matches_path(self.context.location.clone()) {
@@ -379,7 +381,7 @@ impl Route for Window {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
             if route.borrow().matches_path(self.context.location.clone()) {

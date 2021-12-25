@@ -14,11 +14,16 @@ use tui::{
 #[derive(PartialEq, Clone)]
 pub struct MenuItem {
     pub label: String,
+    pub route_path: String,
     pub code: KeyCode,
 }
 impl MenuItem {
-    pub fn new(label: String, code: KeyCode) -> MenuItem {
-        MenuItem { label, code }
+    pub fn new(label: String, code: KeyCode, route_path: String) -> MenuItem {
+        MenuItem {
+            label,
+            code,
+            route_path,
+        }
     }
 }
 
@@ -56,6 +61,22 @@ impl MenuComponent {
             None => 0,
         }
     }
+    pub fn current(&self) -> Option<MenuItem> {
+        match self.current_label() {
+            Some(label) => match self.items.get(&label) {
+                Some(item) => Some(item.clone()),
+                None => None,
+            },
+            None => None,
+        }
+    }
+    pub fn current_label(&self) -> Option<String> {
+        match self.selected {
+            Some(selected) => Some(self.labels[selected].clone()),
+            None => None,
+        }
+    }
+
     pub fn select(&mut self, item: &str) -> Result<(), Error> {
         match self.index_of(item.clone()) {
             Ok(index) => {
@@ -85,9 +106,9 @@ impl MenuComponent {
             None => {}
         }
     }
-    pub fn add_item(&mut self, title: &str, code: KeyCode) -> Result<(), Error> {
+    pub fn add_item(&mut self, title: &str, code: KeyCode, route_path: &str) -> Result<(), Error> {
         let label = String::from(title);
-        let item = MenuItem::new(label.clone(), code);
+        let item = MenuItem::new(label.clone(), code, String::from(route_path));
         self.labels.push(label.clone());
         self.items.insert(label, item);
         if self.selected == None {
@@ -150,12 +171,24 @@ impl Component for MenuComponent {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {
-            KeyCode::Right => self.next(),
-            KeyCode::Left => self.previous(),
+            KeyCode::Right => {
+                self.next();
+                match self.current() {
+                    Some(selected) => context.borrow_mut().goto(&selected.route_path),
+                    None => {}
+                }
+            }
+            KeyCode::Left => {
+                self.previous();
+                match self.current() {
+                    Some(selected) => context.borrow_mut().goto(&selected.route_path),
+                    None => {}
+                }
+            }
             code => {
                 for (label, item) in &self.items {
                     let label = label.clone();
