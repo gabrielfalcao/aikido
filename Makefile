@@ -33,7 +33,7 @@ clean: cls
 cls:
 	@reset
 
-release:
+release: check fix fmt
 	@cargo build --release
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
@@ -69,7 +69,7 @@ test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
-build: check fix fmt
+build: check
 	cargo build
 
 check:
