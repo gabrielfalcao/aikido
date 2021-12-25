@@ -36,6 +36,27 @@ impl Component for About<'_> {
     fn id(&self) -> String {
         String::from("About")
     }
+    fn render_in_parent(
+        &self,
+        rect: &mut Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error> {
+        let about = format!("Tomb version {} by {}", VERSION, AUTHOR);
+
+        let footer = Paragraph::new(about)
+            .style(Style::default().fg(Color::LightGreen))
+            .alignment(Alignment::Center)
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .style(Style::default().fg(Color::White))
+                    .title("About")
+                    .border_type(BorderType::Plain),
+            );
+
+        rect.render_widget(footer, chunk);
+        Ok(())
+    }
 
     #[allow(unused_variables)]
     fn process_keyboard(
@@ -65,30 +86,5 @@ impl Route for About<'_> {
 
     fn matches_path(&self, path: String) -> bool {
         path.eq("/about")
-    }
-
-    fn render(
-        &mut self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _context: Rc<RefCell<Context>>,
-    ) -> Result<(), Error> {
-        terminal.draw(|rect| {
-            let size = rect.size();
-            let about = format!("Tomb version {} by {}", VERSION, AUTHOR);
-
-            let footer = Paragraph::new(about)
-                .style(Style::default().fg(Color::LightGreen))
-                .alignment(Alignment::Center)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .style(Style::default().fg(Color::White))
-                        .title("About")
-                        .border_type(BorderType::Plain),
-                );
-
-            rect.render_widget(footer, size);
-        })?;
-        Ok(())
     }
 }

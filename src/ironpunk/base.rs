@@ -12,17 +12,18 @@ use std::{
 };
 
 use route_recognizer::Router;
-use tui::{
+pub use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Paragraph},
-    Terminal,
+    Frame, Terminal,
 };
 
 pub type Backend = CrosstermBackend<io::Stdout>;
 pub type BoxedError = Box<dyn std::error::Error>;
+pub type BoxedComponent = Rc<RefCell<dyn Component>>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
@@ -141,6 +142,30 @@ pub trait Component {
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
+    fn render_in_parent(
+        &self,
+        rect: &mut Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
+    ) -> Result<(), Error> {
+        let message = format!(
+            "Component {}({}) does not implement render_in_parent()",
+            self.name(),
+            self.id()
+        );
+        let not_implemented = Paragraph::new(message)
+            .style(Style::default().bg(Color::Blue).fg(Color::White))
+            .alignment(Alignment::Center)
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .style(Style::default().fg(Color::LightCyan))
+                    .title("Not Implemented")
+                    .border_type(BorderType::Plain),
+            );
+
+        rect.render_widget(not_implemented, chunk);
+        Ok(())
+    }
 }
 
 pub trait Route
@@ -151,9 +176,25 @@ where
     fn matches_path(&self, path: String) -> bool;
     fn render(
         &mut self,
-        terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-    ) -> Result<(), Error>;
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        _context: Rc<RefCell<Context>>,
+    ) -> Result<(), Error> {
+        terminal.draw(|parent| {
+            let chunk = parent.size();
+            match self.render_in_parent(parent, chunk) {
+                Ok(_) => (),
+                Err(err) => {
+                    log(format!(
+                        "Component of path {} rendering error: {}",
+                        self.path(),
+                        err
+                    ));
+                }
+            }
+        })?;
+
+        Ok(())
+    }
 }
 
 #[derive(Clone)]
@@ -230,6 +271,16 @@ impl Component for ErrorRoute {
     fn id(&self) -> String {
         self.title.clone()
     }
+    fn render_in_parent(
+        &self,
+        _parent: &mut Frame<CrosstermBackend<io::Stdout>>,
+        _chunk: Rect,
+    ) -> Result<(), Error> {
+        Err(Error::with_message(format!(
+            "not implemented by error route"
+        )))
+    }
+
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,

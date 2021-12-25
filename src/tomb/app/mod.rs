@@ -1,6 +1,7 @@
 pub mod components;
 pub mod routes;
 pub mod state;
+use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
 use crate::ironpunk;
@@ -33,6 +34,9 @@ use tui::{
 
 const DEFAULT_PATTERN: &'static str = "*";
 
+pub fn log(message: String) {
+    log_to_file("application.log", message).unwrap()
+}
 #[allow(dead_code)]
 pub struct Application<'a> {
     key: Key,
@@ -48,7 +52,7 @@ pub struct Application<'a> {
     pub visible: bool,
     pub pin_visible: bool,
     pub menu: MenuComponent,
-    pub overlay: Option<Modal>,
+    pub overlay: Option<BoxedComponent>,
     pub scroll: u16,
     pub items: StatefulList,
 }
@@ -202,7 +206,7 @@ impl<'a> Application<'a> {
     fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    fn set_overlay(&mut self, overlay: Modal) {
+    fn set_overlay(&mut self, overlay: BoxedComponent) {
         self.overlay = Some(overlay);
     }
     fn remove_overlay(&mut self) {
@@ -273,7 +277,9 @@ impl Component for Application<'_> {
                     self.remove_overlay();
                     return Ok(Propagate);
                 } else {
-                    return overlay.process_keyboard(event, terminal, context.clone());
+                    return overlay
+                        .borrow_mut()
+                        .process_keyboard(event, terminal, context.clone());
                 }
             }
             None => {}
@@ -284,7 +290,7 @@ impl Component for Application<'_> {
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
-                self.set_overlay(Modal::new("Hello", "World"));
+                self.set_overlay(Rc::new(RefCell::new(Modal::new("Hello", "World"))));
                 Ok(Propagate)
             }
             KeyCode::Char('a') => {
@@ -405,7 +411,13 @@ impl Route for Application<'_> {
                     // step 2: take the middle chunk and split into 3 horizontal chunks
                     // step 3: take the middle chunk
                     let screen = chunks[1];
-                    overlay.render_in_parent(rect, screen).unwrap()
+                    let result = overlay.borrow_mut().render_in_parent(rect, screen);
+                    return match result {
+                        Ok(_) => (),
+                        Err(err) => {
+                            log(format!("Overlay rendering error: {}", err));
+                        }
+                    };
                 }
                 None => {
                     let secrets_chunks = Layout::default()
