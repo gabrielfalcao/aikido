@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::{ioutils::log_to_file, logger};
-use crossterm::event::{KeyCode, KeyEvent};
+pub use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::disable_raw_mode;
 
 pub use std::{cell::RefCell, rc::Rc};
@@ -101,7 +101,7 @@ impl<'a> Context<'_> {
         log(format!("goto: {}", location));
     }
     pub fn goback(&mut self) {
-        if self.history.len() == 0 {
+        if self.history.len() == 1 {
             return;
         }
         match self.history.pop() {
@@ -179,7 +179,7 @@ impl ErrorRoute {
     pub fn clear(&mut self) {
         self.error = None;
     }
-    pub fn exists(&mut self) -> bool {
+    pub fn exists(&self) -> bool {
         match self.error {
             Some(_) => true,
             None => false,

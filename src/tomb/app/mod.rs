@@ -117,7 +117,9 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("All", KeyCode::Char('a'), "/").unwrap();
+        menu.add_item("all", KeyCode::Char('a'), "/").unwrap();
+        menu.add_item("About", KeyCode::Char('A'), "/about")
+            .unwrap();
         menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
             .unwrap();
         menu.add_item("Secrets", KeyCode::Char('s'), "/secrets")

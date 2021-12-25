@@ -1,4 +1,3 @@
-
 use crate::ironpunk::*;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
@@ -178,14 +177,20 @@ impl Component for MenuComponent {
             KeyCode::Right => {
                 self.next();
                 match self.current() {
-                    Some(selected) => context.borrow_mut().goto(&selected.route_path),
+                    Some(selected) => {
+                        context.borrow_mut().goto(&selected.route_path);
+                        return Ok(Refresh);
+                    }
                     None => {}
                 }
             }
             KeyCode::Left => {
                 self.previous();
                 match self.current() {
-                    Some(selected) => context.borrow_mut().goto(&selected.route_path),
+                    Some(selected) => {
+                        context.borrow_mut().goto(&selected.route_path);
+                        return Ok(Refresh);
+                    }
                     None => {}
                 }
             }

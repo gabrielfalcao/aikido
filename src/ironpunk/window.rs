@@ -116,11 +116,13 @@ impl Route for Window<'_> {
             }
         }
 
-        context
-            .borrow_mut()
-            .error
-            .set_error(Error::with_message(format!("no routes declared")));
-
+        let has_error = context.borrow().error.exists();
+        if !has_error {
+            context
+                .borrow_mut()
+                .error
+                .set_error(Error::with_message(format!("no routes declared")));
+        }
         let result = context.borrow_mut().error.render(terminal, context.clone());
         result
     }

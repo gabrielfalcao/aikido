@@ -1,10 +1,9 @@
 use crate::aes256cbc::Config as AesConfig;
 use crate::core::{AUTHOR, VERSION};
 
-
 use crate::ironpunk::*;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
@@ -50,7 +49,12 @@ impl Component for About<'_> {
                 context.borrow_mut().goto("/");
                 Ok(Refresh)
             }
-            _ => Ok(Propagate),
+            _ => {
+                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('q') {
+                    return Ok(Quit);
+                }
+                Ok(Propagate)
+            }
         }
     }
 }
