@@ -1,4 +1,4 @@
-use crate::aes256cbc::{Config as AesConfig};
+use crate::aes256cbc::Config as AesConfig;
 use crate::core::{AUTHOR, VERSION};
 
 use crate::ironpunk::LoopEvent::*;
@@ -8,7 +8,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment},
+    layout::Alignment,
     style::{Color, Style},
     widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
@@ -40,8 +40,9 @@ impl Component for About<'_> {
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {

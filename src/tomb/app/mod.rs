@@ -328,8 +328,9 @@ impl Component for Application<'_> {
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
@@ -337,13 +338,14 @@ impl Component for Application<'_> {
                     self.remove_overlay();
                     return Ok(Propagate);
                 } else {
-                    return overlay.process_keyboard(terminal, event);
+                    return overlay.process_keyboard(event, terminal, window.clone());
                 }
             }
             None => {}
         }
         let code = event.code;
-        self.menu.process_keyboard(terminal, event)?;
+        self.menu
+            .process_keyboard(event, terminal, window.clone())?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
@@ -351,7 +353,7 @@ impl Component for Application<'_> {
                 Ok(Propagate)
             }
             KeyCode::Char('A') => {
-                /// TODO: change window route
+                let window = window.clone().borrow_mut().goto("/about");
                 Ok(Propagate)
             }
             KeyCode::Char('a') => {

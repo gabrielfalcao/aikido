@@ -148,8 +148,9 @@ impl Component for MenuComponent {
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         event: KeyEvent,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {

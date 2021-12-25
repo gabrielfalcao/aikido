@@ -8,11 +8,10 @@ use thiserror::Error;
 
 use crate::logger;
 
+pub use std::{cell::RefCell, rc::Rc};
 use std::{
-    cell::RefCell,
     collections::BTreeMap,
-    fmt, io,
-    rc::Rc,
+    fmt, io, panic,
     sync::mpsc,
     thread,
     time::{Duration, Instant},
@@ -78,8 +77,9 @@ pub trait Component {
     fn name(&self) -> &str;
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<Backend>,
         event: KeyEvent,
+        terminal: &mut Terminal<Backend>,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error>;
     fn tick(
         &mut self,
@@ -188,8 +188,9 @@ impl Component for ErrorRoute {
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<Backend>,
         event: KeyEvent,
+        terminal: &mut Terminal<Backend>,
+        _window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Char('q') => Ok(Quit),
@@ -275,12 +276,13 @@ impl Component for Window {
     }
     fn process_keyboard(
         &mut self,
-        terminal: &mut Terminal<Backend>,
         event: KeyEvent,
+        terminal: &mut Terminal<Backend>,
+        window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
             if route.matches_path(self.location.clone()) {
-                match route.process_keyboard(terminal, event) {
+                match route.process_keyboard(event, terminal, window.clone()) {
                     Err(err) => {
                         self.error.set_error(err);
                         break;
@@ -290,7 +292,8 @@ impl Component for Window {
             }
         }
         if self.error.exists() {
-            self.error.process_keyboard(terminal, event)?;
+            self.error
+                .process_keyboard(event, terminal, window.clone())?;
         }
         Ok(Propagate)
     }
@@ -348,6 +351,12 @@ pub fn get_modal_rect(parent: Rect) -> Rect {
     center
 }
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
+    panic::set_hook(Box::new(|e| {
+        disable_raw_mode().unwrap_or(());
+        reset();
+        logger::err::error(format!("{}", e));
+    }));
+
     reset();
     match enable_raw_mode() {
         Ok(_) => {}
@@ -394,11 +403,17 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     let window = Rc::new(RefCell::new(Window::from_routes(routes)));
 
     loop {
-        window.borrow_mut().render(&mut terminal, window.clone())?;
+        window
+            .clone()
+            .borrow_mut()
+            .render(&mut terminal, window.clone())?;
 
         match rx.recv()? {
             Event::Input(event) => {
-                match window.borrow_mut().process_keyboard(&mut terminal, event) {
+                match window
+                    .borrow_mut()
+                    .process_keyboard(event, &mut terminal, window.clone())
+                {
                     Ok(Quit) => {
                         //Ok(return Box::new(quit(&mut terminal))),
                         disable_raw_mode()?;
@@ -409,7 +424,11 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     }
                     Ok(Propagate | Prevent) => continue,
                     Ok(Refresh) => {
-                        match window.borrow_mut().render(&mut terminal, window.clone()) {
+                        match window
+                            .clone()
+                            .borrow_mut()
+                            .render(&mut terminal, window.clone())
+                        {
                             Ok(_) => continue,
                             Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
                         }
@@ -418,9 +437,16 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                 };
             }
             Event::Tick => {
-                match window.borrow_mut().tick(&mut terminal, window.clone()) {
+                match window
+                    .clone()
+                    .borrow_mut()
+                    .tick(&mut terminal, window.clone())
+                {
                     Ok(Refresh) => {
-                        window.borrow_mut().render(&mut terminal, window.clone())?;
+                        window
+                            .clone()
+                            .borrow_mut()
+                            .render(&mut terminal, window.clone())?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,
