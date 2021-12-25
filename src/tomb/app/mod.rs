@@ -223,8 +223,9 @@ impl<'a> Application<'a> {
                 },
                 false => secret.value,
             })),
-            Cell::from(Span::raw(selected_secret.updated_at.to_string())),
-            Cell::from(Span::raw(selected_secret.created_at.to_string())),
+            Cell::from(Span::raw(
+                chrono_humanize::HumanTime::from(selected_secret.updated_at).to_string(),
+            )),
         ])])
         .header(Row::new(vec![
             Cell::from(Span::styled(
@@ -241,10 +242,6 @@ impl<'a> Application<'a> {
             )),
             Cell::from(Span::styled(
                 "updated at",
-                Style::default().add_modifier(Modifier::BOLD),
-            )),
-            Cell::from(Span::styled(
-                "created at",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
         ]))
