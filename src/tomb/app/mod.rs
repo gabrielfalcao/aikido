@@ -467,8 +467,17 @@ pub fn start(
     let about = About::new(aes_config.clone());
     let configuration = Configuration::new(aes_config.clone());
     let mut routes = ironpunk::BoxedRoutes::new();
-    routes.push(Rc::new(RefCell::new(app)));
-    routes.push(Rc::new(RefCell::new(about)));
-    routes.push(Rc::new(RefCell::new(configuration)));
-    ironpunk::start(routes)
+    let mut router = ironpunk::BoxedRouter::new();
+    let app = Rc::new(RefCell::new(app));
+    let about = Rc::new(RefCell::new(about));
+    let configuration = Rc::new(RefCell::new(configuration));
+
+    routes.push(app.clone());
+    routes.push(about.clone());
+    routes.push(configuration.clone());
+
+    router.add("/about", about.clone());
+    router.add("/configuration", configuration.clone());
+    router.add("/:filter", app.clone());
+    ironpunk::start(routes, router)
 }

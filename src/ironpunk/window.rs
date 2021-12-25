@@ -9,20 +9,22 @@ use tui::Terminal;
 #[allow(dead_code)]
 pub struct Window<'a> {
     pub routes: BoxedRoutes,
+    pub router: BoxedRouter,
     pub context: Context<'a>,
     _phantom: PhantomData<&'a Context<'a>>,
 }
 
 impl<'a> Window<'a> {
-    pub fn from_routes(routes: BoxedRoutes) -> Window<'a> {
+    pub fn from_routes(routes: BoxedRoutes, router: BoxedRouter) -> Window<'a> {
         Window {
             routes,
+            router,
             _phantom: PhantomData,
             context: Context::new("/"),
         }
     }
     pub fn new() -> Window<'a> {
-        Window::from_routes(BoxedRoutes::new())
+        Window::from_routes(BoxedRoutes::new(), BoxedRouter::new())
     }
     pub fn registered_patterns(&self) -> Vec<String> {
         let mut result: Vec<String> = Vec::new();
