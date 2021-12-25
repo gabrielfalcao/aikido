@@ -4,14 +4,14 @@ use crate::{ioutils::log_to_file, logger};
 pub use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::disable_raw_mode;
 
+use super::geometry::get_modal_rect;
+use route_recognizer::Router;
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
     fmt,
     io::{self},
     marker::PhantomData,
 };
-
-use route_recognizer::Router;
 pub use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -344,44 +344,4 @@ pub fn error_text<'a>(label: &'a str, title: &'a str, error: &'a str) -> Paragra
             .title(label)
             .border_type(BorderType::Plain),
     )
-}
-
-pub fn get_modal_rect(parent: Rect) -> Rect {
-    let vertical_chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(2)
-        .constraints(
-            [
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-            ]
-            .as_ref(),
-        )
-        .split(parent);
-    let horizontal_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints(
-            [
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-                Constraint::Percentage(33),
-            ]
-            .as_ref(),
-        )
-        .split(vertical_chunks[1]);
-
-    let center = horizontal_chunks[1];
-    center
-}
-
-pub fn get_padded_rect(parent: Rect, margin: u16) -> Rect {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(margin)
-        .constraints([Constraint::Percentage(100)].as_ref())
-        .split(parent);
-
-    let center = chunks[0];
-    center
 }
