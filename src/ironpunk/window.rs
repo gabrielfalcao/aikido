@@ -116,7 +116,7 @@ impl Route for Window<'_> {
             }
         }
 
-        let has_error = context.borrow().error.exists();
+        let has_error = context.borrow_mut().error.exists();
         if !has_error {
             context
                 .borrow_mut()

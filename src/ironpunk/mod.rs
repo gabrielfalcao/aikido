@@ -82,7 +82,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
         match rx.recv()? {
             Event::Input(event) => {
                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
-                    quit(&mut terminal);
+                    exit(&mut terminal, 0);
                 }
 
                 match window.process_keyboard(event, &mut terminal, context.clone()) {

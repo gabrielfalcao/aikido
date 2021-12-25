@@ -52,12 +52,15 @@ pub fn reset() {
     println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
 }
 
-pub fn quit(terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
-    disable_raw_mode()?;
-    terminal.show_cursor()?;
-    terminal.clear()?;
+pub fn exit(terminal: &mut Terminal<Backend>, code: i32) {
+    disable_raw_mode().unwrap_or(());
+    terminal.show_cursor().unwrap_or(());
+    terminal.clear().unwrap_or(());
     reset();
-    std::process::exit(1);
+    std::process::exit(code);
+}
+pub fn quit(terminal: &mut Terminal<Backend>) {
+    exit(terminal, 1)
 }
 
 pub enum Event<I> {
@@ -225,7 +228,10 @@ impl Component for ErrorRoute {
         _context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Esc | KeyCode::Char('q') => quit(terminal),
+            KeyCode::Esc | KeyCode::Char('q') => {
+                quit(terminal);
+                Ok(Quit)
+            }
             _ => Ok(Propagate),
         }
     }
