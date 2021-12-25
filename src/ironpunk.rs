@@ -309,33 +309,21 @@ impl<'a> Window<'a> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
-        let context = context.borrow();
-        log(format!(
-            "location: {} {:?}\n",
-            context.location,
-            context.history.len()
-        ));
-
-        // for route in &mut self.routes.clone() {
-        //     let mut route = route.borrow_mut();
-        //     // tick every child route
-        //     match route.tick(terminal, context.clone()) {
-        //         Ok(Propagate) => {
-        //             // proceed to next route
-        //             continue;
-        //         }
-        //         Ok(Refresh) => {
-        //             // rerender and propagate
-        //             self.render(terminal, context.clone())?;
-        //             return Ok(Refresh);
-        //         }
-        //         Ok(any) => {
-        //             return Ok(any);
-        //         }
-        //         Err(err) => return Err(Error::with_message(format!("{}", err))),
-        //     };
-        // }
-        // TODO: tick every component
+        for route in &mut self.routes.clone() {
+            match route.borrow_mut().tick(terminal, context.clone()) {
+                Ok(Propagate) => {
+                    // proceed to next route
+                    continue;
+                }
+                Ok(Refresh) => {
+                    return Ok(Refresh);
+                }
+                Ok(any) => {
+                    return Ok(any);
+                }
+                Err(err) => return Err(Error::with_message(format!("{}", err))),
+            };
+        }
         Ok(Propagate)
     }
     pub fn set_error(&mut self, error: Error) {
