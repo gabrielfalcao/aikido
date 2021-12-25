@@ -6,12 +6,14 @@ use crossterm::{
 use route_recognizer::Router;
 use thiserror::Error;
 
-use crate::logger;
+use crate::{ioutils::open_append, logger};
 
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
     collections::BTreeMap,
-    fmt, io, panic,
+    fmt,
+    io::{self, Write},
+    panic,
     sync::mpsc,
     thread,
     time::{Duration, Instant},
@@ -229,7 +231,10 @@ impl Context {
     pub fn goto(&mut self, location: &str) {
         let location = String::from(location);
         self.history.push(location.clone());
-        self.location = location;
+        self.location = location.clone();
+        let mut file = open_append("goto.txt").unwrap();
+        file.write(location.as_bytes()).unwrap();
+        file.write('\n').unwrap();
     }
     pub fn goback(&mut self) {
         match self.history.pop() {

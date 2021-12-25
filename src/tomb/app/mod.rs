@@ -346,17 +346,20 @@ impl Component for Application<'_> {
                 Ok(Propagate)
             }
             KeyCode::Char('A') => {
-                //let window = unsafe { *window };
-                match context.try_borrow_mut() {
-                    Ok(mut context) => {
-                        context.goto("/about");
-                        Ok(Propagate)
-                    }
-                    Err(e) => Err(Error::with_message(format!(
-                        "failed to navigate to /about: {}",
-                        e
-                    ))),
-                }
+                // match context.try_borrow_mut() {
+                //     Ok(mut context) => {
+                //         context.goto("/about");
+                //         Ok(Propagate)
+                //     }
+                //     Err(e) => Err(Error::with_message(format!(
+                //         "failed to navigate to /about: {}",
+                //         e
+                //     ))),
+                // }
+
+                let mut context = context.borrow_mut();
+                context.goto("/about");
+                Ok(Propagate)
             }
             KeyCode::Char('a') => {
                 self.set_pattern("*");

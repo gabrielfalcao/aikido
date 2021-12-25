@@ -70,6 +70,25 @@ pub fn open_write(target: &str) -> Result<std::fs::File, Error> {
         }
     }
 }
+pub fn open_append(target: &str) -> Result<std::fs::File, Error> {
+    let target = absolute_path(target);
+    match OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(target.as_str())
+    {
+        Ok(file) => Ok(file),
+        Err(error) => {
+            return Err(Error::with_message(format!(
+                "{}{}{}{}",
+                style("failed to open file ").color256(colors::ERR_MSG),
+                style(target).color256(colors::ERR_VAR),
+                style("in append mode").color256(colors::ERR_MSG),
+                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+            )));
+        }
+    }
+}
 pub fn create_file(filename: &str) -> Result<std::fs::File, Error> {
     let filename = absolute_path(filename);
     match File::create(filename.as_str()) {
