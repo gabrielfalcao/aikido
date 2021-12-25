@@ -1,4 +1,3 @@
-use chrono::prelude::*;
 use console;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode, KeyEvent},
@@ -34,7 +33,7 @@ pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedContext<'a> = Rc<RefCell<Context<'a>>>;
 
-type ContextUpdateCallback<'a> = dyn FnMut(Context);
+type ContextUpdateCallback<'a> = dyn Fn(Context);
 type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
 
 pub type BoxedRoutes = Vec<BoxedRoute>;
@@ -243,7 +242,6 @@ impl<'a> Context<'_> {
         let location = String::from(location);
         self.history.push(location.clone());
         self.location = location.clone();
-        self.process_callbacks();
         append_to_file("context.log", format!("goto: {}\n", location)).unwrap();
     }
     pub fn goback(&mut self) {
@@ -254,7 +252,6 @@ impl<'a> Context<'_> {
             }
             None => {}
         }
-        self.process_callbacks();
     }
     pub fn get_location(&self) -> String {
         self.location.clone()
@@ -269,7 +266,6 @@ impl<'a> Context<'_> {
 
 #[allow(dead_code)]
 pub struct Window<'a> {
-    started: Option<DateTime<Utc>>,
     routes: BoxedRoutes,
     context: Context<'a>,
     _phantom: PhantomData<&'a Context<'a>>,
@@ -305,7 +301,6 @@ impl<'a> Window<'a> {
     pub fn from_routes(routes: BoxedRoutes) -> Window<'a> {
         Window {
             routes,
-            started: None,
             _phantom: PhantomData,
             context: Context::new("/", Vec::new()),
         }
@@ -340,19 +335,6 @@ impl<'a> Window<'a> {
         // }
         // TODO: tick every component
         Ok(Propagate)
-    }
-    pub fn initialize(&mut self) {
-        match self.started {
-            None => {
-                self.started = Some(Utc::now());
-                self.context
-                    .update_callbacks
-                    .push(Rc::new(RefCell::new(|context: Context| {
-                        self.context = context.clone();
-                    })));
-            }
-            Some(_) => {}
-        }
     }
     pub fn set_error(&mut self, error: Error) {
         self.context.error.set_error(error)
