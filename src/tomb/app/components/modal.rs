@@ -81,7 +81,7 @@ impl Modal {
             .block(modal)
             .style(Style::default().bg(Color::White).fg(Color::Black))
             .alignment(Alignment::Left)
-            .wrap(Wrap { trim: true });
+            .wrap(Wrap { trim: false });
 
         parent.render_widget(paragraph, chunk);
 

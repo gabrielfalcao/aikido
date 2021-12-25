@@ -121,6 +121,7 @@ pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
     )
 }
 
+#[derive(Clone)]
 pub struct ErrorRoute {
     error: Option<Error>,
     title: String,
@@ -207,6 +208,7 @@ where
 }
 
 #[allow(dead_code)]
+
 pub struct Window {
     routes: BoxedRoutes,
     location: String,
@@ -214,6 +216,27 @@ pub struct Window {
     error: ErrorRoute,
 }
 
+impl Clone for Window {
+    fn clone(&self) -> Self {
+        Window {
+            routes: BoxedRoutes::new(),
+            /// TODO: clone routes
+            location: self.location.clone(),
+            history: self.history.clone(),
+            error: self.error.clone(),
+        }
+    }
+    fn clone_from(&mut self, source: &Self) {
+        let routes = BoxedRoutes::new();
+        // for r in &source.routes {
+        //     routes.push(Box::new(r));
+        // }
+        self.routes = routes;
+        self.location = source.location.clone();
+        self.history = source.history.clone();
+        self.error = source.error.clone();
+    }
+}
 impl Window {
     pub fn from_routes(routes: BoxedRoutes) -> Window {
         Window {
@@ -350,6 +373,7 @@ pub fn get_modal_rect(parent: Rect) -> Rect {
     let center = horizontal_chunks[1];
     center
 }
+
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     panic::set_hook(Box::new(|e| {
         disable_raw_mode().unwrap_or(());
@@ -404,15 +428,14 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
 
     loop {
         window
-            .clone()
             .borrow_mut()
-            .render(&mut terminal, window.clone())?;
+            .render(&mut terminal, Rc::clone(&window))?;
 
         match rx.recv()? {
             Event::Input(event) => {
                 match window
                     .borrow_mut()
-                    .process_keyboard(event, &mut terminal, window.clone())
+                    .process_keyboard(event, &mut terminal, Rc::clone(&window))
                 {
                     Ok(Quit) => {
                         //Ok(return Box::new(quit(&mut terminal))),
@@ -423,30 +446,22 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         std::process::exit(0);
                     }
                     Ok(Propagate | Prevent) => continue,
-                    Ok(Refresh) => {
-                        match window
-                            .clone()
-                            .borrow_mut()
-                            .render(&mut terminal, window.clone())
-                        {
-                            Ok(_) => continue,
-                            Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
-                        }
-                    }
+                    Ok(Refresh) => match window
+                        .borrow_mut()
+                        .render(&mut terminal, Rc::clone(&window))
+                    {
+                        Ok(_) => continue,
+                        Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
+                    },
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                 };
             }
             Event::Tick => {
-                match window
-                    .clone()
-                    .borrow_mut()
-                    .tick(&mut terminal, window.clone())
-                {
+                match window.borrow_mut().tick(&mut terminal, Rc::clone(&window)) {
                     Ok(Refresh) => {
                         window
-                            .clone()
                             .borrow_mut()
-                            .render(&mut terminal, window.clone())?;
+                            .render(&mut terminal, Rc::clone(&window))?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,

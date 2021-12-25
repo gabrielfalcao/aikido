@@ -353,7 +353,7 @@ impl Component for Application<'_> {
                 Ok(Propagate)
             }
             KeyCode::Char('A') => {
-                let window = window.clone().borrow_mut().goto("/about");
+                window.borrow_mut().goto("/about");
                 Ok(Propagate)
             }
             KeyCode::Char('a') => {
