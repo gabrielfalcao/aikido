@@ -102,7 +102,7 @@ impl Component for Confirmation {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Backspace => {

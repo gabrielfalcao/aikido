@@ -79,12 +79,12 @@ pub trait Component {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error>;
     fn tick(
         &mut self,
         _terminal: &mut Terminal<Backend>,
-        _window: Rc<RefCell<Window>>,
+        _context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -98,7 +98,7 @@ where
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<(), Error>;
 }
 
@@ -115,7 +115,7 @@ pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
     .block(
         Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
+            .style(Style::default().bg(Color::Red).fg(Color::White))
             .title("Error")
             .border_type(BorderType::Plain),
     )
@@ -164,13 +164,13 @@ impl Route for ErrorRoute {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        _window: Rc<RefCell<Window>>,
+        _context: Rc<RefCell<Context>>,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
                 let paragraph = error_text(&error.message);
                 terminal.draw(|parent| {
-                    let chunk = parent.size();
+                    let chunk = get_modal_rect(parent.size());
                     parent.render_widget(paragraph, chunk);
                 })?;
             }
@@ -191,10 +191,13 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        _window: Rc<RefCell<Window>>,
+        _context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Char('q') => Ok(Quit),
+            KeyCode::Esc => {
+                self.clear();
+                Ok(Refresh)
+            }
             _ => Ok(Propagate),
         }
     }
@@ -207,51 +210,21 @@ where
     callback(value)
 }
 
-#[allow(dead_code)]
-pub struct Window {
-    routes: BoxedRoutes,
+#[derive(Clone)]
+pub struct Context {
     location: String,
     history: Vec<String>,
     error: ErrorRoute,
 }
 
-impl Clone for Window {
-    #[allow(unused_mut)]
-    fn clone(&self) -> Self {
-        let mut routes = BoxedRoutes::new();
-        // for route in &self.routes {
-        //     routes.push(Rc::clone(route));
-        // }
-        Window {
-            routes: routes,
-            location: self.location.clone(),
-            history: self.history.clone(),
-            error: self.error.clone(),
-        }
-    }
-    #[allow(unused_mut)]
-    fn clone_from(&mut self, source: &Self) {
-        let mut routes = BoxedRoutes::new();
-        // for route in &source.routes {
-        //     routes.push(Rc::clone(route));
-        // }
-        self.routes = routes;
-        self.location = source.location.clone();
-        self.history = source.history.clone();
-        self.error = source.error.clone();
-    }
-}
-impl Window {
-    pub fn from_routes(routes: BoxedRoutes) -> Window {
-        Window {
-            routes,
-            location: String::from("/"),
-            history: Vec::new(),
+impl Context {
+    pub fn new(location: &str) -> Context {
+        let location = String::from(location);
+        Context {
+            location: location.clone(),
+            history: vec![location],
             error: ErrorRoute::new(),
         }
-    }
-    pub fn new() -> Window {
-        Window::from_routes(BoxedRoutes::new())
     }
     pub fn goto(&mut self, location: &str) {
         let location = String::from(location);
@@ -266,31 +239,96 @@ impl Window {
             None => {}
         }
     }
+    pub fn get_location(&self) -> String {
+        self.location.clone()
+    }
+    pub fn get_history(&self) -> Vec<String> {
+        self.history.clone()
+    }
+    pub fn matches(&self, route: &dyn Route) -> bool {
+        route.matches_path(self.location.clone())
+    }
+}
+
+#[allow(dead_code)]
+pub struct Window {
+    routes: BoxedRoutes,
+    context: Context,
+}
+
+// impl Clone for Window {
+//     #[allow(unused_mut)]
+//     fn clone(&self) -> Self {
+//         let mut routes = BoxedRoutes::new();
+//         // for route in &self.routes {
+//         //     routes.push(Rc::clone(route));
+//         // }
+//         Window {
+//             routes: routes,
+//             history: self.history.clone(),
+//             error: self.error.clone(),
+//         }
+//     }
+//     #[allow(unused_mut)]
+//     fn clone_from(&mut self, source: &Self) {
+//         let mut routes = BoxedRoutes::new();
+//         // for route in &source.routes {
+//         //     routes.push(Rc::clone(route));
+//         // }
+//         self.routes = routes;
+//         self.location = source.location.clone();
+//         self.history = source.history.clone();
+//         self.error = source.error.clone();
+//     }
+// }
+
+impl Window {
+    pub fn from_routes(routes: BoxedRoutes) -> Window {
+        Window {
+            routes,
+            context: Context::new("/"),
+        }
+    }
+    pub fn new() -> Window {
+        Window::from_routes(BoxedRoutes::new())
+    }
     #[allow(unused_variables)]
     pub fn tick(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
-        for route in &mut self.clone().routes {
-            // tick every child route
-            match route.borrow_mut().tick(terminal, window.clone()) {
-                Ok(Propagate) => {
-                    // proceed to next route
-                    continue;
-                }
-                Ok(Refresh) => {
-                    // rerender and propagate
-                    self.clone().render(terminal, window)?;
-                    return Ok(Propagate);
-                }
-                Ok(any) => {
-                    return Ok(any);
-                }
-                Err(err) => return Err(Error::with_message(format!("{}", err))),
-            };
-        }
+        // for route in &mut self.routes.clone() {
+        //     let mut route = route.borrow_mut();
+        //     // tick every child route
+        //     match route.tick(terminal, context.clone()) {
+        //         Ok(Propagate) => {
+        //             // proceed to next route
+        //             continue;
+        //         }
+        //         Ok(Refresh) => {
+        //             // rerender and propagate
+        //             self.render(terminal, context.clone())?;
+        //             return Ok(Refresh);
+        //         }
+        //         Ok(any) => {
+        //             return Ok(any);
+        //         }
+        //         Err(err) => return Err(Error::with_message(format!("{}", err))),
+        //     };
+        // }
+        /// TODO: tick every component
         Ok(Propagate)
+    }
+    pub fn set_error(&mut self, error: Error) {
+        self.context.error.set_error(error)
+    }
+    pub fn render_error(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        context: Rc<RefCell<Context>>,
+    ) -> Result<(), Error> {
+        self.render_error(terminal, context.clone())
     }
 }
 
@@ -305,25 +343,34 @@ impl Component for Window {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
-            if route.borrow_mut().matches_path(self.location.clone()) {
-                match route
-                    .borrow_mut()
-                    .process_keyboard(event, terminal, window.clone())
-                {
-                    Err(err) => {
-                        self.error.set_error(err);
-                        break;
+            match route.try_borrow_mut() {
+                Ok(mut route) => {
+                    if route.matches_path(self.context.location.clone()) {
+                        match route.process_keyboard(event, terminal, context.clone()) {
+                            Err(err) => {
+                                self.context.error.set_error(err);
+                                return Ok(Refresh);
+                            }
+                            ok => return ok,
+                        }
                     }
-                    ok => return ok,
+                }
+                Err(err) => {
+                    self.context.error.set_error(Error::with_message(format!(
+                        "failed to borrow route: {}",
+                        err
+                    )));
+                    return Ok(Refresh);
                 }
             }
         }
-        if self.error.exists() {
-            self.error
-                .process_keyboard(event, terminal, window.clone())?;
+        if self.context.error.exists() {
+            self.context
+                .error
+                .process_keyboard(event, terminal, context.clone())?;
         }
         Ok(Propagate)
     }
@@ -336,18 +383,29 @@ impl Route for Window {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            let mut route = route.borrow_mut();
-            if route.matches_path(self.location.clone()) {
-                route.render(terminal, window)?;
-                return Ok(());
-            }
+            let route = Rc::clone(&route);
+            match route.try_borrow_mut() {
+                Ok(mut route) => {
+                    if route.matches_path(self.context.location.clone()) {
+                        route.render(terminal, context)?;
+                        return Ok(());
+                    }
+                }
+                Err(err) => {
+                    self.set_error(Error::with_message(format!(
+                        "failed to render route: {}",
+                        err
+                    )));
+                    self.render_error(terminal, context.clone())?;
+                    return Ok(());
+                }
+            };
         }
-        self.error
-            .set_error(Error::with_message(format!("no routes declared")));
-        self.error.render(terminal, window)
+        self.set_error(Error::with_message(format!("no routes declared")));
+        self.render_error(terminal, context.clone())
     }
 }
 pub fn reset() {
@@ -432,19 +490,15 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let window = Rc::new(RefCell::new(Window::from_routes(routes)));
+    let mut window = Window::from_routes(routes);
+    let context = Rc::new(RefCell::new(window.context.clone()));
 
     loop {
-        window
-            .borrow_mut()
-            .render(&mut terminal, Rc::clone(&window))?;
+        window.render(&mut terminal, context.clone())?;
 
         match rx.recv()? {
             Event::Input(event) => {
-                match window
-                    .borrow_mut()
-                    .process_keyboard(event, &mut terminal, Rc::clone(&window))
-                {
+                match window.process_keyboard(event, &mut terminal, context.clone()) {
                     Ok(Quit) => {
                         //Ok(return Box::new(quit(&mut terminal))),
                         disable_raw_mode()?;
@@ -455,22 +509,25 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     }
                     Ok(Propagate) => continue,
                     Ok(Prevent) => break Ok(()),
-                    Ok(Refresh) => match window.try_borrow_mut() {
-                        Ok(mut m) => match m.render(&mut terminal, Rc::clone(&window)) {
-                            Ok(_) => continue,
-                            Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
-                        },
+                    Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
+                        Ok(_) => continue,
                         Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                     },
-                    Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+                    Err(err) => {
+                        window.set_error(err);
+                        match window.render(&mut terminal, context.clone()) {
+                            Ok(_) => continue,
+                            Err(err) => {
+                                return Err(Box::new(Error::with_message(format!("{}", err))))
+                            }
+                        }
+                    }
                 };
             }
             Event::Tick => {
-                match window.borrow_mut().tick(&mut terminal, Rc::clone(&window)) {
+                match window.tick(&mut terminal, context.clone()) {
                     Ok(Refresh) => {
-                        window
-                            .borrow_mut()
-                            .render(&mut terminal, Rc::clone(&window))?;
+                        window.render(&mut terminal, context.clone())?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,

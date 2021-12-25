@@ -1,5 +1,4 @@
 pub mod components;
-pub mod navigation;
 pub mod routes;
 use chrono::prelude::*;
 
@@ -10,7 +9,6 @@ pub use components::{
     menu::{dummy_paragraph, MenuComponent},
     modal::Modal,
 };
-pub use navigation::*;
 use routes::*;
 
 extern crate clipboard;
@@ -104,7 +102,6 @@ pub struct Application<'a> {
     _s_list: PhantomData<&'a List<'a>>,
     _s_table: PhantomData<&'a Table<'a>>,
     started_at: DateTime<Utc>,
-    navigation: Navigation,
     pattern: String,
     pub label: String,
     pub text: String,
@@ -131,7 +128,6 @@ impl<'a> Application<'a> {
             menu,
             tomb,
             aes_config,
-            navigation: Navigation::new("/"),
             started_at: Utc::now(),
             overlay: None,
             text: String::from("Welcome to Tomb!"),
@@ -327,7 +323,7 @@ impl Component for Application<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        window: Rc<RefCell<Window>>,
+        context: Rc<RefCell<Context>>,
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
@@ -335,14 +331,14 @@ impl Component for Application<'_> {
                     self.remove_overlay();
                     return Ok(Propagate);
                 } else {
-                    return overlay.process_keyboard(event, terminal, window.clone());
+                    return overlay.process_keyboard(event, terminal, context.clone());
                 }
             }
             None => {}
         }
         let code = event.code;
         self.menu
-            .process_keyboard(event, terminal, window.clone())?;
+            .process_keyboard(event, terminal, context.clone())?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
@@ -351,9 +347,9 @@ impl Component for Application<'_> {
             }
             KeyCode::Char('A') => {
                 //let window = unsafe { *window };
-                match window.try_borrow_mut() {
-                    Ok(mut window) => {
-                        window.goto("/about");
+                match context.try_borrow_mut() {
+                    Ok(mut context) => {
+                        context.goto("/about");
                         Ok(Propagate)
                     }
                     Err(e) => Err(Error::with_message(format!(
@@ -415,6 +411,7 @@ impl Component for Application<'_> {
             }
             KeyCode::Esc => {
                 self.reset_search();
+                // TODO: context.error.clear()
                 Ok(Propagate)
             }
             KeyCode::Enter => match self.items.current() {
@@ -452,7 +449,7 @@ impl Route for Application<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _window: Rc<RefCell<Window>>,
+        _contexxt: Rc<RefCell<Context>>,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
@@ -497,7 +494,7 @@ impl Route for Application<'_> {
                         }
                         Err(error) => {
                             let error = error_text(&error.message);
-                            rect.render_widget(error, chunks[1]);
+                            rect.render_widget(error, get_modal_rect(chunks[1]));
                         }
                     };
                 }
