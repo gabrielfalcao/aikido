@@ -28,7 +28,7 @@ use tui::{
 
 pub type Backend = CrosstermBackend<io::Stdout>;
 pub type BoxedError = Box<dyn std::error::Error>;
-pub type BoxedRoute = Box<dyn Route>;
+pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
 pub type RouteMap = BTreeMap<String, BoxedRoute>;
@@ -208,7 +208,7 @@ where
 }
 
 #[allow(dead_code)]
-
+#[derive(Clone)]
 pub struct Window {
     routes: BoxedRoutes,
     location: String,
@@ -216,27 +216,22 @@ pub struct Window {
     error: ErrorRoute,
 }
 
-impl Clone for Window {
-    fn clone(&self) -> Self {
-        Window {
-            routes: BoxedRoutes::new(),
-            /// TODO: clone routes
-            location: self.location.clone(),
-            history: self.history.clone(),
-            error: self.error.clone(),
-        }
-    }
-    fn clone_from(&mut self, source: &Self) {
-        let routes = BoxedRoutes::new();
-        // for r in &source.routes {
-        //     routes.push(Box::new(r));
-        // }
-        self.routes = routes;
-        self.location = source.location.clone();
-        self.history = source.history.clone();
-        self.error = source.error.clone();
-    }
-}
+// impl Clone for Window {
+//     fn clone(&self) -> Self {
+//         Window {
+//             routes: self.routes.clone(),
+//             location: self.location.clone(),
+//             history: self.history.clone(),
+//             error: self.error.clone(),
+//         }
+//     }
+//     fn clone_from(&mut self, source: &Self) {
+//         self.routes = source.routes.clone();
+//         self.location = source.location.clone();
+//         self.history = source.history.clone();
+//         self.error = source.error.clone();
+//     }
+// }
 impl Window {
     pub fn from_routes(routes: BoxedRoutes) -> Window {
         Window {
@@ -268,23 +263,23 @@ impl Window {
         terminal: &mut Terminal<Backend>,
         window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
-        for route in &mut self.routes {
+        for route in &mut self.clone().routes {
             // tick every child route
-            match route.tick(terminal, window.clone()) {
+            match route.borrow_mut().tick(terminal, window.clone()) {
                 Ok(Propagate) => {
                     // proceed to next route
                     continue;
                 }
                 Ok(Refresh) => {
                     // rerender and propagate
-                    self.render(terminal, window)?;
+                    self.clone().render(terminal, window)?;
                     return Ok(Propagate);
                 }
                 Ok(any) => {
                     return Ok(any);
                 }
                 Err(err) => return Err(Error::with_message(format!("{}", err))),
-            }
+            };
         }
         Ok(Propagate)
     }
@@ -304,8 +299,11 @@ impl Component for Window {
         window: Rc<RefCell<Window>>,
     ) -> Result<LoopEvent, Error> {
         for route in self.routes.iter_mut() {
-            if route.matches_path(self.location.clone()) {
-                match route.process_keyboard(event, terminal, window.clone()) {
+            if route.borrow_mut().matches_path(self.location.clone()) {
+                match route
+                    .borrow_mut()
+                    .process_keyboard(event, terminal, window.clone())
+                {
                     Err(err) => {
                         self.error.set_error(err);
                         break;
@@ -332,8 +330,8 @@ impl Route for Window {
         window: Rc<RefCell<Window>>,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            if route.matches_path(self.location.clone()) {
-                route.render(terminal, window)?;
+            if route.borrow_mut().matches_path(self.location.clone()) {
+                route.borrow_mut().render(terminal, window)?;
                 return Ok(());
             }
         }

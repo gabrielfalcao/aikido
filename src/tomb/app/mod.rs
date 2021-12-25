@@ -516,7 +516,7 @@ pub fn start(
     let app = Application::new(key, tomb, aes_config.clone());
     let about = About::new(aes_config);
     let mut routes = ironpunk::BoxedRoutes::new();
-    routes.push(Box::new(app));
-    routes.push(Box::new(about));
+    routes.push(Rc::new(RefCell::new(app)));
+    routes.push(Rc::new(RefCell::new(about)));
     ironpunk::start(routes)
 }
