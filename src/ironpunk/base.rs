@@ -2,8 +2,7 @@ use thiserror::Error;
 
 use crate::{ioutils::log_to_file, logger};
 use crossterm::{
-    event::{self, Event as CEvent, KeyCode, KeyEvent},
-    terminal::{disable_raw_mode, enable_raw_mode},
+    event::{KeyCode, KeyEvent},
 };
 
 pub use std::{cell::RefCell, rc::Rc};
