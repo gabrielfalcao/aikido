@@ -61,11 +61,10 @@ impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
-        menu.add_item("Configuration", KeyCode::Char('c'), "/config")
-            .unwrap();
+        menu.add_item("Passwords", KeyCode::Char('p'), "/").unwrap(); // TODO: use route_recognizer with capture param :filter {secrets/passwords/otp}
         menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
-        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
+        menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
             .unwrap();
 
         Application {
@@ -466,12 +465,10 @@ pub fn start(
 ) -> Result<(), ironpunk::BoxedError> {
     let app = Application::new(key, tomb, aes_config.clone());
     let about = About::new(aes_config.clone());
-    let passwords = Passwords::new(aes_config.clone());
     let configuration = Configuration::new(aes_config.clone());
     let mut routes = ironpunk::BoxedRoutes::new();
     routes.push(Rc::new(RefCell::new(app)));
     routes.push(Rc::new(RefCell::new(about)));
-    routes.push(Rc::new(RefCell::new(passwords)));
     routes.push(Rc::new(RefCell::new(configuration)));
     ironpunk::start(routes)
 }

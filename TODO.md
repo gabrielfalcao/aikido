@@ -5,6 +5,7 @@
 - [x] tick every route of window
 - [x] filter secrets
 - [x] handle errors gracefully
+- [ ] match routes with crate router_recognizer
 - [ ] edit a secret
 - [ ] delete a secret
 

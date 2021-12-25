@@ -153,14 +153,14 @@ pub trait Component {
             self.id()
         );
         let not_implemented = Paragraph::new(message)
-            .style(Style::default().bg(Color::Blue).fg(Color::White))
+            .style(Style::default().bg(Color::Cyan).fg(Color::LightYellow))
             .alignment(Alignment::Center)
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .style(Style::default().fg(Color::LightCyan))
+                    .style(Style::default().fg(Color::LightYellow))
                     .title("Not Implemented")
-                    .border_type(BorderType::Plain),
+                    .border_type(BorderType::Rounded),
             );
 
         rect.render_widget(not_implemented, chunk);
