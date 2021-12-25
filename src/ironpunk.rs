@@ -453,13 +453,14 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                         reset();
                         std::process::exit(0);
                     }
-                    Ok(Propagate | Prevent) => continue,
-                    Ok(Refresh) => match window
-                        .borrow_mut()
-                        .render(&mut terminal, Rc::clone(&window))
-                    {
-                        Ok(_) => continue,
-                        Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
+                    Ok(Propagate) => continue,
+                    Ok(Prevent) => break Ok(()),
+                    Ok(Refresh) => match window.try_borrow_mut() {
+                        Ok(mut m) => match m.render(&mut terminal, Rc::clone(&window)) {
+                            Ok(_) => continue,
+                            Err(e) => return Err(Box::new(Error::with_message(format!("{}", e)))),
+                        },
+                        Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                     },
                     Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
                 };

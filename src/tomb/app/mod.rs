@@ -351,8 +351,16 @@ impl Component for Application<'_> {
             }
             KeyCode::Char('A') => {
                 //let window = unsafe { *window };
-                window.borrow_mut().goto("/about");
-                Ok(Propagate)
+                match window.try_borrow_mut() {
+                    Ok(mut window) => {
+                        window.goto("/about");
+                        Ok(Propagate)
+                    }
+                    Err(e) => Err(Error::with_message(format!(
+                        "failed to navigate to /about: {}",
+                        e
+                    ))),
+                }
             }
             KeyCode::Char('a') => {
                 self.set_pattern("*");
