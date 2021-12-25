@@ -1,21 +1,11 @@
 use super::base::*;
 
+use crossterm::event::KeyEvent;
 
-use crossterm::{
-    event::{KeyEvent},
-};
-
-
-
-
+use std::marker::PhantomData;
 pub use std::{cell::RefCell, rc::Rc};
-use std::{
-    marker::PhantomData,
-};
 
-use tui::{
-    Terminal,
-};
+use tui::Terminal;
 #[allow(dead_code)]
 pub struct Window<'a> {
     pub routes: BoxedRoutes,
@@ -61,16 +51,6 @@ impl<'a> Window<'a> {
             }
         }
         Ok(Propagate)
-    }
-    pub fn set_error(&mut self, error: Error) {
-        self.context.error.set_error(error)
-    }
-    pub fn render_error(
-        &mut self,
-        terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-    ) -> Result<(), Error> {
-        self.render_error(terminal, context.clone())
     }
 }
 
@@ -135,7 +115,13 @@ impl Route for Window<'_> {
                 return Ok(());
             }
         }
-        self.set_error(Error::with_message(format!("no routes declared")));
-        self.render_error(terminal, context.clone())
+
+        context
+            .borrow_mut()
+            .error
+            .set_error(Error::with_message(format!("no routes declared")));
+
+        let result = context.borrow_mut().error.render(terminal, context.clone());
+        result
     }
 }

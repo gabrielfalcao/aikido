@@ -9,7 +9,6 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 
-
 use crate::logger;
 
 pub use std::{cell::RefCell, rc::Rc};
@@ -21,14 +20,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use tui::{
-    backend::CrosstermBackend,
-    Terminal,
-};
-
-pub fn reset() {
-    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
-}
+use tui::{backend::CrosstermBackend, Terminal};
 
 pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
     panic::set_hook(Box::new(|e| {
@@ -111,7 +103,7 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     Err(err) => {
                         log(format!("{}", err));
 
-                        window.set_error(err);
+                        context.borrow_mut().error.set_error(err);
                         match window.render(&mut terminal, context.clone()) {
                             Ok(_) => continue,
                             Err(err) => {

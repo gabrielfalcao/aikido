@@ -1,9 +1,8 @@
 use thiserror::Error;
 
 use crate::{ioutils::log_to_file, logger};
-use crossterm::{
-    event::{KeyCode, KeyEvent},
-};
+use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::terminal::disable_raw_mode;
 
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -49,10 +48,16 @@ impl From<io::Error> for Error {
         Error::with_message(format!("{:?}", input))
     }
 }
+pub fn reset() {
+    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
+}
 
-#[allow(unused_variables)]
-pub fn quit(terminal: &mut Terminal<Backend>) -> Result<(), Error> {
-    Ok(())
+pub fn quit(terminal: &mut Terminal<Backend>) -> Result<LoopEvent, Error> {
+    disable_raw_mode()?;
+    terminal.show_cursor()?;
+    terminal.clear()?;
+    reset();
+    std::process::exit(1);
 }
 
 pub enum Event<I> {
@@ -220,10 +225,7 @@ impl Component for ErrorRoute {
         _context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Esc => {
-                self.clear();
-                Ok(Refresh)
-            }
+            KeyCode::Esc | KeyCode::Char('q') => quit(terminal),
             _ => Ok(Propagate),
         }
     }
