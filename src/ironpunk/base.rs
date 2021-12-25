@@ -151,23 +151,28 @@ pub trait Component {
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
+        let title = format!("<press (Esc) to dismiss>");
         let message = format!(
-            "Component {}({}) does not implement render_in_parent()",
-            self.name(),
-            self.id()
+            "The method render_in_parent() is not implemented for {}",
+            self.name()
         );
+        let background = Block::default()
+            .borders(Borders::NONE)
+            .style(Style::default().bg(Color::DarkGray));
+
         let not_implemented = Paragraph::new(message)
-            .style(Style::default().bg(Color::Cyan).fg(Color::LightYellow))
+            .style(Style::default().bg(Color::White).fg(Color::Red))
             .alignment(Alignment::Center)
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .style(Style::default().fg(Color::LightYellow))
-                    .title("Not Implemented")
+                    .style(Style::default().fg(Color::Black))
+                    .title(title)
                     .border_type(BorderType::Rounded),
             );
 
-        rect.render_widget(not_implemented, chunk);
+        rect.render_widget(background, chunk);
+        rect.render_widget(not_implemented, get_modal_rect(chunk));
         Ok(())
     }
 }
@@ -367,5 +372,16 @@ pub fn get_modal_rect(parent: Rect) -> Rect {
         .split(vertical_chunks[1]);
 
     let center = horizontal_chunks[1];
+    center
+}
+
+pub fn get_padded_rect(parent: Rect, margin: u16) -> Rect {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(margin)
+        .constraints([Constraint::Percentage(100)].as_ref())
+        .split(parent);
+
+    let center = chunks[0];
     center
 }

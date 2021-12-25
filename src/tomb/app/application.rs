@@ -111,7 +111,7 @@ impl<'a> Application<'a> {
         let secrets = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))
-            .title("Secrets")
+            .title("Secret")
             .border_type(BorderType::Plain);
         let items: Vec<_> = self
             .items
@@ -191,7 +191,7 @@ impl<'a> Application<'a> {
             Block::default()
                 .borders(Borders::ALL)
                 .style(Style::default().fg(Color::White))
-                .title("Detail")
+                .title("Metadata")
                 .border_type(BorderType::Plain),
         )
         .widths(&[

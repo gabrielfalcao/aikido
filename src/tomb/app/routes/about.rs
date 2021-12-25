@@ -41,41 +41,70 @@ impl Component for About<'_> {
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        let paragraph_style = Style::default()
-            .fg(Color::White)
-            .add_modifier(Modifier::BOLD);
+        let chunk = get_modal_rect(chunk);
 
         let version = format!("Version {}", VERSION);
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Green))
+            .title("<press (Esc) to dismiss>")
+            .border_type(BorderType::Plain);
 
-        let about = Paragraph::new(vec![
-            Spans::from(vec![Span::raw("")]),
+        let containers = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                ]
+                .as_ref(),
+            )
+            .split(chunk);
+
+        let top = Paragraph::new(vec![
             Spans::from(vec![Span::raw("Tomb - Password Manager")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("powered by AES-256-CBC encryption")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("")]),
             Spans::from(vec![Span::raw(&version)]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("https://github.com/tomb/tomb")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("")]),
-            Spans::from(vec![Span::raw("")]),
+        ])
+        .style(
+            Style::default()
+                .fg(Color::LightYellow)
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::NONE));
+        let middle = Paragraph::new(vec![
+            Spans::from(vec![Span::raw("powered by")]),
+            Spans::from(vec![Span::styled(
+                "AES-256-CBC",
+                Style::default().fg(Color::White),
+            )]),
+            Spans::from(vec![Span::raw("encryption")]),
+        ])
+        .style(
+            Style::default()
+                .fg(Color::Blue)
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::NONE));
+        let bottom = Paragraph::new(vec![
             Spans::from(vec![Span::raw("Created by: Gabriel Falcão")]),
             Spans::from(vec![Span::raw("twitter: @gabrielfalcao")]),
+            // Spans::from(vec![Span::raw("https://github.com/gabrielfalcao/tomb")]),
         ])
-        .style(Style::default().fg(Color::LightGreen))
+        .style(
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )
         .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
-                .title("About Tomb")
-                .border_type(BorderType::Plain),
-        );
+        .block(Block::default().borders(Borders::NONE));
 
-        rect.render_widget(about, chunk);
+        rect.render_widget(block, chunk);
+        rect.render_widget(top, get_padded_rect(containers[0], 2));
+        rect.render_widget(middle, get_padded_rect(containers[1], 1));
+        rect.render_widget(bottom, get_padded_rect(containers[2], 1));
         Ok(())
     }
 
