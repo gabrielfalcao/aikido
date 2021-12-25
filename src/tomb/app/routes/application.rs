@@ -1,9 +1,9 @@
+use super::super::geometry::*;
+pub use super::super::state::*;
 use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
-pub use super::state::*;
-
-pub use super::components::{
+pub use super::super::components::{
     menu::{dummy_paragraph, MenuComponent},
     modal::Modal,
 };
@@ -11,7 +11,7 @@ pub use super::components::{
 use crate::ironpunk::*;
 
 extern crate clipboard;
-use super::{AES256Secret, AES256Tomb};
+use super::super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
@@ -21,7 +21,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Constraint, Direction, Layout},
+    layout::Constraint,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Cell, List, ListItem, Row, Table},
@@ -38,8 +38,7 @@ pub struct Application<'a> {
     key: Key,
     tomb: AES256Tomb,
     aes_config: AesConfig,
-    _s_list: PhantomData<&'a List<'a>>,
-    _s_table: PhantomData<&'a Table<'a>>,
+    phantom: PhantomData<&'a List<'a>>,
     started_at: DateTime<Utc>,
     pattern: String,
     pub label: String,
@@ -55,20 +54,11 @@ pub struct Application<'a> {
 
 impl<'a> Application<'a> {
     pub fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
-        let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
-        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
-            .unwrap(); // TODO: use route_recognizer with capture param :filter {secrets/passwords/otp}
-        menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
-            .unwrap();
-        menu.add_item("About", KeyCode::Char('a'), "/about")
-            .unwrap();
-
         Application {
             key,
-            menu,
             tomb,
             aes_config,
+            menu: MenuComponent::default("Secrets"),
             started_at: Utc::now(),
             overlay: None,
             text: String::from("Welcome to Tomb!"),
@@ -79,14 +69,12 @@ impl<'a> Application<'a> {
             scroll: 0,
             error: None,
             items: StatefulList::empty(),
-            _s_list: PhantomData,
-            _s_table: PhantomData,
+            phantom: PhantomData,
         }
     }
     pub fn set_pattern(&mut self, pattern: &str) {
         self.pattern = String::from(pattern);
     }
-
     pub fn toggle_visible(&mut self) {
         self.visible = !self.visible;
     }
@@ -246,7 +234,9 @@ impl<'a> Application<'a> {
             Ok(_) => {
                 let label = format!("Keyboard Shortcuts");
                 self.set_label(label.as_str());
-                self.set_text("'t' toggles the visibility of secrets / 'r' reveals the plaintext of the current secret / 'Enter' copies it to clipboard / 'O' shows overlay");
+                self.set_text(
+                    "'t' toggle visibility / 'r' reveal secret / 'Enter' copy secret to clipboard",
+                );
             }
             Err(err) => {
                 let error = format!("{}", err);
@@ -397,14 +387,6 @@ impl Component for Application<'_> {
     }
 }
 impl Route for Application<'_> {
-    fn path(&self) -> String {
-        String::from("/")
-    }
-
-    fn matches_path(&self, path: String) -> bool {
-        path.eq("/")
-    }
-
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
@@ -412,19 +394,7 @@ impl Route for Application<'_> {
         router: SharedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
-            let size = rect.size();
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(2)
-                .constraints(
-                    [
-                        Constraint::Length(3),
-                        Constraint::Min(2),
-                        Constraint::Length(3),
-                    ]
-                    .as_ref(),
-                )
-                .split(size);
+            let (top, body, footer) = vertical_stack(rect.size());
 
             match &self.overlay {
                 Some(overlay) => {
@@ -432,8 +402,7 @@ impl Route for Application<'_> {
                     // step 1: divide the screen into 3 vertical chunks
                     // step 2: take the middle chunk and split into 3 horizontal chunks
                     // step 3: take the middle chunk
-                    let screen = chunks[1];
-                    let result = overlay.borrow_mut().render_in_parent(rect, screen);
+                    let result = overlay.borrow_mut().render_in_parent(rect, body);
                     return match result {
                         Ok(_) => (),
                         Err(err) => {
@@ -442,12 +411,7 @@ impl Route for Application<'_> {
                     };
                 }
                 None => {
-                    let secrets_chunks = Layout::default()
-                        .direction(Direction::Horizontal)
-                        .constraints(
-                            [Constraint::Percentage(50), Constraint::Percentage(50)].as_ref(),
-                        )
-                        .split(chunks[1]);
+                    let (sidebar, detail) = body_sides(body);
                     let path = context.borrow().location.clone();
                     let prefix = match router.recognize(&path) {
                         Ok(matched) => match matched.params().find("filter") {
@@ -468,12 +432,8 @@ impl Route for Application<'_> {
                     };
                     match self.render_secrets(pattern) {
                         Ok((left, right)) => {
-                            rect.render_stateful_widget(
-                                left,
-                                secrets_chunks[0],
-                                &mut self.items.state,
-                            );
-                            rect.render_widget(right, secrets_chunks[1]);
+                            rect.render_stateful_widget(left, sidebar, &mut self.items.state);
+                            rect.render_widget(right, detail);
                         }
                         Err(error) => {
                             let error = error_text(
@@ -481,7 +441,7 @@ impl Route for Application<'_> {
                                 "Uncaught exception:",
                                 &error.message,
                             );
-                            rect.render_widget(error, get_modal_rect(chunks[1]));
+                            rect.render_widget(error, get_modal_rect(body));
                         }
                     };
                 }
@@ -490,9 +450,9 @@ impl Route for Application<'_> {
                 Some(error) => (error.clone(), self.text.clone()),
                 None => (self.label.clone(), self.text.clone()),
             };
-            let footer = dummy_paragraph(&footer_title, &footer_label);
-            self.menu.render_in_parent(rect, chunks[0]).unwrap();
-            rect.render_widget(footer, chunks[2]);
+            let status_bar = dummy_paragraph(&footer_title, &footer_label);
+            self.menu.render_in_parent(rect, top).unwrap();
+            rect.render_widget(status_bar, footer);
         })?;
         Ok(())
     }

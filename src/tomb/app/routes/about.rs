@@ -1,3 +1,5 @@
+use super::super::components::menu::MenuComponent;
+use super::super::geometry::*;
 use crate::aes256cbc::Config as AesConfig;
 use crate::core::VERSION;
 
@@ -41,8 +43,14 @@ impl Component for About<'_> {
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        let chunk = get_modal_rect(chunk);
-
+        let (header, body, footer) = vertical_stack(chunk);
+        let chunk = get_modal_rect(body);
+        MenuComponent::default("About")
+            .render_in_parent(rect, header)
+            .unwrap();
+        MenuComponent::default("About")
+            .render_in_parent(rect, footer)
+            .unwrap();
         let version = format!("Version {}", VERSION);
         let block = Block::default()
             .borders(Borders::ALL)
@@ -55,7 +63,7 @@ impl Component for About<'_> {
             .constraints(
                 [
                     Constraint::Percentage(33),
-                    Constraint::Percentage(33),
+                    Constraint::Percentage(34),
                     Constraint::Percentage(33),
                 ]
                 .as_ref(),
@@ -118,8 +126,12 @@ impl Component for About<'_> {
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {
-                context.borrow_mut().goto("/");
-                Ok(Refresh)
+                context.borrow_mut().goback();
+                Ok(Propagate)
+            }
+            KeyCode::Left => {
+                context.borrow_mut().goback();
+                Ok(Propagate)
             }
             _ => {
                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('q') {
@@ -130,12 +142,4 @@ impl Component for About<'_> {
         }
     }
 }
-impl Route for About<'_> {
-    fn path(&self) -> String {
-        String::from("/about")
-    }
-
-    fn matches_path(&self, path: String) -> bool {
-        path.eq("/about")
-    }
-}
+impl Route for About<'_> {}

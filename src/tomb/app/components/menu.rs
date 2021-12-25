@@ -35,14 +35,26 @@ pub struct MenuComponent {
     pub error: Option<String>,
 }
 impl MenuComponent {
-    pub fn new(name: &str) -> MenuComponent {
+    pub fn empty() -> MenuComponent {
         MenuComponent {
-            cid: String::from(name),
+            cid: String::from("main-menu"),
             selected: None,
             labels: Vec::new(),
             items: BTreeMap::new(),
             error: None,
         }
+    }
+    pub fn default(selected: &str) -> MenuComponent {
+        let mut menu = MenuComponent::empty();
+        menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
+        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
+            .unwrap();
+        // menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
+        //     .unwrap();
+        menu.add_item("About", KeyCode::Char('a'), "/about")
+            .unwrap();
+        menu.select(selected).unwrap();
+        menu
     }
     pub fn index_of(&self, item: &str) -> Result<usize, Error> {
         match self
@@ -76,10 +88,14 @@ impl MenuComponent {
         }
     }
 
+    pub fn set_index(&mut self, index: usize) {
+        self.selected = Some(index);
+    }
+
     pub fn select(&mut self, item: &str) -> Result<(), Error> {
         match self.index_of(item.clone()) {
             Ok(index) => {
-                self.selected = Some(index);
+                self.set_index(index);
                 Ok(())
             }
             Err(e) => Err(e),

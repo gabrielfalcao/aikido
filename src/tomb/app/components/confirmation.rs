@@ -60,7 +60,7 @@ impl Component for Confirmation {
         "Confirmation"
     }
     fn id(&self) -> String {
-        String::from("Confirmation")
+        self.text.clone()
     }
     fn render_in_parent(
         &self,
@@ -70,24 +70,21 @@ impl Component for Confirmation {
         let chunk = get_modal_rect(chunk);
         let confirmation = Block::default()
             .borders(Borders::ALL)
-            .style(
-                Style::default()
-                    .bg(Color::DarkGray)
-                    .bg(Color::White)
-                    .fg(Color::Black),
-            )
+            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
             .title(self.title.clone())
             .border_type(BorderType::Rounded);
 
+        let paragraph_style = Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD);
+
         let text = vec![Spans::from(Span::styled(
             self.text.clone(),
-            Style::default()
-                .fg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
+            paragraph_style.clone(),
         ))];
         let paragraph = Paragraph::new(text)
             .block(confirmation)
-            .style(Style::default().bg(Color::White).fg(Color::Black))
+            .style(paragraph_style)
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: false });
 

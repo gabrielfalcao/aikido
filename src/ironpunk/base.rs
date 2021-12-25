@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 use thiserror::Error;
 
 use crate::{ioutils::log_to_file, logger};
@@ -109,9 +111,10 @@ impl<'a> Context<'_> {
             return;
         }
         match self.history.pop() {
-            Some(location) => {
+            Some(_) => {
+                let location = self.history[self.history.len() - 1].clone();
+                self.location = location.clone();
                 log(format!("goback: {}", location));
-                self.location = location;
             }
             None => {}
         }
@@ -137,7 +140,6 @@ pub trait Component {
         router: SharedRouter,
     ) -> Result<LoopEvent, Error>;
 
-    #[allow(unused_variables)]
     fn tick(
         &mut self,
         terminal: &mut Terminal<Backend>,
@@ -181,10 +183,6 @@ pub trait Route
 where
     Self: Component,
 {
-    fn path(&self) -> String;
-    fn matches_path(&self, path: String) -> bool;
-
-    #[allow(unused_variables)]
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
@@ -197,8 +195,8 @@ where
                 Ok(_) => (),
                 Err(err) => {
                     log(format!(
-                        "Component of path {} rendering error: {}",
-                        self.path(),
+                        "error rendering component {}: {}",
+                        self.name(),
                         err
                     ));
                 }
@@ -251,14 +249,6 @@ impl ErrorRoute {
 }
 
 impl Route for ErrorRoute {
-    fn path(&self) -> String {
-        String::from("*")
-    }
-    #[allow(unused_variables)]
-    fn matches_path(&self, path: String) -> bool {
-        true
-    }
-    #[allow(unused_variables)]
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
@@ -288,7 +278,7 @@ impl Component for ErrorRoute {
     fn id(&self) -> String {
         self.title.clone()
     }
-    #[allow(unused_variables)]
+
     fn render_in_parent(
         &self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
@@ -307,7 +297,6 @@ impl Component for ErrorRoute {
         }
     }
 
-    #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
         event: KeyEvent,

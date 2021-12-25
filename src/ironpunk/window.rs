@@ -130,13 +130,6 @@ impl Component for Window<'_> {
     }
 }
 impl Route for Window<'_> {
-    fn path(&self) -> String {
-        String::from("*")
-    }
-    #[allow(unused_variables)]
-    fn matches_path(&self, path: String) -> bool {
-        true
-    }
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
