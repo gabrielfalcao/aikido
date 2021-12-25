@@ -12,6 +12,7 @@ pub use std::{cell::RefCell, rc::Rc};
 use std::{
     fmt,
     io::{self},
+    marker::PhantomData,
     panic,
     sync::mpsc,
     thread,
@@ -32,7 +33,7 @@ pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedContext<'a> = Rc<RefCell<Context<'a>>>;
 
-type ContextUpdateCallback<'a> = dyn Fn(&'a Context);
+type ContextUpdateCallback<'a> = dyn Fn(Context);
 type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
 
 pub type BoxedRoutes = Vec<BoxedRoute>;
@@ -215,6 +216,7 @@ pub struct Context<'a> {
     pub history: Vec<String>,
     pub error: ErrorRoute,
     update_callbacks: Vec<BoxedContextUpdateCallback<'a>>,
+    _phantom: PhantomData<&'a Context<'a>>,
 }
 
 impl<'a> Context<'_> {
@@ -225,9 +227,15 @@ impl<'a> Context<'_> {
         let location = String::from(location);
         Context {
             location: location.clone(),
+            _phantom: PhantomData,
             history: vec![location],
             error: ErrorRoute::new(),
             update_callbacks: update_callbacks,
+        }
+    }
+    fn process_callbacks(&self) {
+        for callback in &self.update_callbacks {
+            (*callback.borrow())(self.clone());
         }
     }
     pub fn goto(&mut self, location: &str) {
@@ -260,6 +268,7 @@ impl<'a> Context<'_> {
 pub struct Window<'a> {
     routes: BoxedRoutes,
     context: Context<'a>,
+    _phantom: PhantomData<&'a Context<'a>>,
 }
 
 // impl Clone for Window {
@@ -292,6 +301,7 @@ impl<'a> Window<'a> {
     pub fn from_routes(routes: BoxedRoutes) -> Window<'a> {
         Window {
             routes,
+            _phantom: PhantomData,
             context: Context::new("/", Vec::new()),
         }
     }
