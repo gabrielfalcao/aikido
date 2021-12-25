@@ -74,6 +74,13 @@ impl Component for Window<'_> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
+        if context.borrow().error.exists() {
+            return context
+                .borrow_mut()
+                .error
+                .process_keyboard(event, terminal, context.clone());
+        }
+
         for route in self.routes.iter_mut() {
             if route
                 .borrow()
@@ -90,12 +97,6 @@ impl Component for Window<'_> {
                     ok => return ok,
                 }
             }
-        }
-        if context.borrow().error.exists() {
-            context
-                .borrow_mut()
-                .error
-                .process_keyboard(event, terminal, context.clone())?;
         }
         Ok(Propagate)
     }

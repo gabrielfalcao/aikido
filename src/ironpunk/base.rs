@@ -216,7 +216,7 @@ impl Route for ErrorRoute {
                 terminal.draw(|parent| {
                     let chunk = get_modal_rect(parent.size());
                     parent.render_widget(paragraph, chunk);
-                });
+                })?;
             }
             None => {}
         };

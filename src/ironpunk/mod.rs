@@ -91,24 +91,14 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     }
                     Ok(Propagate) => continue,
                     Ok(Prevent) => break Ok(()),
-                    Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
-                        Ok(_) => continue,
-                        Err(err) => {
-                            log(format!("{}", err));
-
-                            return Err(Box::new(Error::with_message(format!("{}", err))));
-                        }
-                    },
+                    Ok(Refresh) => {
+                        window.render(&mut terminal, context.clone())?;
+                    }
                     Err(err) => {
                         log(format!("{}", err));
 
                         context.borrow_mut().error.set_error(err);
-                        match window.render(&mut terminal, context.clone()) {
-                            Ok(_) => continue,
-                            Err(err) => {
-                                return Err(Box::new(Error::with_message(format!("{}", err))))
-                            }
-                        }
+                        window.render(&mut terminal, context.clone())?;
                     }
                 };
             }
