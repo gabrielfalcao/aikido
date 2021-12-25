@@ -38,13 +38,17 @@ impl<'a> Window<'a> {
         &mut self,
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
+        router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         for route in &mut self.routes.clone() {
             if route
                 .borrow()
                 .matches_path(context.borrow().location.clone())
             {
-                match route.borrow_mut().tick(terminal, context.clone()) {
+                match route
+                    .borrow_mut()
+                    .tick(terminal, context.clone(), router.clone())
+                {
                     Ok(Propagate) => {
                         // proceed to next route
                         continue;
@@ -75,13 +79,15 @@ impl Component for Window<'_> {
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
+        router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         if context.borrow().error.exists() {
-            let result =
-                context
-                    .borrow_mut()
-                    .error
-                    .process_keyboard(event, terminal, context.clone())?;
+            let result = context.borrow_mut().error.process_keyboard(
+                event,
+                terminal,
+                context.clone(),
+                router.clone(),
+            )?;
 
             match result {
                 Quit => {
@@ -98,10 +104,12 @@ impl Component for Window<'_> {
                 .borrow()
                 .matches_path(context.borrow().location.clone())
             {
-                match route
-                    .borrow_mut()
-                    .process_keyboard(event, terminal, context.clone())
-                {
+                match route.borrow_mut().process_keyboard(
+                    event,
+                    terminal,
+                    context.clone(),
+                    router.clone(),
+                ) {
                     Err(err) => {
                         context.borrow_mut().error.set_error(err);
                         return Ok(Refresh);
@@ -125,6 +133,7 @@ impl Route for Window<'_> {
         &mut self,
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
+        router: BoxedRouter,
     ) -> Result<(), Error> {
         let location = context.borrow().location.clone();
         for route in self.routes.iter_mut() {
@@ -134,7 +143,9 @@ impl Route for Window<'_> {
                     route.borrow().name(),
                     location
                 ));
-                route.borrow_mut().render(terminal, context)?;
+                route
+                    .borrow_mut()
+                    .render(terminal, context.clone(), router.clone())?;
                 return Ok(());
             }
         }
@@ -155,7 +166,10 @@ impl Route for Window<'_> {
                 .set_error(Error::with_message(message));
             context.borrow_mut().error.set_title(title);
         }
-        let result = context.borrow_mut().error.render(terminal, context.clone());
+        let result = context
+            .borrow_mut()
+            .error
+            .render(terminal, context.clone(), router.clone());
         result
     }
 }

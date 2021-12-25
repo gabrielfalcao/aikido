@@ -73,11 +73,11 @@ pub fn start(routes: BoxedRoutes, router: BoxedRouter) -> Result<(), BoxedError>
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut window = Window::from_routes(routes, router);
+    let mut window = Window::from_routes(routes.clone(), router.clone());
     let context = Rc::new(RefCell::new(window.context.clone()));
 
     loop {
-        window.render(&mut terminal, context.clone())?;
+        window.render(&mut terminal, context.clone(), router.clone())?;
 
         match rx.recv()? {
             Event::Input(event) => {
@@ -85,27 +85,28 @@ pub fn start(routes: BoxedRoutes, router: BoxedRouter) -> Result<(), BoxedError>
                     exit(&mut terminal, 0);
                 }
 
-                match window.process_keyboard(event, &mut terminal, context.clone()) {
+                match window.process_keyboard(event, &mut terminal, context.clone(), router.clone())
+                {
                     Ok(Quit) => {
                         quit(&mut terminal);
                     }
                     Ok(Propagate) => continue,
                     Ok(Prevent) => break Ok(()),
                     Ok(Refresh) => {
-                        window.render(&mut terminal, context.clone())?;
+                        window.render(&mut terminal, context.clone(), router.clone())?;
                     }
                     Err(err) => {
                         log(format!("{}", err));
 
                         context.borrow_mut().error.set_error(err);
-                        window.render(&mut terminal, context.clone())?;
+                        window.render(&mut terminal, context.clone(), router.clone())?;
                     }
                 };
             }
             Event::Tick => {
-                match window.tick(&mut terminal, context.clone()) {
+                match window.tick(&mut terminal, context.clone(), router.clone()) {
                     Ok(Refresh) => {
-                        window.render(&mut terminal, context.clone())?;
+                        window.render(&mut terminal, context.clone(), router.clone())?;
                         continue;
                     }
                     Ok(Prevent | Propagate) => continue,

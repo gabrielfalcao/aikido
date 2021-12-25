@@ -69,7 +69,7 @@ test-aes-256: aes-256-key aes-256-password
 
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
-build: check
+build: check fmt fix
 	cargo build
 
 check:

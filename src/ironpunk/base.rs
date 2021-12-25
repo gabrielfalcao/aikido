@@ -134,11 +134,13 @@ pub trait Component {
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
+        router: BoxedRouter,
     ) -> Result<LoopEvent, Error>;
     fn tick(
         &mut self,
         _terminal: &mut Terminal<Backend>,
         _context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -177,7 +179,8 @@ where
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _context: Rc<RefCell<Context>>,
+        _context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|parent| {
             let chunk = parent.size();
@@ -250,6 +253,7 @@ impl Route for ErrorRoute {
         &mut self,
         terminal: &mut Terminal<Backend>,
         _context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
@@ -286,7 +290,8 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        __forbidden__: BoxedContext,
+        __forbidden_context__: BoxedContext,
+        __forbidden_router__: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         // Remember: The ErrorRoute is contained inside of the BoxedContext itself.
         //

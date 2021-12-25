@@ -4,7 +4,7 @@ use crate::core::{AUTHOR, VERSION};
 use crate::ironpunk::*;
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
+use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
     layout::Alignment,
@@ -63,7 +63,8 @@ impl Component for About<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: Rc<RefCell<Context>>,
+        context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {

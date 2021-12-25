@@ -171,6 +171,7 @@ impl Component for MenuComponent {
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {

@@ -269,6 +269,7 @@ impl Component for Application<'_> {
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: BoxedContext,
+        router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
@@ -276,16 +277,19 @@ impl Component for Application<'_> {
                     self.remove_overlay();
                     return Ok(Propagate);
                 } else {
-                    return overlay
-                        .borrow_mut()
-                        .process_keyboard(event, terminal, context.clone());
+                    return overlay.borrow_mut().process_keyboard(
+                        event,
+                        terminal,
+                        context.clone(),
+                        router.clone(),
+                    );
                 }
             }
             None => {}
         }
         let code = event.code;
         self.menu
-            .process_keyboard(event, terminal, context.clone())?;
+            .process_keyboard(event, terminal, context.clone(), router.clone())?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('k') | KeyCode::Char('K') => {
@@ -387,6 +391,7 @@ impl Route for Application<'_> {
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         _context: BoxedContext,
+        _router: BoxedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
