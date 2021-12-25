@@ -28,7 +28,10 @@ TOMB_FILE			:= ~/.test-tomb-file.yaml
 all: fix release
 
 clean: cls
-	@rm -fr *.{aes,yaml,log} 0b4sk8d
+	@rm -fr 0b4sk8d
+	@rm -fr *.aes
+	@rm -fr *.yaml
+	@echo rm -f *.log | echo
 
 cls:
 	@reset
