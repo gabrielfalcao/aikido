@@ -24,6 +24,13 @@ impl<'a> Window<'a> {
     pub fn new() -> Window<'a> {
         Window::from_routes(BoxedRoutes::new())
     }
+    pub fn registered_patterns(&self) -> Vec<String> {
+        let mut result: Vec<String> = Vec::new();
+        for route in &self.routes {
+            result.push(route.borrow().path());
+        }
+        result
+    }
     #[allow(unused_variables)]
     pub fn tick(
         &mut self,
@@ -121,11 +128,16 @@ impl Route for Window<'_> {
 
         let has_error = context.borrow_mut().error.exists();
         if !has_error {
-            // let routes = context.borrow().routes
+            let patterns = self.registered_patterns();
+            let message = if patterns.len() > 0 {
+                format!("route not found: {}", location)
+            } else {
+                format!("no routes declared")
+            };
             context
                 .borrow_mut()
                 .error
-                .set_error(Error::with_message(format!("no routes declared")));
+                .set_error(Error::with_message(message));
         }
         let result = context.borrow_mut().error.render(terminal, context.clone());
         result

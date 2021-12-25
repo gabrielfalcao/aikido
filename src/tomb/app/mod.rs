@@ -31,69 +31,6 @@ use tui::{
     Terminal,
 };
 
-// pub struct StatefulList {
-//     pub state: ListState,
-//     pub items: Vec<AES256Secret>,
-// }
-
-// impl StatefulList {
-//     pub fn with_items(items: Vec<AES256Secret>) -> StatefulList {
-//         StatefulList {
-//             state: ListState::default(),
-//             items,
-//         }
-//     }
-//     pub fn empty() -> StatefulList {
-//         StatefulList::with_items(Vec::new())
-//     }
-
-//     pub fn update(&mut self, items: Vec<AES256Secret>) {
-//         self.items = items;
-//     }
-//     pub fn next(&mut self) {
-//         let i = match self.state.selected() {
-//             Some(i) => {
-//                 if i >= self.items.len() - 1 {
-//                     0
-//                 } else {
-//                     i + 1
-//                 }
-//             }
-//             None => 0,
-//         };
-//         self.state.select(Some(i));
-//     }
-
-//     pub fn previous(&mut self) {
-//         let i = match self.state.selected() {
-//             Some(i) => {
-//                 if i == 0 {
-//                     self.items.len() - 1
-//                 } else {
-//                     i - 1
-//                 }
-//             }
-//             None => 0,
-//         };
-//         self.state.select(Some(i));
-//     }
-
-//     pub fn current(&mut self) -> Option<AES256Secret> {
-//         match self.state.selected() {
-//             Some(index) => {
-//                 if self.items.len() < index + 1 {
-//                     return None;
-//                 }
-//                 Some(self.items[index].clone())
-//             }
-//             None => None,
-//         }
-//     }
-//     pub fn unselect(&mut self) {
-//         self.state.select(None);
-//     }
-// }
-
 const DEFAULT_PATTERN: &'static str = "*";
 
 #[allow(dead_code)]
@@ -119,14 +56,10 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
-        menu.add_item("all", KeyCode::Char('a'), "/").unwrap();
-        menu.add_item("About", KeyCode::Char('A'), "/about")
+        menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
+        menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
         menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
-            .unwrap();
-        menu.add_item("Secrets", KeyCode::Char('s'), "/secrets")
-            .unwrap();
-        menu.add_item("One-Time Passwords", KeyCode::Char('o'), "/secrets")
             .unwrap();
         menu.add_item("Configuration", KeyCode::Char('c'), "/config")
             .unwrap();
@@ -354,24 +287,16 @@ impl Component for Application<'_> {
                 self.set_overlay(Modal::new("Hello", "World"));
                 Ok(Propagate)
             }
-            KeyCode::Char('A') => {
+            KeyCode::Char('a') => {
                 context.borrow_mut().goto("/about");
                 Ok(Refresh)
             }
-            KeyCode::Char('a') => {
+            KeyCode::Char('s') => {
                 self.set_pattern("*");
                 Ok(Propagate)
             }
             KeyCode::Char('p') => {
                 self.set_pattern("passwords/*");
-                Ok(Propagate)
-            }
-            KeyCode::Char('s') => {
-                self.set_pattern("secrets/*");
-                Ok(Propagate)
-            }
-            KeyCode::Char('o') => {
-                self.set_pattern("otp/*");
                 Ok(Propagate)
             }
             KeyCode::Char('r') => {
@@ -524,9 +449,13 @@ pub fn start(
     aes_config: AesConfig,
 ) -> Result<(), ironpunk::BoxedError> {
     let app = Application::new(key, tomb, aes_config.clone());
-    let about = About::new(aes_config);
+    let about = About::new(aes_config.clone());
+    let passwords = Passwords::new(aes_config.clone());
+    let configuration = Configuration::new(aes_config.clone());
     let mut routes = ironpunk::BoxedRoutes::new();
     routes.push(Rc::new(RefCell::new(app)));
     routes.push(Rc::new(RefCell::new(about)));
+    routes.push(Rc::new(RefCell::new(passwords)));
+    routes.push(Rc::new(RefCell::new(configuration)));
     ironpunk::start(routes)
 }

@@ -233,8 +233,8 @@ impl Component for ErrorRoute {
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc | KeyCode::Char('q') => {
-                quit(terminal);
-                Ok(Quit)
+                self.clear();
+                Ok(Refresh)
             }
             _ => Ok(Propagate),
         }

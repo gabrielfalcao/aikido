@@ -2,11 +2,9 @@
 
 - [X] toggle visibility
 - [X] pass context to process_keyboard and tick callbacks
-- [ ] tick every route of window
-- [ ] store a `on_context_changed` callback inside the context struct,
-      which will update the context of the window.
-
+- [x] tick every route of window
 - [x] filter secrets
+- [ ] handle errors gracefully
 - [ ] edit a secret
 - [ ] delete a secret
 
