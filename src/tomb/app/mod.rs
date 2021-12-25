@@ -425,7 +425,11 @@ impl Route for Application<'_> {
                             rect.render_widget(right, secrets_chunks[1]);
                         }
                         Err(error) => {
-                            let error = error_text(&error.message);
+                            let error = error_text(
+                                "Application Error",
+                                "Uncaught exception:",
+                                &error.message,
+                            );
                             rect.render_widget(error, get_modal_rect(chunks[1]));
                         }
                     };

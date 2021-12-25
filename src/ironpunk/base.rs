@@ -94,7 +94,7 @@ impl<'a> Context<'_> {
             location: location.clone(),
             _phantom: PhantomData,
             history: vec![location],
-            error: ErrorRoute::new(),
+            error: ErrorRoute::empty(),
         }
     }
     pub fn goto(&mut self, location: &str) {
@@ -160,17 +160,20 @@ where
 pub struct ErrorRoute {
     error: Option<Error>,
     title: String,
+    label: String,
 }
 impl ErrorRoute {
     pub fn new_with_message(message: String) -> ErrorRoute {
         ErrorRoute {
+            label: String::from("Error"),
             title: String::from("Error"),
             error: Some(Error::with_message(message.clone())),
         }
     }
-    pub fn new() -> ErrorRoute {
+    pub fn empty() -> ErrorRoute {
         ErrorRoute {
-            title: String::new(),
+            label: String::from("Error"),
+            title: String::from("Error"),
             error: None,
         }
     }
@@ -179,6 +182,9 @@ impl ErrorRoute {
     }
     pub fn set_title(&mut self, title: String) {
         self.title = title.clone();
+    }
+    pub fn set_label(&mut self, label: String) {
+        self.label = label.clone();
     }
     pub fn clear(&mut self) {
         self.error = None;
@@ -206,7 +212,7 @@ impl Route for ErrorRoute {
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
-                let paragraph = error_text(&error.message);
+                let paragraph = error_text(&self.label, &self.title, &error.message);
                 terminal.draw(|parent| {
                     let chunk = get_modal_rect(parent.size());
                     parent.render_widget(paragraph, chunk);
@@ -222,7 +228,7 @@ impl Component for ErrorRoute {
         "ErrorRoute"
     }
     fn id(&self) -> String {
-        String::from("Error")
+        self.title.clone()
     }
     #[allow(unused_variables)]
     fn process_keyboard(
@@ -241,9 +247,9 @@ impl Component for ErrorRoute {
     }
 }
 
-pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
+pub fn error_text<'a>(label: &'a str, title: &'a str, error: &'a str) -> Paragraph<'a> {
     Paragraph::new(vec![
-        Spans::from(vec![Span::raw("Error")]),
+        Spans::from(vec![Span::raw(title)]),
         Spans::from(vec![Span::raw("")]),
         Spans::from(vec![Span::raw(
             error,
@@ -255,7 +261,7 @@ pub fn error_text<'a>(error: &'a str) -> Paragraph<'a> {
         Block::default()
             .borders(Borders::ALL)
             .style(Style::default().bg(Color::Red).fg(Color::White))
-            .title("Error")
+            .title(label)
             .border_type(BorderType::Plain),
     )
 }

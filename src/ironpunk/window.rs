@@ -129,15 +129,19 @@ impl Route for Window<'_> {
         let has_error = context.borrow_mut().error.exists();
         if !has_error {
             let patterns = self.registered_patterns();
-            let message = if patterns.len() > 0 {
-                format!("route not found: {}", location)
+            let (title, message) = if patterns.len() > 0 {
+                (
+                    format!("Error 404"),
+                    format!("route not found: {}", location),
+                )
             } else {
-                format!("no routes declared")
+                (format!("Error 500"), format!("no routes declared"))
             };
             context
                 .borrow_mut()
                 .error
                 .set_error(Error::with_message(message));
+            context.borrow_mut().error.set_title(title);
         }
         let result = context.borrow_mut().error.render(terminal, context.clone());
         result
