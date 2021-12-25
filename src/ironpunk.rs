@@ -30,7 +30,7 @@ use tui::{
 pub type Backend = CrosstermBackend<io::Stdout>;
 pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
-pub type BoxedContext = Rc<RefCell<Context>>;
+pub type BoxedContext<'a> = Rc<RefCell<Context<'a>>>;
 
 type ContextUpdateCallback<'a> = dyn Fn(&'a Context);
 type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
@@ -210,19 +210,24 @@ impl Component for ErrorRoute {
 }
 
 #[derive(Clone)]
-pub struct Context {
+pub struct Context<'a> {
     pub location: String,
     pub history: Vec<String>,
     pub error: ErrorRoute,
+    update_callbacks: Vec<BoxedContextUpdateCallback<'a>>,
 }
 
-impl Context {
-    pub fn new(location: &str) -> Context {
+impl<'a> Context<'_> {
+    pub fn new(
+        location: &str,
+        update_callbacks: Vec<BoxedContextUpdateCallback<'a>>,
+    ) -> Context<'a> {
         let location = String::from(location);
         Context {
             location: location.clone(),
             history: vec![location],
             error: ErrorRoute::new(),
+            update_callbacks: update_callbacks,
         }
     }
     pub fn goto(&mut self, location: &str) {
@@ -252,9 +257,9 @@ impl Context {
 }
 
 #[allow(dead_code)]
-pub struct Window {
+pub struct Window<'a> {
     routes: BoxedRoutes,
-    context: Context,
+    context: Context<'a>,
 }
 
 // impl Clone for Window {
@@ -283,14 +288,14 @@ pub struct Window {
 //     }
 // }
 
-impl Window {
-    pub fn from_routes(routes: BoxedRoutes) -> Window {
+impl<'a> Window<'a> {
+    pub fn from_routes(routes: BoxedRoutes) -> Window<'a> {
         Window {
             routes,
-            context: Context::new("/"),
+            context: Context::new("/", Vec::new()),
         }
     }
-    pub fn new() -> Window {
+    pub fn new() -> Window<'a> {
         Window::from_routes(BoxedRoutes::new())
     }
     #[allow(unused_variables)]
@@ -318,7 +323,7 @@ impl Window {
         //         Err(err) => return Err(Error::with_message(format!("{}", err))),
         //     };
         // }
-        /// TODO: tick every component
+        // TODO: tick every component
         Ok(Propagate)
     }
     pub fn set_error(&mut self, error: Error) {
@@ -333,7 +338,7 @@ impl Window {
     }
 }
 
-impl Component for Window {
+impl Component for Window<'_> {
     fn name(&self) -> &str {
         "Window"
     }
@@ -368,7 +373,7 @@ impl Component for Window {
         Ok(Propagate)
     }
 }
-impl Route for Window {
+impl Route for Window<'_> {
     #[allow(unused_variables)]
     fn matches_path(&self, path: String) -> bool {
         true
