@@ -264,6 +264,22 @@ impl Component for Application<'_> {
     fn id(&self) -> String {
         String::from("Application")
     }
+    fn tick(
+        &mut self,
+        terminal: &mut Terminal<Backend>,
+        context: SharedContext,
+        router: SharedRouter,
+    ) -> Result<LoopEvent, Error> {
+        match &mut self.overlay {
+            Some(overlay) => {
+                return overlay
+                    .borrow_mut()
+                    .tick(terminal, context.clone(), router.clone());
+            }
+            None => {}
+        }
+        Ok(Refresh)
+    }
 
     #[allow(unused_variables)]
     fn process_keyboard(

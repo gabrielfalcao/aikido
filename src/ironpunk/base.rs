@@ -84,7 +84,7 @@ pub struct Context<'a> {
     pub location: String,
     pub history: Vec<String>,
     pub error: ErrorRoute,
-    _phantom: PhantomData<&'a Context<'a>>,
+    phantom: PhantomData<&'a Context<'a>>,
 }
 
 impl<'a> Context<'_> {
@@ -92,7 +92,7 @@ impl<'a> Context<'_> {
         let location = String::from(location);
         Context {
             location: location.clone(),
-            _phantom: PhantomData,
+            phantom: PhantomData,
             history: vec![location],
             error: ErrorRoute::empty(),
         }
@@ -135,11 +135,13 @@ pub trait Component {
         context: SharedContext,
         router: SharedRouter,
     ) -> Result<LoopEvent, Error>;
+
+    #[allow(unused_variables)]
     fn tick(
         &mut self,
-        _terminal: &mut Terminal<Backend>,
-        _context: SharedContext,
-        _router: SharedRouter,
+        terminal: &mut Terminal<Backend>,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -175,11 +177,13 @@ where
 {
     fn path(&self) -> String;
     fn matches_path(&self, path: String) -> bool;
+
+    #[allow(unused_variables)]
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _context: SharedContext,
-        _router: SharedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|parent| {
             let chunk = parent.size();
@@ -248,11 +252,12 @@ impl Route for ErrorRoute {
     fn matches_path(&self, path: String) -> bool {
         true
     }
+    #[allow(unused_variables)]
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        _context: SharedContext,
-        _router: SharedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
@@ -274,10 +279,11 @@ impl Component for ErrorRoute {
     fn id(&self) -> String {
         self.title.clone()
     }
+    #[allow(unused_variables)]
     fn render_in_parent(
         &self,
-        _parent: &mut Frame<CrosstermBackend<io::Stdout>>,
-        _chunk: Rect,
+        parent: &mut Frame<CrosstermBackend<io::Stdout>>,
+        chunk: Rect,
     ) -> Result<(), Error> {
         Err(Error::with_message(format!(
             "not implemented by error route"

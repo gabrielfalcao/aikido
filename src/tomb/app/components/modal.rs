@@ -60,7 +60,7 @@ impl Component for Modal {
         "Modal"
     }
     fn id(&self) -> String {
-        String::from("Modal")
+        self.text.clone()
     }
     fn render_in_parent(
         &self,
@@ -70,12 +70,7 @@ impl Component for Modal {
         let chunk = get_modal_rect(chunk);
         let modal = Block::default()
             .borders(Borders::ALL)
-            .style(
-                Style::default()
-                    .bg(Color::DarkGray)
-                    .bg(Color::White)
-                    .fg(Color::Black),
-            )
+            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
             .title(self.title.clone())
             .border_type(BorderType::Rounded);
 
@@ -87,7 +82,7 @@ impl Component for Modal {
         ))];
         let paragraph = Paragraph::new(text)
             .block(modal)
-            .style(Style::default().bg(Color::White).fg(Color::Black))
+            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: false });
 
