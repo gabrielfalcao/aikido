@@ -8,37 +8,28 @@ pub use std::{cell::RefCell, rc::Rc};
 use tui::Terminal;
 #[allow(dead_code)]
 pub struct Window<'a> {
-    pub routes: BoxedRoutes,
-    pub router: BoxedRouter,
+    pub router: SharedRouter,
     pub context: Context<'a>,
     _phantom: PhantomData<&'a Context<'a>>,
 }
 
 impl<'a> Window<'a> {
-    pub fn from_routes(routes: BoxedRoutes, router: BoxedRouter) -> Window<'a> {
+    pub fn from_routes(router: SharedRouter) -> Window<'a> {
         Window {
-            routes,
             router,
             _phantom: PhantomData,
             context: Context::new("/"),
         }
     }
     pub fn new() -> Window<'a> {
-        Window::from_routes(BoxedRoutes::new(), BoxedRouter::new())
-    }
-    pub fn registered_patterns(&self) -> Vec<String> {
-        let mut result: Vec<String> = Vec::new();
-        for route in &self.routes {
-            result.push(route.borrow().path());
-        }
-        result
+        Window::from_routes(SharedRouter::new())
     }
     #[allow(unused_variables)]
     pub fn tick(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-        router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         let path = context.borrow().location.clone();
         match router.recognize(&path) {
@@ -80,8 +71,8 @@ impl Component for Window<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-        router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         if context.borrow().error.exists() {
             let result = context.borrow_mut().error.process_keyboard(
@@ -139,8 +130,8 @@ impl Route for Window<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-        router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<(), Error> {
         let path = context.borrow().location.clone();
         match router.recognize(&path) {

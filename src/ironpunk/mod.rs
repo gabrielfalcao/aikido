@@ -22,7 +22,7 @@ use std::{
 
 use tui::{backend::CrosstermBackend, Terminal};
 
-pub fn start(routes: BoxedRoutes, router: BoxedRouter) -> Result<(), BoxedError> {
+pub fn start(router: SharedRouter) -> Result<(), SharedError> {
     panic::set_hook(Box::new(|e| {
         disable_raw_mode().unwrap_or(());
         reset();
@@ -73,7 +73,7 @@ pub fn start(routes: BoxedRoutes, router: BoxedRouter) -> Result<(), BoxedError>
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut window = Window::from_routes(routes.clone(), router.clone());
+    let mut window = Window::from_routes(router.clone());
     let context = Rc::new(RefCell::new(window.context.clone()));
 
     loop {

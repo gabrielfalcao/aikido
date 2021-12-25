@@ -22,11 +22,10 @@ pub use tui::{
 };
 
 pub type Backend = CrosstermBackend<io::Stdout>;
-pub type BoxedError = Box<dyn std::error::Error>;
-pub type BoxedComponent = Rc<RefCell<dyn Component>>;
-pub type BoxedRoute = Rc<RefCell<dyn Route>>;
-pub type BoxedRoutes = Vec<BoxedRoute>;
-pub type BoxedRouter = Router<BoxedRoute>;
+pub type SharedError = Box<dyn std::error::Error>;
+pub type SharedComponent = Rc<RefCell<dyn Component>>;
+pub type SharedRoute = Rc<RefCell<dyn Route>>;
+pub type SharedRouter = Router<SharedRoute>;
 
 #[derive(Debug, Error, Clone)]
 pub struct Error {
@@ -78,7 +77,7 @@ pub enum LoopEvent {
 pub fn log(message: String) {
     log_to_file("ironpunk.log", message).unwrap()
 }
-pub type BoxedContext<'a> = Rc<RefCell<Context<'a>>>;
+pub type SharedContext<'a> = Rc<RefCell<Context<'a>>>;
 
 #[derive(Clone)]
 pub struct Context<'a> {
@@ -133,14 +132,14 @@ pub trait Component {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
-        router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error>;
     fn tick(
         &mut self,
         _terminal: &mut Terminal<Backend>,
-        _context: BoxedContext,
-        _router: BoxedRouter,
+        _context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         Ok(Refresh)
     }
@@ -179,8 +178,8 @@ where
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _context: BoxedContext,
-        _router: BoxedRouter,
+        _context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|parent| {
             let chunk = parent.size();
@@ -252,8 +251,8 @@ impl Route for ErrorRoute {
     fn render(
         &mut self,
         terminal: &mut Terminal<Backend>,
-        _context: BoxedContext,
-        _router: BoxedRouter,
+        _context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<(), Error> {
         match &self.error {
             Some(error) => {
@@ -290,10 +289,10 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        __forbidden_context__: BoxedContext,
-        __forbidden_router__: BoxedRouter,
+        __forbidden_context__: SharedContext,
+        __forbidden_router__: SharedRouter,
     ) -> Result<LoopEvent, Error> {
-        // Remember: The ErrorRoute is contained inside of the BoxedContext itself.
+        // Remember: The ErrorRoute is contained inside of the SharedContext itself.
         //
         // context usage here is __forbidden__ because it has already been
         // borrow_muted during window.process_keyboard() which is the

@@ -170,8 +170,8 @@ impl Component for MenuComponent {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: BoxedContext,
-        _router: BoxedRouter,
+        context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         let code = event.code;
         match code {

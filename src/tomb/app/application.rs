@@ -48,7 +48,7 @@ pub struct Application<'a> {
     pub visible: bool,
     pub pin_visible: bool,
     pub menu: MenuComponent,
-    pub overlay: Option<BoxedComponent>,
+    pub overlay: Option<SharedComponent>,
     pub scroll: u16,
     pub items: StatefulList,
 }
@@ -57,7 +57,8 @@ impl<'a> Application<'a> {
     pub fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
-        menu.add_item("Passwords", KeyCode::Char('p'), "/").unwrap(); // TODO: use route_recognizer with capture param :filter {secrets/passwords/otp}
+        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
+            .unwrap(); // TODO: use route_recognizer with capture param :filter {secrets/passwords/otp}
         menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
         menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
@@ -106,7 +107,7 @@ impl<'a> Application<'a> {
     pub fn reset_search(&mut self) {
         self.filter_search(DEFAULT_PATTERN);
     }
-    pub fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
+    pub fn render_secrets(&mut self, pattern: String) -> Result<(List<'a>, Table<'a>), Error> {
         let secrets = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))
@@ -124,7 +125,7 @@ impl<'a> Application<'a> {
             })
             .collect();
 
-        self.filter_search(self.pattern.clone().as_str());
+        self.filter_search(&pattern);
         let selected_secret = match self.items.current() {
             Some(secret) => secret,
             None => match self.items.items.len() > 0 {
@@ -201,7 +202,7 @@ impl<'a> Application<'a> {
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    pub fn set_overlay(&mut self, overlay: BoxedComponent) {
+    pub fn set_overlay(&mut self, overlay: SharedComponent) {
         self.overlay = Some(overlay);
     }
     pub fn remove_overlay(&mut self) {
@@ -264,8 +265,8 @@ impl Component for Application<'_> {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: BoxedContext,
-        router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         match &mut self.overlay {
             Some(overlay) => {
@@ -386,8 +387,8 @@ impl Route for Application<'_> {
     fn render(
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        _context: BoxedContext,
-        _router: BoxedRouter,
+        context: SharedContext,
+        router: SharedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let size = rect.size();
@@ -426,8 +427,16 @@ impl Route for Application<'_> {
                             [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
                         )
                         .split(chunks[1]);
+                    let path = context.borrow().location.clone();
+                    let pattern = match router.recognize(&path) {
+                        Ok(matched) => match matched.params().find("filter") {
+                            Some(pattern) => String::from(pattern),
+                            None => String::new(),
+                        },
+                        Err(_err) => String::new(),
+                    };
 
-                    match self.render_secrets() {
+                    match self.render_secrets(pattern) {
                         Ok((left, right)) => {
                             rect.render_stateful_widget(
                                 left,

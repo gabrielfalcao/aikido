@@ -101,8 +101,8 @@ impl Component for Confirmation {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        context: BoxedContext,
-        _router: BoxedRouter,
+        context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Backspace => {
