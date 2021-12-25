@@ -28,7 +28,7 @@ TOMB_FILE			:= ~/.test-tomb-file.yaml
 all: fmt release
 
 clean: cls
-	@rm -fr *.aes *.yaml 0b4sk8d
+	@rm -fr *.{aes,yaml,log} 0b4sk8d
 
 cls:
 	@echo -en "\033[H\033[2J"

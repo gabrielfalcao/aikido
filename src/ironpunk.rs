@@ -6,7 +6,7 @@ use crossterm::{
 use route_recognizer::Router;
 use thiserror::Error;
 
-use crate::{ioutils::append_to_file, logger};
+use crate::{ioutils::log_to_file, logger};
 
 pub use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -33,8 +33,8 @@ pub type BoxedError = Box<dyn std::error::Error>;
 pub type BoxedRoute = Rc<RefCell<dyn Route>>;
 pub type BoxedContext<'a> = Rc<RefCell<Context<'a>>>;
 
-type ContextUpdateCallback<'a> = dyn Fn(Context);
-type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
+// type ContextUpdateCallback<'a> = dyn Fn(Context);
+// type BoxedContextUpdateCallback<'a> = Rc<RefCell<ContextUpdateCallback<'a>>>;
 
 pub type BoxedRoutes = Vec<BoxedRoute>;
 pub type BoxedRouter = Router<BoxedRoute>;
@@ -215,39 +215,29 @@ pub struct Context<'a> {
     pub location: String,
     pub history: Vec<String>,
     pub error: ErrorRoute,
-    update_callbacks: Vec<BoxedContextUpdateCallback<'a>>,
     _phantom: PhantomData<&'a Context<'a>>,
 }
 
 impl<'a> Context<'_> {
-    pub fn new(
-        location: &str,
-        update_callbacks: Vec<BoxedContextUpdateCallback<'a>>,
-    ) -> Context<'a> {
+    pub fn new(location: &str) -> Context<'a> {
         let location = String::from(location);
         Context {
             location: location.clone(),
             _phantom: PhantomData,
             history: vec![location],
             error: ErrorRoute::new(),
-            update_callbacks: update_callbacks,
-        }
-    }
-    fn process_callbacks(&self) {
-        for callback in &self.update_callbacks {
-            (*callback.borrow())(self.clone());
         }
     }
     pub fn goto(&mut self, location: &str) {
         let location = String::from(location);
         self.history.push(location.clone());
         self.location = location.clone();
-        append_to_file("context.log", format!("goto: {}\n", location)).unwrap();
+        log_to_file("context.log", format!("goto: {}", location)).unwrap();
     }
     pub fn goback(&mut self) {
         match self.history.pop() {
             Some(location) => {
-                append_to_file("context.log", format!("goback: {}\n", location)).unwrap();
+                log_to_file("context.log", format!("goback: {}", location)).unwrap();
                 self.location = location;
             }
             None => {}
@@ -302,7 +292,7 @@ impl<'a> Window<'a> {
         Window {
             routes,
             _phantom: PhantomData,
-            context: Context::new("/", Vec::new()),
+            context: Context::new("/"),
         }
     }
     pub fn new() -> Window<'a> {
@@ -314,6 +304,11 @@ impl<'a> Window<'a> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
+        log_to_file(
+            "ironpunk.log",
+            format!("location: {}\n", context.borrow().location),
+        )
+        .unwrap();
         // for route in &mut self.routes.clone() {
         //     let mut route = route.borrow_mut();
         //     // tick every child route
@@ -394,7 +389,13 @@ impl Route for Window<'_> {
         context: BoxedContext,
     ) -> Result<(), Error> {
         for route in self.routes.iter_mut() {
-            if route.borrow().matches_path(self.context.location.clone()) {
+            let location = self.context.location.clone();
+            if route.borrow().matches_path(location.clone()) {
+                log_to_file(
+                    "ironpunk.log",
+                    format!("route {} matches {}\n", route.borrow().name(), location),
+                )
+                .unwrap();
                 route.borrow_mut().render(terminal, context)?;
                 return Ok(());
             }
@@ -507,13 +508,13 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
                     Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
                         Ok(_) => continue,
                         Err(err) => {
-                            append_to_file("ironpunk.log", format!("{}\n", err)).unwrap();
+                            log_to_file("ironpunk.log", format!("{}", err)).unwrap();
 
                             return Err(Box::new(Error::with_message(format!("{}", err))));
                         }
                     },
                     Err(err) => {
-                        append_to_file("ironpunk.log", format!("{}\n", err)).unwrap();
+                        log_to_file("ironpunk.log", format!("{}", err)).unwrap();
 
                         window.set_error(err);
                         match window.render(&mut terminal, context.clone()) {

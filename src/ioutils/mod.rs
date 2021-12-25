@@ -1,7 +1,7 @@
-use console::style;
-
 use crate::colors;
 use crate::logger;
+use chrono::prelude::*;
+use console::style;
 
 use std::collections::BTreeMap;
 
@@ -237,13 +237,17 @@ pub fn rm_rf(target: &str) -> bool {
 }
 pub fn append_to_file(filename: &str, value: String) -> Result<(), Error> {
     let mut file = open_append(filename)?;
-    match file.write(value.as_bytes()) {
+    match file.write_all(value.as_bytes()) {
         Ok(_) => Ok(()),
         Err(error) => Err(Error::with_message(format!(
             "cannot append to file {}: {}",
             filename, error
         ))),
     }
+}
+pub fn log_to_file(filename: &str, value: String) -> Result<(), Error> {
+    let value = format!("[{}] {}\n", Utc::now(), value);
+    append_to_file(filename, value)
 }
 pub fn write_map_to_yaml(map: &BTreeMap<String, String>, filename: &str) -> Result<(), Error> {
     let mut file = open_write(filename).unwrap();
