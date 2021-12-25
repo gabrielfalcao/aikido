@@ -31,7 +31,7 @@ clean: cls
 	@rm -fr *.{aes,yaml,log} 0b4sk8d
 
 cls:
-	@echo -en "\033[H\033[2J"
+	@reset
 
 release:
 	@cargo build --release
@@ -148,6 +148,9 @@ tomb-delete: build cls
 
 tomb-ui: tomb-create tomb-save
 	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)
+
+ui:
+	cargo run --bin tomb ui -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 obfuskat3: cls 0b4sk8d.yaml
 

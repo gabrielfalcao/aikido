@@ -1,7 +1,7 @@
 use crate::aes256cbc::Config as AesConfig;
 use crate::core::{AUTHOR, VERSION};
 
-use crate::ironpunk::LoopEvent::*;
+
 use crate::ironpunk::*;
 
 use crossterm::event::{KeyCode, KeyEvent};

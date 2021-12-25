@@ -1,0 +1,149 @@
+pub mod base;
+pub use base::*;
+pub mod window;
+pub use window::*;
+
+use console;
+use crossterm::{
+    event::{self, Event as CEvent, KeyCode, KeyEvent},
+    terminal::{disable_raw_mode, enable_raw_mode},
+};
+use route_recognizer::Router;
+
+use crate::logger;
+
+pub use std::{cell::RefCell, rc::Rc};
+use std::{
+    io::{self},
+    marker::PhantomData,
+    panic,
+    sync::mpsc,
+    thread,
+    time::{Duration, Instant},
+};
+
+use tui::{
+    backend::CrosstermBackend,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::{Color, Style},
+    text::{Span, Spans},
+    widgets::{Block, BorderType, Borders, Paragraph},
+    Terminal,
+};
+
+pub fn reset() {
+    println!("\x1bc\x1b[!p\x1b[?3;4l\x1b[4l\x1b>");
+}
+
+pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
+    panic::set_hook(Box::new(|e| {
+        disable_raw_mode().unwrap_or(());
+        reset();
+        logger::err::error(format!("{}", e));
+    }));
+
+    reset();
+    match enable_raw_mode() {
+        Ok(_) => {}
+        Err(error) => {
+            return Err(Box::new(Error::with_message(format!(
+                "cannot initialize crossterm: {}",
+                error
+            ))))
+        }
+    };
+
+    console::set_colors_enabled(false);
+    let (tx, rx) = mpsc::channel();
+    let tick_rate = Duration::from_millis(1000);
+    // let tick_rate = Duration::from_millis(314);
+    thread::spawn(move || {
+        let mut last_tick = Instant::now();
+        loop {
+            let timeout = tick_rate
+                .checked_sub(last_tick.elapsed())
+                .unwrap_or_else(|| Duration::from_secs(0));
+
+            if event::poll(timeout).expect("poll works") {
+                match event::read().expect("can read events") {
+                    CEvent::Key(event) => {
+                        tx.send(Event::Input(event)).expect("can send events");
+                    }
+                    CEvent::Mouse(_event) => {}
+                    CEvent::Resize(_width, _height) => {}
+                }
+            }
+
+            if last_tick.elapsed() >= tick_rate {
+                if let Ok(_) = tx.send(Event::Tick) {
+                    last_tick = Instant::now();
+                }
+            }
+        }
+    });
+
+    let stdout = io::stdout();
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
+    let mut window = Window::from_routes(routes);
+    let context = Rc::new(RefCell::new(window.context.clone()));
+
+    loop {
+        window.render(&mut terminal, context.clone())?;
+
+        match rx.recv()? {
+            Event::Input(event) => {
+                match window.process_keyboard(event, &mut terminal, context.clone()) {
+                    Ok(Quit) => {
+                        //Ok(return Box::new(quit(&mut terminal))),
+                        disable_raw_mode()?;
+                        terminal.clear()?;
+                        terminal.show_cursor()?;
+                        reset();
+                        std::process::exit(0);
+                    }
+                    Ok(Propagate) => continue,
+                    Ok(Prevent) => break Ok(()),
+                    Ok(Refresh) => match window.render(&mut terminal, context.clone()) {
+                        Ok(_) => continue,
+                        Err(err) => {
+                            log(format!("{}", err));
+
+                            return Err(Box::new(Error::with_message(format!("{}", err))));
+                        }
+                    },
+                    Err(err) => {
+                        log(format!("{}", err));
+
+                        window.set_error(err);
+                        match window.render(&mut terminal, context.clone()) {
+                            Ok(_) => continue,
+                            Err(err) => {
+                                return Err(Box::new(Error::with_message(format!("{}", err))))
+                            }
+                        }
+                    }
+                };
+            }
+            Event::Tick => {
+                match window.tick(&mut terminal, context.clone()) {
+                    Ok(Refresh) => {
+                        window.render(&mut terminal, context.clone())?;
+                        continue;
+                    }
+                    Ok(Prevent | Propagate) => continue,
+                    Ok(Quit) => {
+                        //Ok(return Box::new(quit(&mut terminal))),
+                        disable_raw_mode()?;
+                        terminal.show_cursor()?;
+                        terminal.clear()?;
+                        reset();
+                        std::process::exit(0);
+                    }
+                    Err(err) => return Err(Box::new(Error::with_message(format!("{}", err)))),
+                };
+            }
+        }
+    }
+}
