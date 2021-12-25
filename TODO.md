@@ -4,7 +4,7 @@
 - [X] pass context to process_keyboard and tick callbacks
 - [x] tick every route of window
 - [x] filter secrets
-- [ ] handle errors gracefully
+- [x] handle errors gracefully
 - [ ] edit a secret
 - [ ] delete a secret
 

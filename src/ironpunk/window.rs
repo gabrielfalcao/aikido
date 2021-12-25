@@ -75,10 +75,20 @@ impl Component for Window<'_> {
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
         if context.borrow().error.exists() {
-            return context
-                .borrow_mut()
-                .error
-                .process_keyboard(event, terminal, context.clone());
+            let result =
+                context
+                    .borrow_mut()
+                    .error
+                    .process_keyboard(event, terminal, context.clone())?;
+
+            match result {
+                Quit => {
+                    context.borrow_mut().error.clear();
+                    context.borrow_mut().goto("/");
+                    return Ok(Refresh);
+                }
+                event => return Ok(event),
+            }
         }
 
         for route in self.routes.iter_mut() {

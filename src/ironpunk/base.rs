@@ -235,13 +235,15 @@ impl Component for ErrorRoute {
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<Backend>,
-        context: BoxedContext,
+        __forbidden__: BoxedContext,
     ) -> Result<LoopEvent, Error> {
+        // Remember: The ErrorRoute is contained inside of the BoxedContext itself.
+        //
+        // context usage here is __forbidden__ because it has already been
+        // borrow_muted during window.process_keyboard() which is the
+        // intended caller of ErrorRoute.process_keyboard()
         match event.code {
-            KeyCode::Esc | KeyCode::Char('q') => {
-                context.borrow_mut().goto("/");
-                Ok(Refresh)
-            }
+            KeyCode::Esc | KeyCode::Char('q') => Ok(Quit),
             _ => Ok(Propagate),
         }
     }

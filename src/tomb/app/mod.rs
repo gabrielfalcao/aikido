@@ -57,11 +57,11 @@ impl<'a> Application<'a> {
     fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
         let mut menu = MenuComponent::new("main-menu");
         menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
+        menu.add_item("Configuration", KeyCode::Char('c'), "/config")
+            .unwrap();
         menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
         menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
-            .unwrap();
-        menu.add_item("Configuration", KeyCode::Char('c'), "/config")
             .unwrap();
 
         Application {
