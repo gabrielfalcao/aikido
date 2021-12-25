@@ -350,6 +350,10 @@ impl Component for Application<'_> {
                 self.set_overlay(Modal::new("Hello", "World"));
                 Ok(Propagate)
             }
+            KeyCode::Char('A') => {
+                /// TODO: change window route
+                Ok(Propagate)
+            }
             KeyCode::Char('a') => {
                 self.set_pattern("*");
                 Ok(Propagate)
