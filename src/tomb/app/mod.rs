@@ -1,5 +1,6 @@
 pub mod components;
 pub mod navigation;
+pub mod routes;
 use chrono::prelude::*;
 
 use crate::ironpunk;
@@ -10,6 +11,7 @@ pub use components::{
     modal::Modal,
 };
 pub use navigation::*;
+use routes::*;
 
 extern crate clipboard;
 use super::{AES256Secret, AES256Tomb};
@@ -505,9 +507,10 @@ pub fn start(
     key: Key,
     aes_config: AesConfig,
 ) -> Result<(), ironpunk::BoxedError> {
-    let app = Application::new(key, tomb, aes_config);
+    let app = Application::new(key, tomb, aes_config.clone());
+    let about = routes::about::About::new(aes_config);
     let mut routes = ironpunk::BoxedRoutes::new();
-    let main = Box::new(app);
-    routes.push(main);
+    routes.push(Box::new(app));
+    routes.push(Box::new(about));
     ironpunk::start(routes)
 }
