@@ -452,14 +452,20 @@ impl Route for Application<'_> {
                     let prefix = match router.recognize(&path) {
                         Ok(matched) => match matched.params().find("filter") {
                             Some(pattern) => String::from(pattern),
-                            None => String::from(DEFAULT_PATTERN),
+                            None => String::new(),
                         },
                         Err(err) => {
                             log(format!("route matching failed for {}: {}", path, err));
-                            String::from(DEFAULT_PATTERN)
+                            String::new()
                         }
                     };
-                    let pattern = format!("{}*", prefix);
+                    let pattern = if prefix.len() == 0 && !path.eq("/") {
+                        self.pattern.clone()
+                    } else if path.eq("/") {
+                        String::from(DEFAULT_PATTERN)
+                    } else {
+                        format!("{}*", prefix)
+                    };
                     match self.render_secrets(pattern) {
                         Ok((left, right)) => {
                             rect.render_stateful_widget(
