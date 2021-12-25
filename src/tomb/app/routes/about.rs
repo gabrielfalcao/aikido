@@ -47,8 +47,8 @@ impl Component for About<'_> {
     ) -> Result<LoopEvent, Error> {
         match event.code {
             KeyCode::Esc => {
-                //
-                Ok(Propagate)
+                context.borrow_mut().goto("/");
+                Ok(Refresh)
             }
             _ => Ok(Propagate),
         }

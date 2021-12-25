@@ -237,6 +237,9 @@ impl<'a> Context<'_> {
         log(format!("goto: {}", location));
     }
     pub fn goback(&mut self) {
+        if self.history.len() == 0 {
+            return;
+        }
         match self.history.pop() {
             Some(location) => {
                 log(format!("goback: {}", location));
@@ -306,7 +309,12 @@ impl<'a> Window<'a> {
         terminal: &mut Terminal<Backend>,
         context: BoxedContext,
     ) -> Result<LoopEvent, Error> {
-        log(format!("location: {}\n", context.borrow().location));
+        let context = context.borrow();
+        log(format!(
+            "location: {} {:?}\n",
+            context.location,
+            context.history.len()
+        ));
 
         // for route in &mut self.routes.clone() {
         //     let mut route = route.borrow_mut();
