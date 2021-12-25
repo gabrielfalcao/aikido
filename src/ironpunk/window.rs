@@ -40,30 +40,32 @@ impl<'a> Window<'a> {
         context: BoxedContext,
         router: BoxedRouter,
     ) -> Result<LoopEvent, Error> {
-        for route in &mut self.routes.clone() {
-            if route
-                .borrow()
-                .matches_path(context.borrow().location.clone())
-            {
-                match route
+        let path = context.borrow().location.clone();
+        match router.recognize(&path) {
+            Ok(matched) => {
+                // let href = matched.handler.borrow().location.clone();
+                match matched
+                    .handler()
                     .borrow_mut()
                     .tick(terminal, context.clone(), router.clone())
                 {
-                    Ok(Propagate) => {
-                        // proceed to next route
-                        continue;
-                    }
-                    Ok(Refresh) => {
-                        return Ok(Refresh);
-                    }
                     Ok(any) => {
                         return Ok(any);
                     }
-                    Err(err) => return Err(Error::with_message(format!("{}", err))),
+                    Err(err) => {
+                        context
+                            .borrow_mut()
+                            .error
+                            .set_error(Error::with_message(format!("{}", err)));
+                        return Ok(Refresh);
+                    }
                 };
             }
+            Err(error_string) => {
+                log(format!("window.tick() route not matched {}", error_string));
+                return Ok(Propagate);
+            }
         }
-        Ok(Propagate)
     }
 }
 
@@ -99,12 +101,11 @@ impl Component for Window<'_> {
             }
         }
 
-        for route in self.routes.iter_mut() {
-            if route
-                .borrow()
-                .matches_path(context.borrow().location.clone())
-            {
-                match route.borrow_mut().process_keyboard(
+        let path = context.borrow().location.clone();
+        match router.recognize(&path) {
+            Ok(matched) => {
+                // let href = matched.handler.borrow().location.clone();
+                match matched.handler().borrow_mut().process_keyboard(
                     event,
                     terminal,
                     context.clone(),
@@ -117,8 +118,14 @@ impl Component for Window<'_> {
                     ok => return ok,
                 }
             }
+            Err(error_string) => {
+                log(format!(
+                    "window.process_keyboard() route not matched {}",
+                    error_string
+                ));
+                return Ok(Propagate);
+            }
         }
-        Ok(Propagate)
     }
 }
 impl Route for Window<'_> {
@@ -135,31 +142,34 @@ impl Route for Window<'_> {
         context: BoxedContext,
         router: BoxedRouter,
     ) -> Result<(), Error> {
-        let location = context.borrow().location.clone();
-        for route in self.routes.iter_mut() {
-            if route.borrow().matches_path(location.clone()) {
-                log(format!(
-                    "route {} matches {}\n",
-                    route.borrow().name(),
-                    location
-                ));
-                route
+        let path = context.borrow().location.clone();
+        match router.recognize(&path) {
+            Ok(matched) => {
+                match matched.handler().borrow_mut().render(
+                    terminal,
+                    context.clone(),
+                    router.clone(),
+                ) {
+                    Ok(_) => return Ok(()),
+                    Err(error) => {
+                        context.borrow_mut().error.set_error(error);
+                    }
+                }
+            }
+            Err(_error_string) => {
+                context
                     .borrow_mut()
-                    .render(terminal, context.clone(), router.clone())?;
-                return Ok(());
+                    .error
+                    .set_error(Error::with_message(format!(
+                        "no handler for route: {}",
+                        path
+                    )));
             }
         }
         let has_error = context.borrow().error.exists();
         if !has_error {
-            let patterns = self.registered_patterns();
-            let (title, message) = if patterns.len() > 0 {
-                (
-                    format!("Error 404"),
-                    format!("route not found: {}", location),
-                )
-            } else {
-                (format!("Error 500"), format!("no routes declared"))
-            };
+            let (title, message) = (format!("Error 500"), format!("no routes declared"));
+
             context
                 .borrow_mut()
                 .error
