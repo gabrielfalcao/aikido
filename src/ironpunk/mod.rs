@@ -81,14 +81,13 @@ pub fn start(routes: BoxedRoutes) -> Result<(), BoxedError> {
 
         match rx.recv()? {
             Event::Input(event) => {
+                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
+                    quit(&mut terminal);
+                }
+
                 match window.process_keyboard(event, &mut terminal, context.clone()) {
                     Ok(Quit) => {
-                        //Ok(return Box::new(quit(&mut terminal))),
-                        disable_raw_mode()?;
-                        terminal.clear()?;
-                        terminal.show_cursor()?;
-                        reset();
-                        std::process::exit(0);
+                        quit(&mut terminal);
                     }
                     Ok(Propagate) => continue,
                     Ok(Prevent) => break Ok(()),
