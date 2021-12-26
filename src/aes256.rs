@@ -269,10 +269,12 @@ fn main() {
     let key_cycles = config.cycles.key.to_string();
     let salt_cycles = config.cycles.salt.to_string();
     let iv_cycles = config.cycles.iv.to_string();
+    let author = core::author();
+    let version = core::version();
     let app = App::new("aes256")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .version(core::VERSION)
-        .author(core::AUTHOR)
+        .version(version.as_str())
+        .author(author.as_str())
         .about("perform aes-256-cbc encryption/decryption based on PBKDF2 of password")
         .arg(
             Arg::with_name("dry_run")

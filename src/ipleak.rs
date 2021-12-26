@@ -161,9 +161,12 @@ async fn ipleak_command<'a>(matches: &'a ArgMatches<'_>) {
 
 #[tokio::main]
 async fn main() {
+    let author = core::author();
+    let version = core::version();
+
     let app = App::new("ipleak")
-        .version(core::VERSION)
-        .author(core::AUTHOR)
+        .version(version.as_str())
+        .author(author.as_str())
         .about("check your ip via ipleak.net")
         .arg(
             Arg::with_name("dry_run")

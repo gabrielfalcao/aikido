@@ -1,7 +1,7 @@
 use super::super::components::menu::MenuComponent;
 use super::super::geometry::*;
 use crate::aes256cbc::Config as AesConfig;
-use crate::core::VERSION;
+use crate::core::version;
 
 use crate::ironpunk::*;
 
@@ -51,7 +51,7 @@ impl Component for About<'_> {
         MenuComponent::default("About")
             .render_in_parent(rect, footer)
             .unwrap();
-        let version = format!("Version {}", VERSION);
+        let version = format!("Version {}", version());
         let block = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Green))
