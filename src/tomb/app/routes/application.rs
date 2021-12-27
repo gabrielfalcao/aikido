@@ -167,7 +167,7 @@ impl<'a> Application<'a> {
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "base64-encoded cyphertext",
+                "value",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
@@ -183,10 +183,9 @@ impl<'a> Application<'a> {
                 .border_type(BorderType::Plain),
         )
         .widths(&[
-            Constraint::Percentage(5),
             Constraint::Percentage(20),
-            Constraint::Percentage(20),
-            Constraint::Percentage(5),
+            Constraint::Percentage(30),
+            Constraint::Percentage(30),
             Constraint::Percentage(20),
         ]);
 
