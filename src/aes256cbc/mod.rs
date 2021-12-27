@@ -56,8 +56,8 @@ use std::{fmt, fs::File};
 const ALGO: &'static str = "aes-256-cbc";
 const DIGEST_SIZE: usize = 32;
 ///The path used by `Config::default()`
-const DEFAULT_CONFIG_PATH: &'static str = "~/.rustic-toolz.yaml";
-const DEFAULT_KEY_PATH: &'static str = "~/.rustic-toolz.key";
+pub const DEFAULT_CONFIG_PATH: &'static str = "~/.rustic-toolz.yaml";
+pub const DEFAULT_KEY_PATH: &'static str = "~/.rustic-toolz.key";
 
 ///The builtin number of cycles for a key derivation
 const KEY_CYCLES: u32 = 1000;

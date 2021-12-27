@@ -1,66 +1,42 @@
+#![allow(unused_imports)]
+#![allow(dead_code)]
 use crate::ironpunk::*;
 
-#[allow(unused_imports)]
+use super::super::{AES256Secret, AES256Tomb};
+
+use crate::config::YamlFile;
+
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::io;
-#[allow(unused_imports)]
+
 use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Paragraph, Wrap},
+    widgets::{Block, BorderType, Borders, Paragraph, Sparkline, Wrap},
     Frame, Terminal,
 };
 
-#[allow(dead_code)]
-#[derive(Debug, Clone)]
-pub struct Confirmation {
-    pub title: String,
-    pub text: String,
-    active: bool,
+#[derive(Clone)]
+pub struct DeleteConfirmation {
+    pub tomb: AES256Tomb,
+    pub secret: AES256Secret,
 }
-/// Confirmation with editable content
-impl Confirmation {
-    #[allow(dead_code)]
-    pub fn new(title: &str, text: &str) -> Confirmation {
-        Confirmation {
-            title: String::from(title),
-            text: String::from(text),
-            active: true,
-        }
-    }
-    #[allow(dead_code)]
-    pub fn set_title(&mut self, title: &str) {
-        self.title = String::from(title);
-    }
-    #[allow(dead_code)]
-    pub fn set_text(&mut self, text: &str) {
-        self.text = String::from(text);
-    }
-    #[allow(dead_code)]
-    pub fn write(&mut self, c: char) {
-        self.text.push(c);
-    }
-    #[allow(dead_code)]
-    pub fn backspace(&mut self) {
-        self.text.pop();
-    }
 
-    pub fn is_active(&self) -> bool {
-        self.active
-    }
-    pub fn deactivate(&mut self) {
-        self.active = false;
+impl DeleteConfirmation {
+    #[allow(dead_code)]
+    pub fn new(tomb: AES256Tomb, secret: AES256Secret) -> DeleteConfirmation {
+        DeleteConfirmation { tomb, secret }
     }
 }
 
-impl Component for Confirmation {
+impl Component for DeleteConfirmation {
     fn name(&self) -> &str {
-        "Confirmation"
+        "DeleteConfirmation"
     }
     fn id(&self) -> String {
-        self.text.clone()
+        self.secret.path.clone()
     }
     fn render_in_parent(
         &self,
@@ -70,25 +46,57 @@ impl Component for Confirmation {
         let chunk = get_modal_rect(chunk);
         let confirmation = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
-            .title(self.title.clone())
+            .style(Style::default().bg(Color::White).fg(Color::Black))
+            .title(format!("Delete Secret"))
             .border_type(BorderType::Rounded);
 
-        let paragraph_style = Style::default()
-            .fg(Color::White)
-            .add_modifier(Modifier::BOLD);
+        let (top, bottom) = vertical_split(chunk);
 
-        let text = vec![Spans::from(Span::styled(
-            self.text.clone(),
-            paragraph_style.clone(),
-        ))];
-        let paragraph = Paragraph::new(text)
+        let text = vec![
+            Spans::from(Span::styled(
+                format!("The following secret will be deleted:"),
+                Style::default().fg(Color::Black),
+            )),
+            Spans::from(Span::styled(
+                format!("{}", self.secret.path),
+                Style::default().fg(Color::Red),
+            )),
+            Spans::from(Span::styled(
+                format!("Are you sure you want to do this?"),
+                Style::default().fg(Color::Black),
+            )),
+        ];
+        let question = Paragraph::new(text)
             .block(confirmation)
-            .style(paragraph_style)
-            .alignment(Alignment::Left)
+            .style(Style::default().fg(Color::White))
+            .alignment(Alignment::Center)
             .wrap(Wrap { trim: false });
 
-        parent.render_widget(paragraph, chunk);
+        let button_yes = Paragraph::new(vec![Spans::from(Span::styled(
+            format!("Yes, delete"),
+            Style::default().bg(Color::LightRed).fg(Color::White),
+        ))])
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::LightRed).fg(Color::White)),
+        )
+        .alignment(Alignment::Center);
+        let button_no = Paragraph::new(vec![Spans::from(Span::styled(
+            format!("No, cancel"),
+            Style::default().bg(Color::Green).fg(Color::White),
+        ))])
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Green).fg(Color::White)),
+        )
+        .alignment(Alignment::Center);
+
+        let (left, right) = horizontal_split(bottom);
+        parent.render_widget(question, top);
+        parent.render_widget(button_yes, left);
+        parent.render_widget(button_no, right);
 
         Ok(())
     }
@@ -99,26 +107,44 @@ impl Component for Confirmation {
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: SharedContext,
+
         _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         match event.code {
-            KeyCode::Backspace => {
-                self.backspace();
-                Ok(Propagate)
-            }
+            KeyCode::Backspace => Ok(Propagate),
             KeyCode::Esc => {
-                self.deactivate();
                 return Ok(Propagate);
             }
             KeyCode::Enter => {
-                self.write('\n');
                 return Ok(Propagate);
             }
-            KeyCode::Char(c) => {
-                self.write(c);
-                Ok(Refresh)
-            }
+            KeyCode::Char(c) => Ok(Refresh),
             _ => Ok(Propagate),
         }
     }
+}
+
+pub fn vertical_split(size: Rect) -> (Rect, Rect) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+        .split(size);
+
+    let top = chunks[0];
+    let bottom = chunks[1];
+
+    (top, bottom)
+}
+
+pub fn horizontal_split(size: Rect) -> (Rect, Rect) {
+    let chunks = Layout::default()
+        .margin(1)
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(size);
+
+    let left = chunks[0];
+    let right = chunks[1];
+
+    (left, right)
 }

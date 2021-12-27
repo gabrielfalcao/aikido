@@ -4,6 +4,7 @@ use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
 pub use super::super::components::{
+    confirmation::DeleteConfirmation,
     menu::{dummy_paragraph, MenuComponent},
     modal::Modal,
 };
@@ -15,9 +16,8 @@ use super::super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use mac_notification_sys::*;
-
 use crossterm::event::{KeyCode, KeyEvent};
+use mac_notification_sys::*;
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
@@ -299,10 +299,18 @@ impl Component for Application<'_> {
             .process_keyboard(event, terminal, context.clone(), router.clone())?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('k') | KeyCode::Char('K') => {
-                self.set_overlay(Rc::new(RefCell::new(Modal::new("Hello", "World"))));
-                Ok(Propagate)
-            }
+            KeyCode::Char('d') => match self.items.current() {
+                Some(secret) => {
+                    self.set_overlay(Rc::new(RefCell::new(DeleteConfirmation::new(
+                        self.tomb.clone(),
+                        secret.clone(),
+                    ))));
+                    Ok(Propagate)
+                }
+                None => Err(Error::with_message(format!(
+                    "cannot delete: no secret selected"
+                ))),
+            },
             KeyCode::Char('a') => {
                 context.borrow_mut().goto("/about");
                 Ok(Refresh)
