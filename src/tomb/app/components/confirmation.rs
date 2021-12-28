@@ -27,18 +27,16 @@ pub enum ConfirmationOption {
 use ConfirmationOption::*;
 
 #[derive(Clone)]
-pub struct DeleteConfirmation {
-    pub tomb: AES256Tomb,
-    pub secret: AES256Secret,
-    selected: ConfirmationOption,
+pub struct ConfirmationDialog<'a> {
+    pub question: Option<Vec<Spans<'a>>>,
+    pub selected: ConfirmationOption,
 }
 
-impl DeleteConfirmation {
+impl<'a> ConfirmationDialog<'a> {
     #[allow(dead_code)]
-    pub fn new(tomb: AES256Tomb, secret: AES256Secret) -> DeleteConfirmation {
-        DeleteConfirmation {
-            tomb,
-            secret,
+    pub fn new(question: Option<Vec<Spans<'a>>>) -> ConfirmationDialog<'a> {
+        ConfirmationDialog {
+            question: None,
             selected: No,
         }
     }
@@ -53,12 +51,12 @@ impl DeleteConfirmation {
     }
 }
 
-impl Component for DeleteConfirmation {
+impl<'a> Component for ConfirmationDialog<'a> {
     fn name(&self) -> &str {
-        "DeleteConfirmation"
+        "ConfirmationDialog"
     }
     fn id(&self) -> String {
-        self.secret.path.clone()
+        String::from("ConfirmationDialog")
     }
     fn render_in_parent(
         &self,
@@ -74,21 +72,15 @@ impl Component for DeleteConfirmation {
 
         let (top, bottom) = vertical_split(chunk);
 
-        let text = vec![
-            Spans::from(Span::styled(
-                format!("The following secret will be deleted:"),
-                Style::default().fg(Color::Black),
-            )),
-            Spans::from(Span::styled(
-                format!("{}", self.secret.path),
-                Style::default().fg(Color::Red),
-            )),
-            Spans::from(Span::styled(
-                format!("Are you sure you want to do this?"),
-                Style::default().fg(Color::Black),
-            )),
-        ];
-        let question = Paragraph::new(text)
+        let question = match self.question.clone() {
+            Some(question) => question.clone(),
+            None => {
+                return Err(Error::with_message(format!(
+                    "set_question was never called for ConfirmationDialog"
+                )))
+            }
+        };
+        let question = Paragraph::new(question)
             .block(confirmation)
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Center)

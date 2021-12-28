@@ -23,8 +23,8 @@ pub fn start(
     let mut router = ironpunk::SharedRouter::new();
 
     let app = Rc::new(RefCell::new(Application::new(
-        key,
-        tomb,
+        key.clone(),
+        tomb.clone(),
         aes_config.clone(),
     )));
 
@@ -32,10 +32,14 @@ pub fn start(
         "/about",
         Rc::new(RefCell::new(About::new(aes_config.clone()))),
     );
-    // router.add(
-    //     "/configuration",
-    //     Rc::new(RefCell::new(Configuration::new(aes_config.clone()))),
-    // );
+    router.add(
+        "/delete/:path/*",
+        Rc::new(RefCell::new(DeleteSecret::new(
+            key.clone(),
+            tomb.clone(),
+            aes_config.clone(),
+        ))),
+    );
     router.add("/:filter", app.clone());
     router.add("/", app);
     ironpunk::start(router)

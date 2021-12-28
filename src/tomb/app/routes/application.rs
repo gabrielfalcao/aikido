@@ -4,7 +4,6 @@ use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
 pub use super::super::components::{
-    confirmation::DeleteConfirmation,
     menu::{dummy_paragraph, MenuComponent},
     modal::Modal,
 };
@@ -301,7 +300,8 @@ impl Component for Application<'_> {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('d') => match self.items.current() {
                 Some(secret) => {
-                    self.set_overlay(DeleteConfirmation::new(self.tomb.clone(), secret.clone()));
+                    let path = format!("/delete/{}", secret.path.clone());
+                    context.borrow_mut().goto(&path);
                     Ok(Propagate)
                 }
                 None => Err(Error::with_message(format!(
