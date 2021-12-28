@@ -97,7 +97,10 @@ impl Component for DeleteConfirmation {
         let button_yes = Paragraph::new(vec![Spans::from(Span::styled(
             format!("Yes, delete"),
             match self.selected {
-                Yes => Style::default().bg(Color::LightRed).fg(Color::White),
+                Yes => Style::default()
+                    .bg(Color::LightRed)
+                    .fg(Color::White)
+                    .add_modifier(Modifier::UNDERLINED),
                 No => Style::default().bg(Color::Red).fg(Color::White),
             },
         ))])
@@ -113,7 +116,10 @@ impl Component for DeleteConfirmation {
         let button_no = Paragraph::new(vec![Spans::from(Span::styled(
             format!("No, cancel"),
             match self.selected {
-                No => Style::default().bg(Color::LightGreen).fg(Color::White),
+                No => Style::default()
+                    .bg(Color::LightGreen)
+                    .fg(Color::White)
+                    .add_modifier(Modifier::UNDERLINED),
                 Yes => Style::default().bg(Color::Green).fg(Color::White),
             },
         ))])

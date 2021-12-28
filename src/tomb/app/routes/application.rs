@@ -129,8 +129,8 @@ impl<'a> Application<'a> {
 
         let list = List::new(items).block(secrets).highlight_style(
             Style::default()
-                .bg(Color::Green)
-                .fg(Color::LightYellow)
+                .bg(Color::Cyan)
+                .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
         );
 
