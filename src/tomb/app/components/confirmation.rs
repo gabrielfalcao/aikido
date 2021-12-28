@@ -19,10 +19,18 @@ use tui::{
 };
 
 #[derive(Clone)]
+pub enum ConfirmationOption {
+    Yes,
+    No,
+}
+
+use ConfirmationOption::*;
+
+#[derive(Clone)]
 pub struct DeleteConfirmation {
     pub tomb: AES256Tomb,
     pub secret: AES256Secret,
-    selected: usize,
+    selected: ConfirmationOption,
 }
 
 impl DeleteConfirmation {
@@ -31,11 +39,14 @@ impl DeleteConfirmation {
         DeleteConfirmation {
             tomb,
             secret,
-            selected: 0,
+            selected: No,
         }
     }
     fn toggle_selected(&mut self) {
-        self.selected = (self.selected + 1) % 2;
+        self.selected = match self.selected {
+            ConfirmationOption::No => Yes,
+            ConfirmationOption::Yes => No,
+        }
     }
     fn execute(&mut self) -> Result<LoopEvent, Error> {
         Ok(Propagate)
@@ -86,33 +97,32 @@ impl Component for DeleteConfirmation {
         let button_yes = Paragraph::new(vec![Spans::from(Span::styled(
             format!("Yes, delete"),
             match self.selected {
-                0 => Style::default().bg(Color::LightRed).fg(Color::White),
-                _ => Style::default().bg(Color::Red).fg(Color::White),
+                Yes => Style::default().bg(Color::LightRed).fg(Color::White),
+                No => Style::default().bg(Color::Red).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    0 => Style::default().bg(Color::LightRed).fg(Color::White),
-                    _ => Style::default().bg(Color::Red).fg(Color::White),
+                    Yes => Style::default().bg(Color::LightRed).fg(Color::White),
+                    No => Style::default().bg(Color::Red).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
         let button_no = Paragraph::new(vec![Spans::from(Span::styled(
             format!("No, cancel"),
             match self.selected {
-                1 => Style::default().bg(Color::LightGreen).fg(Color::White),
-                _ => Style::default().bg(Color::Green).fg(Color::White),
+                No => Style::default().bg(Color::LightGreen).fg(Color::White),
+                Yes => Style::default().bg(Color::Green).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    1 => Style::default().bg(Color::LightGreen).fg(Color::White),
-
-                    _ => Style::default().bg(Color::Green).fg(Color::White),
+                    No => Style::default().bg(Color::LightGreen).fg(Color::White),
+                    Yes => Style::default().bg(Color::Green).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
