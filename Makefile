@@ -34,7 +34,7 @@ clean: cls
 	@echo rm -f *.log | echo
 
 cls:
-	@reset
+	-@reset || tput reset
 
 release: check fix
 	@cargo build --release
