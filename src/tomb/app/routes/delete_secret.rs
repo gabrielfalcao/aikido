@@ -1,21 +1,15 @@
 use super::super::components::confirmation::ConfirmationDialog;
-use super::super::geometry::*;
+
 use crate::aes256cbc::Config as AesConfig;
 use crate::aes256cbc::Key;
-use crate::core::version;
+
 use crate::tomb::AES256Tomb;
 
 use crate::ironpunk::*;
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{io, marker::PhantomData};
-use tui::{
-    backend::CrosstermBackend,
-    layout::Alignment,
-    style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Paragraph},
-    Terminal,
-};
+use tui::{backend::CrosstermBackend, Terminal};
 
 #[allow(dead_code)]
 #[derive(Clone)]

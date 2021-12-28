@@ -34,7 +34,7 @@ pub struct ConfirmationDialog<'a> {
 
 impl<'a> ConfirmationDialog<'a> {
     #[allow(dead_code)]
-    pub fn new(question: Option<Vec<Spans<'a>>>) -> ConfirmationDialog<'a> {
+    pub fn new(_question: Option<Vec<Spans<'a>>>) -> ConfirmationDialog<'a> {
         ConfirmationDialog {
             question: None,
             selected: No,
