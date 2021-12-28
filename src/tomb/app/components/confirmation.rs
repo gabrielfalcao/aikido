@@ -22,12 +22,23 @@ use tui::{
 pub struct DeleteConfirmation {
     pub tomb: AES256Tomb,
     pub secret: AES256Secret,
+    selected: usize,
 }
 
 impl DeleteConfirmation {
     #[allow(dead_code)]
     pub fn new(tomb: AES256Tomb, secret: AES256Secret) -> DeleteConfirmation {
-        DeleteConfirmation { tomb, secret }
+        DeleteConfirmation {
+            tomb,
+            secret,
+            selected: 0,
+        }
+    }
+    fn toggle_selected(&mut self) {
+        self.selected = (self.selected + 1) % 2;
+    }
+    fn execute(&mut self) -> Result<LoopEvent, Error> {
+        Ok(Propagate)
     }
 }
 
@@ -74,22 +85,35 @@ impl Component for DeleteConfirmation {
 
         let button_yes = Paragraph::new(vec![Spans::from(Span::styled(
             format!("Yes, delete"),
-            Style::default().bg(Color::LightRed).fg(Color::White),
+            match self.selected {
+                0 => Style::default().bg(Color::LightRed).fg(Color::White),
+                _ => Style::default().bg(Color::Red).fg(Color::White),
+            },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().bg(Color::LightRed).fg(Color::White)),
+                .style(match self.selected {
+                    0 => Style::default().bg(Color::LightRed).fg(Color::White),
+                    _ => Style::default().bg(Color::Red).fg(Color::White),
+                }),
         )
         .alignment(Alignment::Center);
         let button_no = Paragraph::new(vec![Spans::from(Span::styled(
             format!("No, cancel"),
-            Style::default().bg(Color::Green).fg(Color::White),
+            match self.selected {
+                1 => Style::default().bg(Color::LightGreen).fg(Color::White),
+                _ => Style::default().bg(Color::Green).fg(Color::White),
+            },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().bg(Color::Green).fg(Color::White)),
+                .style(match self.selected {
+                    1 => Style::default().bg(Color::LightGreen).fg(Color::White),
+
+                    _ => Style::default().bg(Color::Green).fg(Color::White),
+                }),
         )
         .alignment(Alignment::Center);
 
@@ -107,17 +131,16 @@ impl Component for DeleteConfirmation {
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: SharedContext,
-
         _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         match event.code {
+            KeyCode::Tab | KeyCode::Left | KeyCode::Right => {
+                self.toggle_selected();
+                Ok(Propagate)
+            }
             KeyCode::Backspace => Ok(Propagate),
-            KeyCode::Esc => {
-                return Ok(Propagate);
-            }
-            KeyCode::Enter => {
-                return Ok(Propagate);
-            }
+            KeyCode::Esc => Ok(Propagate),
+            KeyCode::Enter => self.execute(),
             KeyCode::Char(c) => Ok(Refresh),
             _ => Ok(Propagate),
         }
