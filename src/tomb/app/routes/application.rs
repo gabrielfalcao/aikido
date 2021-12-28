@@ -194,8 +194,8 @@ impl<'a> Application<'a> {
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    pub fn set_overlay(&mut self, overlay: SharedComponent) {
-        self.overlay = Some(overlay);
+    pub fn set_overlay<T: 'static + Component>(&mut self, overlay: T) {
+        self.overlay = Some(Rc::new(RefCell::new(overlay)));
     }
     pub fn remove_overlay(&mut self) {
         self.overlay = None;
@@ -301,10 +301,7 @@ impl Component for Application<'_> {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('d') => match self.items.current() {
                 Some(secret) => {
-                    self.set_overlay(Rc::new(RefCell::new(DeleteConfirmation::new(
-                        self.tomb.clone(),
-                        secret.clone(),
-                    ))));
+                    self.set_overlay(DeleteConfirmation::new(self.tomb.clone(), secret.clone()));
                     Ok(Propagate)
                 }
                 None => Err(Error::with_message(format!(
