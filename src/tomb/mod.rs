@@ -1,7 +1,5 @@
 pub mod app;
 //pub mod ui;
-use chrono::prelude::*;
-
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};
 use crate::{
     colors,
@@ -9,8 +7,10 @@ use crate::{
     ioutils::{b64decode, b64encode},
     logger,
 };
+use chrono::prelude::*;
 use console::style;
 use fnmatch_regex::glob_to_regex;
+use md5;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::{borrow::Borrow, fmt};
@@ -63,6 +63,9 @@ impl AES256Secret {
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }
+    }
+    pub fn key(&self) -> String {
+        format!("{:x}", md5::compute(self.path.clone()))
     }
     pub fn value_bytes(&self) -> Vec<u8> {
         b64decode(&self.value.as_bytes()).unwrap()
@@ -206,7 +209,7 @@ impl AES256Tomb {
             }
         };
         let secret = AES256Secret::new(String::from(path), cyphertext, key);
-        self.data.insert(String::from(path), secret);
+        self.data.insert(secret.key(), secret);
         Ok(())
     }
     pub fn derive_key(&self, password: &str) -> Key {
@@ -214,7 +217,9 @@ impl AES256Tomb {
     }
 
     pub fn get(&self, path: &str) -> Result<AES256Secret, Error> {
-        match self.data.get(&String::from(path)) {
+        let key = format!("{:x}", md5::compute(String::from(path).as_bytes()));
+
+        match self.data.get(&key) {
             Some(secret) => Ok(secret.clone()),
             None => Err(Error::with_message(format!(
                 "{}{}",

@@ -72,7 +72,7 @@ fn save_command(matches: &ArgMatches) {
     }
     match tomb.export(tomb_filepath) {
         Ok(_) => {
-            logger::out::ok(format!("created: {}", tomb_filepath));
+            logger::out::ok(format!("Initialized tomb in: {}", tomb_filepath));
         }
         Err(err) => {
             eprintln!("{}", err);
@@ -217,8 +217,8 @@ fn main() {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("create")
-                .about("open the terminal ui")
+            SubCommand::with_name("init")
+                .about("initializes a tomb file.")
                 .arg(
                     Arg::with_name("key_filename")
                         .long("key-filename")
@@ -389,7 +389,7 @@ fn main() {
     let matches = app.get_matches();
 
     match matches.subcommand() {
-        ("create", Some(matches)) => {
+        ("init", Some(matches)) => {
             create_command(&matches);
         }
         ("save", Some(matches)) => {

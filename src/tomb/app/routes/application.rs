@@ -300,7 +300,7 @@ impl Component for Application<'_> {
             KeyCode::Char('q') => Ok(Quit),
             KeyCode::Char('d') => match self.items.current() {
                 Some(secret) => {
-                    let path = format!("/delete/{}", secret.path.clone());
+                    let path = format!("/delete/{}", secret.key());
                     context.borrow_mut().goto(&path);
                     Ok(Propagate)
                 }

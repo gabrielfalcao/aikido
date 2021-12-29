@@ -142,7 +142,7 @@ impl MenuComponent {
         }
     }
     pub fn render_in_parent(
-        &self,
+        &mut self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {

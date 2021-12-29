@@ -39,7 +39,7 @@ impl Component for About<'_> {
         String::from("About")
     }
     fn render_in_parent(
-        &self,
+        &mut self,
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {

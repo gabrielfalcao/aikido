@@ -63,28 +63,24 @@ impl Component for Modal {
         self.text.clone()
     }
     fn render_in_parent(
-        &self,
+        &mut self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
         let chunk = get_modal_rect(chunk);
         let modal = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::DarkGray).fg(Color::White))
+            .style(block_style())
             .title(self.title.clone())
             .border_type(BorderType::Rounded);
 
-        let paragraph_style = Style::default()
-            .fg(Color::White)
-            .add_modifier(Modifier::BOLD);
-
         let text = vec![Spans::from(Span::styled(
             self.text.clone(),
-            paragraph_style.clone(),
+            paragraph_style(),
         ))];
         let paragraph = Paragraph::new(text)
             .block(modal)
-            .style(paragraph_style)
+            .style(paragraph_style())
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: false });
 
@@ -121,4 +117,13 @@ impl Component for Modal {
             _ => Ok(Propagate),
         }
     }
+}
+pub fn block_style() -> Style {
+    Style::default().bg(Color::DarkGray).fg(Color::White)
+}
+
+pub fn paragraph_style() -> Style {
+    Style::default()
+        .fg(Color::White)
+        .add_modifier(Modifier::BOLD)
 }

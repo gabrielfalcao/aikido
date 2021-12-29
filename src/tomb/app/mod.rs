@@ -1,5 +1,6 @@
 pub mod components;
 pub mod geometry;
+pub mod logging;
 pub mod routes;
 pub mod state;
 
@@ -8,7 +9,8 @@ pub use components::{
     menu::{dummy_paragraph, MenuComponent},
     modal::Modal,
 };
-pub use {application::*, geometry::*, routes::*, state::*};
+
+pub use {application::*, geometry::*, logging::*, routes::*, state::*};
 
 use super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
@@ -33,7 +35,7 @@ pub fn start(
         Rc::new(RefCell::new(About::new(aes_config.clone()))),
     );
     router.add(
-        "/delete/:path/*",
+        "/delete/:key",
         Rc::new(RefCell::new(DeleteSecret::new(
             key.clone(),
             tomb.clone(),

@@ -34,19 +34,23 @@ pub struct ConfirmationDialog<'a> {
 
 impl<'a> ConfirmationDialog<'a> {
     #[allow(dead_code)]
-    pub fn new(_question: Option<Vec<Spans<'a>>>) -> ConfirmationDialog<'a> {
+    pub fn new(question: Option<Vec<Spans<'a>>>) -> ConfirmationDialog<'a> {
         ConfirmationDialog {
-            question: None,
+            question: question,
             selected: No,
         }
     }
-    fn toggle_selected(&mut self) {
+    pub fn toggle_selected(&mut self) {
         self.selected = match self.selected {
             ConfirmationOption::No => Yes,
             ConfirmationOption::Yes => No,
         }
     }
-    fn execute(&mut self) -> Result<LoopEvent, Error> {
+    pub fn execute(&mut self) -> Result<LoopEvent, Error> {
+        Ok(Propagate)
+    }
+    pub fn set_question(&mut self, question: Option<Vec<Spans<'a>>>) -> Result<LoopEvent, Error> {
+        self.question = question;
         Ok(Propagate)
     }
 }
@@ -59,14 +63,14 @@ impl<'a> Component for ConfirmationDialog<'a> {
         String::from("ConfirmationDialog")
     }
     fn render_in_parent(
-        &self,
+        &mut self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
         let chunk = get_modal_rect(chunk);
         let confirmation = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::White).fg(Color::Black))
+            .style(block_style())
             .title(format!("Delete Secret"))
             .border_type(BorderType::Rounded);
 
@@ -82,7 +86,7 @@ impl<'a> Component for ConfirmationDialog<'a> {
         };
         let question = Paragraph::new(question)
             .block(confirmation)
-            .style(Style::default().fg(Color::White))
+            .style(paragraph_style())
             .alignment(Alignment::Center)
             .wrap(Wrap { trim: false });
 
@@ -178,4 +182,11 @@ pub fn horizontal_split(size: Rect) -> (Rect, Rect) {
     let right = chunks[1];
 
     (left, right)
+}
+pub fn paragraph_style() -> Style {
+    Style::default().fg(Color::Blue)
+}
+
+pub fn block_style() -> Style {
+    Style::default().bg(Color::White).fg(Color::Black)
 }

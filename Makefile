@@ -121,11 +121,11 @@ bip39: build cls
 vaulty: build cls
 	$(VAULTY_BIN)
 
-tomb: tomb-create tomb-save tomb-list tomb-get tomb-copy
+tomb: tomb-init tomb-save tomb-list tomb-get tomb-copy
 
-tomb-create: build cls
+tomb-init: build cls
 	$(AES256_BIN) generate -K 1111 -S 2222 -I 3333 -k $(TOMB_KEY) --password $(PASSWORD)
-	$(TOMB_BIN) create -k $(TOMB_KEY) -t $(TOMB_FILE)
+	$(TOMB_BIN) init -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 tomb-save: build cls
 	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) first-secret "first value"
@@ -152,7 +152,7 @@ tomb-delete: build cls
 	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) temporary-secret "some value"
 	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) temporary-secret
 
-tomb-ui: tomb-create tomb-save
+tomb-ui: tomb-init tomb-save
 	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 ui:

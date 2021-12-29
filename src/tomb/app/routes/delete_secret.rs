@@ -1,16 +1,21 @@
-use super::super::components::confirmation::ConfirmationDialog;
+use super::super::components::confirmation::{paragraph_style, ConfirmationDialog};
 
 use crate::aes256cbc::Config as AesConfig;
 use crate::aes256cbc::Key;
 
-use crate::tomb::AES256Tomb;
-
 use crate::ironpunk::*;
+use crate::tomb::{AES256Secret, AES256Tomb};
 
+use super::super::logging::log_error;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{io, marker::PhantomData};
-use tui::{backend::CrosstermBackend, Terminal};
-
+use tui::{
+    backend::CrosstermBackend,
+    layout::Alignment,
+    style::{Color, Modifier, Style},
+    widgets::{Block, BorderType, Borders, Paragraph},
+    Terminal,
+};
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct DeleteSecret<'a> {
@@ -33,6 +38,29 @@ impl<'a> DeleteSecret<'a> {
             dialog: ConfirmationDialog::new(None),
         }
     }
+    pub fn get_secret(
+        &mut self,
+        context: SharedContext,
+        router: SharedRouter,
+    ) -> Option<AES256Secret> {
+        let path = context.borrow().location.clone();
+        match router.recognize(path.as_str()) {
+            Ok(matched) => {
+                let params = matched.params();
+                match params.find("key") {
+                    Some(key) => match self.tomb.data.get(key) {
+                        Some(secret) => Some(secret.clone()),
+                        None => None,
+                    },
+                    None => None,
+                }
+            }
+            Err(err) => {
+                log_error(format!("{}", err));
+                None
+            }
+        }
+    }
 }
 
 impl Component for DeleteSecret<'_> {
@@ -46,7 +74,7 @@ impl Component for DeleteSecret<'_> {
         }
     }
     fn render_in_parent(
-        &self,
+        &mut self,
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
@@ -81,4 +109,48 @@ impl Component for DeleteSecret<'_> {
         }
     }
 }
-impl Route for DeleteSecret<'_> {}
+impl Route for DeleteSecret<'_> {
+    fn render(
+        &mut self,
+        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+        context: SharedContext,
+        router: SharedRouter,
+    ) -> Result<(), Error> {
+        // match self.get_secret(context.clone(), router.clone()) {
+        //     Some(secret) => {
+        //         self.dialog.set_question(Some(vec![
+        //             Spans::from(vec![Span::raw(
+        //                 "are you sure you want to delete the secret",
+        //             )]),
+        //             Spans::from(vec![Span::styled(
+        //                 secret.path.clone(),
+        //                 Style::default().fg(Color::White),
+        //             )]),
+        //             Spans::from(vec![Span::raw("?")]),
+        //         ]));
+        //     }
+        //     None => {}
+        // };
+        self.dialog
+            .set_question(Some(vec![Spans::from(vec![Span::styled(
+                "are you sure you want to delete the secret",
+                paragraph_style(),
+            )])]));
+
+        terminal.draw(|parent| {
+            let chunk = parent.size();
+            match self.render_in_parent(parent, chunk) {
+                Ok(_) => (),
+                Err(err) => {
+                    log(format!(
+                        "error rendering component {}: {}",
+                        self.name(),
+                        err
+                    ));
+                }
+            }
+        })?;
+
+        Ok(())
+    }
+}

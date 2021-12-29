@@ -149,7 +149,7 @@ pub trait Component {
         Ok(Refresh)
     }
     fn render_in_parent(
-        &self,
+        &mut self,
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
@@ -280,7 +280,7 @@ impl Component for ErrorRoute {
     }
 
     fn render_in_parent(
-        &self,
+        &mut self,
         parent: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
