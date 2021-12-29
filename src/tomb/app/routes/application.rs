@@ -15,9 +15,8 @@ use super::super::{AES256Secret, AES256Tomb};
 use crate::aes256cbc::{Config as AesConfig, Key};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use mac_notification_sys::*;
-
 use crossterm::event::{KeyCode, KeyEvent};
+use mac_notification_sys::*;
 use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
 use tui::{
     backend::CrosstermBackend,
@@ -129,8 +128,8 @@ impl<'a> Application<'a> {
 
         let list = List::new(items).block(secrets).highlight_style(
             Style::default()
-                .bg(Color::Green)
-                .fg(Color::LightYellow)
+                .bg(Color::Cyan)
+                .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
         );
 
@@ -167,7 +166,7 @@ impl<'a> Application<'a> {
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
-                "base64-encoded cyphertext",
+                "value",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
             Cell::from(Span::styled(
@@ -183,10 +182,9 @@ impl<'a> Application<'a> {
                 .border_type(BorderType::Plain),
         )
         .widths(&[
-            Constraint::Percentage(5),
             Constraint::Percentage(20),
-            Constraint::Percentage(20),
-            Constraint::Percentage(5),
+            Constraint::Percentage(30),
+            Constraint::Percentage(30),
             Constraint::Percentage(20),
         ]);
 
@@ -195,8 +193,8 @@ impl<'a> Application<'a> {
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    pub fn set_overlay(&mut self, overlay: SharedComponent) {
-        self.overlay = Some(overlay);
+    pub fn set_overlay<T: 'static + Component>(&mut self, overlay: T) {
+        self.overlay = Some(Rc::new(RefCell::new(overlay)));
     }
     pub fn remove_overlay(&mut self) {
         self.overlay = None;
@@ -300,10 +298,16 @@ impl Component for Application<'_> {
             .process_keyboard(event, terminal, context.clone(), router.clone())?;
         match code {
             KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('k') | KeyCode::Char('K') => {
-                self.set_overlay(Rc::new(RefCell::new(Modal::new("Hello", "World"))));
-                Ok(Propagate)
-            }
+            KeyCode::Char('d') => match self.items.current() {
+                Some(secret) => {
+                    let path = format!("/delete/{}", secret.path.clone());
+                    context.borrow_mut().goto(&path);
+                    Ok(Propagate)
+                }
+                None => Err(Error::with_message(format!(
+                    "cannot delete: no secret selected"
+                ))),
+            },
             KeyCode::Char('a') => {
                 context.borrow_mut().goto("/about");
                 Ok(Refresh)

@@ -34,7 +34,7 @@ clean: cls
 	@echo rm -f *.log | echo
 
 cls:
-	@reset
+	-@reset || tput reset
 
 release: check fix
 	@cargo build --release
@@ -149,7 +149,8 @@ tomb-copy: build cls
 	$(TOMB_BIN) copy -k $(TOMB_KEY) -t $(TOMB_FILE) last-secret
 
 tomb-delete: build cls
-	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) foo
+	$(TOMB_BIN) save -k $(TOMB_KEY) -t $(TOMB_FILE) temporary-secret "some value"
+	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) temporary-secret
 
 tomb-ui: tomb-create tomb-save
 	$(TOMB_BIN) ui -k $(TOMB_KEY) -t $(TOMB_FILE)

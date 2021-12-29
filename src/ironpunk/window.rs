@@ -108,9 +108,8 @@ impl Component for Window<'_> {
                 ) {
                     Err(err) => {
                         log(format!(
-                            "window.process_keyboard() failed for route {:?}: {}",
-                            matched.handler().borrow().name(),
-                            err
+                            "window.process_keyboard() failed for {}: {}",
+                            path, err
                         ));
 
                         context.borrow_mut().error.set_error(err);

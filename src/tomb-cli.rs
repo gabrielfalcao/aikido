@@ -131,6 +131,16 @@ fn delete_command(matches: &ArgMatches) {
             std::process::exit(1);
         }
     }
+    let tomb_filepath = matches.value_of("tomb_filename").unwrap();
+    match tomb.export(tomb_filepath) {
+        Ok(_) => {
+            logger::out::ok(format!("saved to: {}", tomb_filepath));
+        }
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
+    };
 }
 fn list_command(matches: &ArgMatches) {
     let pattern = matches.value_of("pattern").expect("missing key pattern");
