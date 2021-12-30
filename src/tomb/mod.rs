@@ -3,7 +3,6 @@ pub mod logging;
 //pub mod ui;
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};
 use crate::{
-    colors,
     config::{YamlFile, YamlFileError},
     ioutils::{b64decode, b64encode},
     logger,
@@ -216,10 +215,9 @@ impl AES256Tomb {
             Ok(regex) => regex,
             Err(error) => {
                 return Err(Error::with_message(format!(
-                    "{}{}{}",
-                    style("invalid pattern ").color256(colors::ERR_MSG),
-                    style(pattern).color256(colors::ERR_VAR),
-                    style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
+                    "invalid pattern {}{}",
+                    pattern,
+                    format!("\n\t{}", error),
                 )))
             }
         };
@@ -237,11 +235,7 @@ impl AES256Tomb {
         let key = path_to_md5(path);
         match self.data.remove(&key) {
             Some(_) => Ok(()),
-            None => Err(Error::with_message(format!(
-                "{}{}",
-                style("key not found ").color256(colors::ERR_MSG),
-                style(path).color256(colors::ERR_VAR),
-            ))),
+            None => Err(Error::with_message(format!("key not found {}", path))),
         }
     }
     pub fn add_secret(&mut self, path: &str, plaintext: String, key: Key) -> Result<(), Error> {
@@ -257,11 +251,9 @@ impl AES256Tomb {
             Ok(cypher) => cypher,
             Err(error) => {
                 return Err(Error::with_message(format!(
-                    "{}{}{}{}",
-                    style("cannot encrypt data for path").color256(198),
-                    style(path).color256(190),
-                    style(" with the provided key.").color256(198),
-                    style(format!("\n\t{:?}", error)).color256(197),
+                    "cannot encrypt data for path '{}' with the provided key: {}",
+                    path,
+                    format!("\n\t{:?}", error),
                 )));
             }
         };
