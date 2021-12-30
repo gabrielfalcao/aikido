@@ -95,6 +95,11 @@ impl<'a> Application<'a> {
         self.filter_search(DEFAULT_PATTERN);
     }
     pub fn render_secrets(&mut self, pattern: String) -> Result<(List<'a>, Table<'a>), Error> {
+        match self.tomb.reload() {
+            // load latest version from disk
+            Ok(_) => {}
+            Err(e) => return Err(Error::with_message(format!("{}", e))),
+        };
         let secrets = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))

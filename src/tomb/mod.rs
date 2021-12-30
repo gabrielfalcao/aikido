@@ -1,4 +1,5 @@
 pub mod app;
+pub mod logging;
 //pub mod ui;
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};
 use crate::{
@@ -10,11 +11,11 @@ use crate::{
 use chrono::prelude::*;
 use console::style;
 use fnmatch_regex::glob_to_regex;
+use logging::*;
 use md5;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::{borrow::Borrow, fmt};
-
 pub const DEFAULT_TOMB_PATH: &'static str = "~/.tomb.yaml";
 
 pub fn path_to_md5(path: &str) -> String {
@@ -142,6 +143,7 @@ impl AES256Secret {
 pub struct AES256Tomb {
     pub digest: Digest,
     pub config: AesConfig,
+    pub filepath: Option<String>,
     pub data: BTreeMap<String, AES256Secret>,
 }
 impl YamlFile<Error> for AES256Tomb {
@@ -153,12 +155,61 @@ impl YamlFile<Error> for AES256Tomb {
 
 impl AES256Tomb {
     /// Creates a new tomb based on a key
-    pub fn new(key: Key, config: AesConfig) -> AES256Tomb {
+    pub fn new(filepath: &str, key: Key, config: AesConfig) -> AES256Tomb {
         AES256Tomb {
             digest: key.digest(),
             data: BTreeMap::new(),
+            filepath: Some(String::from(filepath)),
             config,
         }
+    }
+    pub fn set_filepath(&mut self, path: &str) {
+        self.filepath = Some(String::from(path))
+    }
+    pub fn with_filepath(&self, path: &str) -> AES256Tomb {
+        let mut dolly = self.clone();
+        dolly.set_filepath(path);
+        dolly
+    }
+    pub fn save(&mut self) -> Result<String, Error> {
+        let filepath = match self.filepath.clone() {
+            Some(filepath) => self.export(&filepath)?,
+            None => {
+                return Err(Error::with_message(format!("attempt to save tomb that does not have a filepath, falling back to DEFAULT_TOMB_PATH: {}", DEFAULT_TOMB_PATH)));
+            }
+        };
+        let new = match AES256Tomb::import(&filepath) {
+            Ok(fresh_tomb) => fresh_tomb,
+            Err(error) => {
+                return Err(Error::with_message(format!(
+                    "failed to save tomb to path {}: {}",
+                    filepath, error
+                )))
+            }
+        };
+        self.data = new.data.clone();
+        Ok(filepath.clone())
+    }
+    pub fn reload(&mut self) -> Result<(), Error> {
+        let filepath = match self.filepath.clone() {
+            Some(filepath) => filepath,
+            None => {
+                log_error(format!("attempt to reload tomb that does not have a filepath, falling back to DEFAULT_TOMB_PATH: {}", DEFAULT_TOMB_PATH));
+                String::from(DEFAULT_TOMB_PATH)
+            }
+        };
+        let new = match AES256Tomb::import(&filepath) {
+            Ok(fresh_tomb) => fresh_tomb,
+            Err(error) => {
+                return Err(Error::with_message(format!(
+                    "failed to reload tomb from path {}: {}",
+                    filepath, error
+                )))
+            }
+        };
+        self.data = new.data.clone();
+        //log_error(format!("reloaded tomb: {}", filepath));
+        Ok(())
     }
     pub fn list(&self, pattern: &str) -> Result<Vec<AES256Secret>, Error> {
         let regex = match glob_to_regex(pattern) {
@@ -270,7 +321,7 @@ mod tests {
     fn test_create_tomb_and_manage_secrets() {
         let (key, config) = generate_key();
 
-        let mut tomb = AES256Tomb::new(key.clone(), config);
+        let mut tomb = AES256Tomb::new("test-create-tomb.yaml", key.clone(), config);
         tomb.add_secret_from_bytes(
             "my-secret",
             Vec::from("some bytes"),

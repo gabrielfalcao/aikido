@@ -25,7 +25,7 @@ fn load_key(matches: &ArgMatches) -> Key {
 fn load_tomb(matches: &ArgMatches) -> AES256Tomb {
     let tomb_filepath = matches.value_of("tomb_filename").unwrap();
     match AES256Tomb::import(tomb_filepath) {
-        Ok(tomb) => tomb,
+        Ok(tomb) => tomb.with_filepath(tomb_filepath),
         Err(err) => {
             eprintln!("{}", err);
             std::process::exit(1);
@@ -43,8 +43,8 @@ fn create_command(matches: &ArgMatches) {
         logger::err::warning(format!("file already exists: {}", tomb_filepath));
         std::process::exit(0);
     }
-    let tomb = AES256Tomb::new(key.clone(), config.clone());
-    match tomb.export(tomb_filepath) {
+    let mut tomb = AES256Tomb::new(tomb_filepath, key.clone(), config.clone());
+    match tomb.save() {
         Ok(target) => {
             logger::out::ok(format!("saved file: {}", target));
         }
@@ -70,7 +70,7 @@ fn save_command(matches: &ArgMatches) {
             std::process::exit(1);
         }
     }
-    match tomb.export(tomb_filepath) {
+    match tomb.save() {
         Ok(_) => {
             logger::out::ok(format!("Initialized tomb in: {}", tomb_filepath));
         }
@@ -132,7 +132,7 @@ fn delete_command(matches: &ArgMatches) {
         }
     }
     let tomb_filepath = matches.value_of("tomb_filename").unwrap();
-    match tomb.export(tomb_filepath) {
+    match tomb.save() {
         Ok(_) => {
             logger::out::ok(format!("saved to: {}", tomb_filepath));
         }
@@ -160,7 +160,17 @@ fn list_command(matches: &ArgMatches) {
 }
 fn ui_command(matches: &ArgMatches) {
     let key = load_key(matches);
-    let tomb = load_tomb(matches);
+    let mut tomb = load_tomb(matches);
+    match tomb.save() {
+        Ok(target) => {
+            logger::out::ok(format!("saved file: {}", target));
+        }
+        Err(err) => {
+            logger::err::error(format!("failed to save tomb file - {}", err));
+            std::process::exit(1);
+        }
+    };
+
     let aes_config = AesConfig::default().unwrap_or(AesConfig::builtin(None));
 
     match app::start(tomb, key, aes_config) {

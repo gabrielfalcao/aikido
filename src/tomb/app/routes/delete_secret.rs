@@ -4,7 +4,7 @@ use super::super::components::confirmation::{
 
 use crate::aes256cbc::Config as AesConfig;
 use crate::aes256cbc::Key;
-use crate::config::YamlFile;
+// use crate::config::YamlFile;
 use crate::ironpunk::*;
 use crate::tomb::{AES256Secret, AES256Tomb, DEFAULT_TOMB_PATH};
 
@@ -65,10 +65,9 @@ impl<'a> DeleteSecret<'a> {
         secret: AES256Secret,
     ) -> Result<LoopEvent, Error> {
         let path = secret.path.clone();
-        let tomb_filepath = self.tomb_filepath.clone();
         log_error(format!("Deleting secret: {:?}", path));
         match self.tomb.delete_secret(&path) {
-            Ok(_) => match self.tomb.export(&tomb_filepath) {
+            Ok(_) => match self.tomb.save() {
                 Ok(_) => {
                     log_error(format!("deleted secret: {}", path));
                     context.borrow_mut().goto("/");
@@ -115,30 +114,40 @@ impl Component for DeleteSecret<'_> {
     ) -> Result<LoopEvent, Error> {
         self.dialog
             .process_keyboard(event, terminal, context.clone(), router.clone())?;
-
+        let path = context.borrow().location.clone();
         match event.code {
             KeyCode::Esc => {
                 context.borrow_mut().goback();
                 Ok(Propagate)
             }
-            KeyCode::Enter => match self.dialog.choice() {
-                ConfirmationOption::Yes => {
-                    log_error("YES".to_string());
-                    match self.get_secret(context.clone(), router.clone()) {
-                        Some(secret) => self.delete_secret(context.clone(), secret),
-                        None => Ok(Propagate),
+            KeyCode::Enter => {
+                let secret = match self.get_secret(context.clone(), router.clone()) {
+                    Some(secret) => secret,
+                    None => {
+                        return Err(Error::with_message(format!(
+                            "failed to retrieve secret: {}",
+                            path
+                        )));
+                    }
+                };
+                match self.dialog.choice() {
+                    ConfirmationOption::Yes => {
+                        log_error("YES".to_string());
+                        match self.get_secret(context.clone(), router.clone()) {
+                            Some(secret) => self.delete_secret(context.clone(), secret),
+                            None => {
+                                log_error(format!("YES, but could not retrieve secret"));
+                                Ok(Propagate)
+                            }
+                        }
+                    }
+                    ConfirmationOption::No => {
+                        log_error(format!("canceled deletion of secret {}", path));
+                        context.borrow_mut().goback();
+                        Ok(Refresh)
                     }
                 }
-                ConfirmationOption::No => {
-                    log_error("NO".to_string());
-                    self.dialog
-                        .set_question(Some(vec![Spans::from(vec![Span::styled(
-                            "NO",
-                            paragraph_style(),
-                        )])]))?;
-                    Ok(Propagate)
-                }
-            },
+            }
             _ => {
                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('q') {
                     return Ok(Quit);
