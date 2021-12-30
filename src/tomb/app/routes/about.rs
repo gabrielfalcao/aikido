@@ -54,7 +54,7 @@ impl Component for About<'_> {
         let version = format!("Version {}", version());
         let block = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::Green))
+            .style(Style::default().fg(Color::Magenta))
             .title("<press (Esc) to dismiss>")
             .border_type(BorderType::Plain);
 
@@ -74,11 +74,7 @@ impl Component for About<'_> {
             Spans::from(vec![Span::raw("Tomb - Password Manager")]),
             Spans::from(vec![Span::raw(&version)]),
         ])
-        .style(
-            Style::default()
-                .fg(Color::LightYellow)
-                .add_modifier(Modifier::BOLD),
-        )
+        .style(Style::default().fg(Color::LightCyan))
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -95,7 +91,7 @@ impl Component for About<'_> {
         ])
         .style(
             Style::default()
-                .fg(Color::Blue)
+                .fg(Color::LightMagenta)
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
@@ -107,7 +103,7 @@ impl Component for About<'_> {
         ])
         .style(
             Style::default()
-                .fg(Color::Yellow)
+                .fg(Color::LightMagenta)
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)

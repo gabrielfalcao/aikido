@@ -65,11 +65,11 @@ impl Menu {
 
     pub fn select_by_location(&mut self, location: String) {
         // log_error(format!("select_by_location({:?})", location));
-        for (key, item) in &self.items {
+        for (_, item) in &self.items {
             if item.route_path.eq(&location) {
                 let index = match self.index_of(&item.label) {
                     Ok(index) => index,
-                    Err(err) => 0,
+                    Err(_) => 0,
                 };
                 self.selected = Some(index);
                 return;
@@ -165,18 +165,18 @@ impl Menu {
                     Span::styled(
                         first,
                         Style::default()
-                            .fg(Color::Yellow)
+                            .fg(Color::Magenta)
                             .add_modifier(Modifier::UNDERLINED),
                     ),
-                    Span::styled(rest, Style::default().fg(Color::Blue)),
+                    Span::styled(rest, Style::default().fg(Color::DarkGray)),
                 ])
             })
             .collect();
         let tabs = Tabs::new(menu)
             .select(self.selected_index())
             .block(Block::default().title("Menu").borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
-            .highlight_style(Style::default().fg(Color::LightCyan))
+            .style(Style::default().fg(Color::DarkGray))
+            .highlight_style(Style::default().fg(Color::LightMagenta))
             .divider(Span::raw("|"));
 
         parent.render_widget(tabs, chunk);

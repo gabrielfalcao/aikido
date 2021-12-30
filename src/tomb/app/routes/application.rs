@@ -57,7 +57,7 @@ impl<'a> Application<'a> {
             menu: Menu::default("Secrets"),
             searchbox: SearchBox::new("*"),
             started_at: Utc::now(),
-            text: String::from(DEFAULT_STATUS),
+            text: String::from("Up/Down browse secrets / 'f' search secrets"),
             label: String::from("Keyboard Shortcuts"),
             visible: false,
             pin_visible: false,
@@ -97,7 +97,7 @@ impl<'a> Application<'a> {
         };
         let secrets = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
+            .style(Style::default().fg(Color::DarkGray))
             .title("Secret")
             .border_type(BorderType::Plain);
         let items: Vec<_> = self
@@ -127,12 +127,9 @@ impl<'a> Application<'a> {
             },
         };
 
-        let list = List::new(items).block(secrets).highlight_style(
-            Style::default()
-                .bg(Color::Cyan)
-                .fg(Color::White)
-                .add_modifier(Modifier::BOLD),
-        );
+        let list = List::new(items)
+            .block(secrets)
+            .highlight_style(Style::default().bg(Color::Magenta).fg(Color::White));
 
         let secret = selected_secret.clone();
         let secret_detail = Table::new(vec![Row::new(vec![
@@ -178,7 +175,7 @@ impl<'a> Application<'a> {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
+                .style(Style::default().fg(Color::Magenta))
                 .title("Metadata")
                 .border_type(BorderType::Plain),
         )
@@ -417,12 +414,12 @@ impl Route for Application<'_> {
 
 pub fn status_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
     Paragraph::new(content)
-        .style(Style::default().fg(Color::LightGreen))
+        .style(Style::default().fg(Color::LightMagenta))
         .alignment(Alignment::Center)
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
+                .style(Style::default().fg(Color::DarkGray))
                 .title(title)
                 .border_type(BorderType::Plain),
         )

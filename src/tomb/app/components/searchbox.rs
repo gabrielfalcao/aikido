@@ -111,9 +111,9 @@ impl Component for SearchBox {
     }
 }
 pub fn block_style() -> Style {
-    Style::default().bg(Color::LightRed).fg(Color::Black)
+    Style::default().bg(Color::Cyan).fg(Color::White)
 }
 
 pub fn paragraph_style() -> Style {
-    Style::default().fg(Color::Black)
+    Style::default().fg(Color::White)
 }
