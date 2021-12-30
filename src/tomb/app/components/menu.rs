@@ -165,7 +165,7 @@ impl Menu {
                     Span::styled(
                         first,
                         Style::default()
-                            .fg(Color::Cyan)
+                            .fg(Color::Yellow)
                             .add_modifier(Modifier::UNDERLINED),
                     ),
                     Span::styled(rest, Style::default().fg(Color::DarkGray)),
@@ -176,7 +176,7 @@ impl Menu {
             .select(self.selected_index())
             .block(Block::default().title("Menu").borders(Borders::ALL))
             .style(Style::default().fg(Color::DarkGray))
-            .highlight_style(Style::default().fg(Color::LightCyan))
+            .highlight_style(Style::default().fg(Color::LightYellow))
             .divider(Span::raw("|"));
 
         parent.render_widget(tabs, chunk);
