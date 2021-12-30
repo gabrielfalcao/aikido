@@ -1,7 +1,7 @@
 pub use super::state::*;
 
 pub use super::components::{
-    menu::{dummy_paragraph, MenuComponent},
+    menu::{dummy_paragraph, Menu},
     modal::Modal,
 };
 

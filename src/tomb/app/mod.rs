@@ -6,7 +6,7 @@ pub mod state;
 
 use crate::ironpunk;
 pub use components::{
-    menu::{dummy_paragraph, MenuComponent},
+    menu::{dummy_paragraph, Menu},
     modal::Modal,
 };
 

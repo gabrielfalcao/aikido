@@ -1,4 +1,4 @@
-use super::super::components::menu::MenuComponent;
+use super::super::components::menu::Menu;
 use super::super::geometry::*;
 use crate::aes256cbc::Config as AesConfig;
 use crate::core::version;
@@ -45,10 +45,10 @@ impl Component for About<'_> {
     ) -> Result<(), Error> {
         let (header, body, footer) = vertical_stack(chunk);
         let chunk = get_modal_rect(body);
-        MenuComponent::default("About")
+        Menu::default("About")
             .render_in_parent(rect, header)
             .unwrap();
-        MenuComponent::default("About")
+        Menu::default("About")
             .render_in_parent(rect, footer)
             .unwrap();
         let version = format!("Version {}", version());
@@ -127,11 +127,11 @@ impl Component for About<'_> {
         match event.code {
             KeyCode::Esc => {
                 context.borrow_mut().goback();
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Left => {
                 context.borrow_mut().goback();
-                Ok(Propagate)
+                Ok(Refresh)
             }
             _ => {
                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('q') {

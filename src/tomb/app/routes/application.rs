@@ -4,8 +4,9 @@ use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
 pub use super::super::components::{
-    menu::{dummy_paragraph, MenuComponent},
+    menu::{dummy_paragraph, Menu},
     modal::Modal,
+    searchbox::SearchBox,
 };
 
 use crate::ironpunk::*;
@@ -27,7 +28,8 @@ use tui::{
     Terminal,
 };
 
-const DEFAULT_PATTERN: &'static str = "*";
+const DEFAULT_STATUS: &'static str =
+    "'f' to filter / 't' toggle visibility / 'r' reveal / 'Enter' copy to clipboard";
 
 pub fn log(message: String) {
     log_to_file("application.log", message).unwrap()
@@ -39,13 +41,13 @@ pub struct Application<'a> {
     aes_config: AesConfig,
     phantom: PhantomData<&'a List<'a>>,
     started_at: DateTime<Utc>,
-    pattern: String,
     pub label: String,
     pub text: String,
     pub error: Option<String>,
     pub visible: bool,
     pub pin_visible: bool,
-    pub menu: MenuComponent,
+    pub menu: Menu,
+    pub searchbox: SearchBox,
     pub overlay: Option<SharedComponent>,
     pub scroll: u16,
     pub items: StatefulList,
@@ -57,13 +59,13 @@ impl<'a> Application<'a> {
             key,
             tomb,
             aes_config,
-            menu: MenuComponent::default("Secrets"),
+            menu: Menu::default("Secrets"),
+            searchbox: SearchBox::new("*"),
             started_at: Utc::now(),
             overlay: None,
-            text: String::from("Welcome to Tomb!"),
+            text: String::from(DEFAULT_STATUS),
             label: String::from("actions"),
             visible: false,
-            pattern: String::from(DEFAULT_PATTERN),
             pin_visible: false,
             scroll: 0,
             error: None,
@@ -71,11 +73,11 @@ impl<'a> Application<'a> {
             phantom: PhantomData,
         }
     }
-    pub fn set_pattern(&mut self, pattern: &str) {
-        self.pattern = String::from(pattern);
-    }
     pub fn toggle_visible(&mut self) {
         self.visible = !self.visible;
+    }
+    pub fn show_search(&mut self) {
+        self.searchbox.toggle_visible();
     }
     pub fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
@@ -91,10 +93,9 @@ impl<'a> Application<'a> {
             Err(err) => self.error = Some(format!("Search error: {}", err)),
         };
     }
-    pub fn reset_search(&mut self) {
-        self.filter_search(DEFAULT_PATTERN);
-    }
-    pub fn render_secrets(&mut self, pattern: String) -> Result<(List<'a>, Table<'a>), Error> {
+
+    pub fn reset_search(&mut self) {}
+    pub fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         match self.tomb.reload() {
             // load latest version from disk
             Ok(_) => {}
@@ -117,6 +118,7 @@ impl<'a> Application<'a> {
             })
             .collect();
 
+        let pattern = self.searchbox.pattern.clone();
         self.filter_search(&pattern);
         let selected_secret = match self.items.current() {
             Some(secret) => secret,
@@ -195,6 +197,9 @@ impl<'a> Application<'a> {
 
         Ok((list, secret_detail))
     }
+    pub fn search_visible(&self) -> bool {
+        self.searchbox.visible
+    }
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
@@ -237,9 +242,7 @@ impl<'a> Application<'a> {
             Ok(_) => {
                 let label = format!("Keyboard Shortcuts");
                 self.set_label(label.as_str());
-                self.set_text(
-                    "'t' toggle visibility / 'r' reveal secret / 'Enter' copy secret to clipboard",
-                );
+                self.set_text(DEFAULT_STATUS);
             }
             Err(err) => {
                 let error = format!("{}", err);
@@ -299,99 +302,111 @@ impl Component for Application<'_> {
             None => {}
         }
         let code = event.code;
-        self.menu
-            .process_keyboard(event, terminal, context.clone(), router.clone())?;
-        match code {
-            KeyCode::Char('q') => Ok(Quit),
-            KeyCode::Char('d') => match self.items.current() {
-                Some(secret) => {
-                    let path = format!("/delete/{}", secret.key());
-                    context.borrow_mut().goto(&path);
-                    Ok(Propagate)
-                }
-                None => Err(Error::with_message(format!(
-                    "cannot delete: no secret selected"
-                ))),
-            },
-            KeyCode::Char('a') => {
-                context.borrow_mut().goto("/about");
-                Ok(Refresh)
+        match self.search_visible() {
+            true => {
+                return self.searchbox.process_keyboard(
+                    event,
+                    terminal,
+                    context.clone(),
+                    router.clone(),
+                );
             }
-            KeyCode::Char('s') => {
-                self.set_pattern("*");
-                Ok(Refresh)
-            }
-            KeyCode::Char('p') => {
-                self.set_pattern("passwords/*");
-                Ok(Refresh)
-            }
-            KeyCode::Char('r') => {
-                match self.selected_secret_string() {
-                    Ok(plaintext) => {
+            false => {
+                self.menu
+                    .process_keyboard(event, terminal, context.clone(), router.clone())?;
+                match code {
+                    KeyCode::Char('q') => Ok(Quit),
+                    KeyCode::Char('d') => match self.items.current() {
+                        Some(secret) => {
+                            let path = format!("/delete/{}", secret.key());
+                            context.borrow_mut().goto(&path);
+                            Ok(Propagate)
+                        }
+                        None => Err(Error::with_message(format!(
+                            "cannot delete: no secret selected"
+                        ))),
+                    },
+                    KeyCode::Char('a') => {
+                        context.borrow_mut().goto("/about");
+                        Ok(Refresh)
+                    }
+                    KeyCode::Char('s') => {
+                        context.borrow_mut().goto("/");
+                        Ok(Refresh)
+                    }
+                    KeyCode::Char('f') => {
+                        self.show_search();
+                        Ok(Refresh)
+                    }
+                    KeyCode::Char('r') => {
+                        match self.selected_secret_string() {
+                            Ok(plaintext) => {
+                                self.reset_statusbar();
+                                self.set_visible(true);
+                                self.set_pinned(false);
+                            }
+                            Err(error) => return Err(error),
+                        }
+                        Ok(Refresh)
+                    }
+                    KeyCode::Char('t') => {
+                        match self.selected_secret_string() {
+                            Ok(plaintext) => {
+                                self.set_pinned(true);
+                                self.toggle_visible();
+                                self.set_text(match self.visible {
+                                    true => "Secrets visible. (Press 't' again to toggle)",
+                                    false => "Secrets hidden. (Press 't' again to toggle)",
+                                });
+                            }
+                            Err(error) => return Err(error),
+                        }
+                        Ok(Refresh)
+                    }
+                    KeyCode::Up => {
+                        self.items.previous();
                         self.reset_statusbar();
-                        self.set_visible(true);
-                        self.set_pinned(false);
-                    }
-                    Err(error) => return Err(error),
-                }
-                Ok(Refresh)
-            }
-            KeyCode::Char('t') => {
-                match self.selected_secret_string() {
-                    Ok(plaintext) => {
-                        self.set_pinned(true);
-                        self.toggle_visible();
-                        self.set_text(match self.visible {
-                            true => "Secrets visible. (Press 't' again to toggle)",
-                            false => "Secrets hidden. (Press 't' again to toggle)",
-                        });
-                    }
-                    Err(error) => return Err(error),
-                }
-                Ok(Refresh)
-            }
-            KeyCode::Up => {
-                self.items.previous();
-                self.reset_statusbar();
-                Ok(Propagate)
-            }
-            KeyCode::Down => {
-                self.items.next();
-                self.reset_statusbar();
-                Ok(Propagate)
-            }
-            KeyCode::Esc => {
-                self.reset_search();
-                // TODO: context.error.clear()
-                Ok(Propagate)
-            }
-            KeyCode::Enter => match self.items.current() {
-                Some(secret) => match self.selected_secret_string() {
-                    Ok(plaintext) => {
-                        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-                        ctx.set_contents(plaintext).unwrap();
-                        let text = format!("{} copied to clipboard", secret.path);
-                        self.set_text(&text);
-                        send_notification(
-                            format!("Secret {}", secret.path).as_str(),
-                            &Some("copied to clipboard"),
-                            "",
-                            &Some("Glass"),
-                        )
-                        .unwrap();
                         Ok(Propagate)
                     }
-                    Err(error) => {
-                        context
-                            .borrow_mut()
-                            .error
-                            .set_error(Error::with_message(format!("{}", error)));
+                    KeyCode::Down => {
+                        self.items.next();
+                        self.reset_statusbar();
                         Ok(Propagate)
                     }
-                },
-                None => Ok(Propagate),
-            },
-            _ => Ok(Propagate),
+                    KeyCode::Esc => {
+                        self.reset_search();
+                        // TODO: context.error.clear()
+                        Ok(Propagate)
+                    }
+                    KeyCode::Enter => match self.items.current() {
+                        Some(secret) => match self.selected_secret_string() {
+                            Ok(plaintext) => {
+                                let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                                ctx.set_contents(plaintext).unwrap();
+                                let text = format!("{} copied to clipboard", secret.path);
+                                self.set_text(&text);
+                                send_notification(
+                                    format!("Secret {}", secret.path).as_str(),
+                                    &Some("copied to clipboard"),
+                                    "",
+                                    &Some("Glass"),
+                                )
+                                .unwrap();
+                                Ok(Propagate)
+                            }
+                            Err(error) => {
+                                context
+                                    .borrow_mut()
+                                    .error
+                                    .set_error(Error::with_message(format!("{}", error)));
+                                Ok(Propagate)
+                            }
+                        },
+                        None => Ok(Propagate),
+                    },
+                    _ => Ok(Propagate),
+                }
+            }
         }
     }
 }
@@ -400,7 +415,7 @@ impl Route for Application<'_> {
         &mut self,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: SharedContext,
-        router: SharedRouter,
+        _router: SharedRouter,
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let (top, body, footer) = vertical_stack(rect.size());
@@ -421,25 +436,8 @@ impl Route for Application<'_> {
                 }
                 None => {
                     let (sidebar, detail) = body_sides(body);
-                    let path = context.borrow().location.clone();
-                    let prefix = match router.recognize(&path) {
-                        Ok(matched) => match matched.params().find("filter") {
-                            Some(pattern) => String::from(pattern),
-                            None => String::new(),
-                        },
-                        Err(err) => {
-                            log(format!("route matching failed for {}: {}", path, err));
-                            String::new()
-                        }
-                    };
-                    let pattern = if prefix.len() == 0 && !path.eq("/") {
-                        self.pattern.clone()
-                    } else if path.eq("/") {
-                        String::from(DEFAULT_PATTERN)
-                    } else {
-                        format!("{}*", prefix)
-                    };
-                    match self.render_secrets(pattern) {
+                    let _path = context.borrow().location.clone();
+                    match self.render_secrets() {
                         Ok((left, right)) => {
                             rect.render_stateful_widget(left, sidebar, &mut self.items.state);
                             rect.render_widget(right, detail);
@@ -460,7 +458,14 @@ impl Route for Application<'_> {
                 None => (self.label.clone(), self.text.clone()),
             };
             let status_bar = dummy_paragraph(&footer_title, &footer_label);
-            self.menu.render_in_parent(rect, top).unwrap();
+            match self.search_visible() {
+                true => {
+                    self.searchbox.render_in_parent(rect, top).unwrap();
+                }
+                false => {
+                    self.menu.render_in_parent(rect, top).unwrap();
+                }
+            }
             rect.render_widget(status_bar, footer);
         })?;
         Ok(())

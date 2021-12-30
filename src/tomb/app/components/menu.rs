@@ -27,16 +27,16 @@ impl MenuItem {
 }
 
 #[derive(PartialEq, Clone)]
-pub struct MenuComponent {
+pub struct Menu {
     pub cid: String,
     pub selected: Option<usize>,
     pub labels: Vec<String>,
     pub items: BTreeMap<String, MenuItem>,
     pub error: Option<String>,
 }
-impl MenuComponent {
-    pub fn empty() -> MenuComponent {
-        MenuComponent {
+impl Menu {
+    pub fn empty() -> Menu {
+        Menu {
             cid: String::from("main-menu"),
             selected: None,
             labels: Vec::new(),
@@ -44,13 +44,9 @@ impl MenuComponent {
             error: None,
         }
     }
-    pub fn default(selected: &str) -> MenuComponent {
-        let mut menu = MenuComponent::empty();
+    pub fn default(selected: &str) -> Menu {
+        let mut menu = Menu::empty();
         menu.add_item("Secrets", KeyCode::Char('s'), "/").unwrap();
-        menu.add_item("Passwords", KeyCode::Char('p'), "/passwords")
-            .unwrap();
-        // menu.add_item("Configuration", KeyCode::Char('c'), "/configuration")
-        //     .unwrap();
         menu.add_item("About", KeyCode::Char('a'), "/about")
             .unwrap();
         menu.select(selected).unwrap();
@@ -174,7 +170,7 @@ impl MenuComponent {
         Ok(())
     }
 }
-impl Component for MenuComponent {
+impl Component for Menu {
     fn name(&self) -> &str {
         "Menu"
     }
