@@ -222,9 +222,9 @@ impl AES256Tomb {
             }
         };
         let mut result = Vec::new();
-        for (_md5key, secret) in &self.data {
+        for (md5key, secret) in &self.data {
             let path = secret.path.clone();
-            if regex.is_match(&path) {
+            if regex.is_match(&path) && md5key.eq(&secret.key()) {
                 result.push(secret.clone());
             }
         }
