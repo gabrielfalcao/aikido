@@ -20,7 +20,7 @@ use tui::{
     layout::Constraint,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Cell, List, ListItem, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, List, ListItem, Row, Table, Wrap},
     Terminal,
 };
 
@@ -120,9 +120,9 @@ impl<'a> Application<'a> {
                 true => self.items.items[0].clone(),
                 false => {
                     return Err(Error::with_message(format!(
-                        "no secrets to list using pattern: {}",
-                        pattern
-                    )))
+                    "no secrets to list using pattern: {}. Press 'f' to change the search pattern.",
+                    pattern
+                )))
                 }
             },
         };
@@ -423,4 +423,23 @@ pub fn status_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
                 .title(title)
                 .border_type(BorderType::Plain),
         )
+}
+pub fn error_text<'a>(label: &'a str, title: &'a str, error: &'a str) -> Paragraph<'a> {
+    Paragraph::new(vec![
+        Spans::from(vec![Span::raw(title)]),
+        Spans::from(vec![Span::raw("")]),
+        Spans::from(vec![Span::raw(
+            error,
+            //console::strip_ansi_codes(self.error.message.as_str()).borrow(),
+        )]),
+    ])
+    .alignment(Alignment::Center)
+    .wrap(Wrap { trim: false })
+    .block(
+        Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().bg(Color::Magenta).fg(Color::White))
+            .title(label)
+            .border_type(BorderType::Plain),
+    )
 }
