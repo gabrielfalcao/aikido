@@ -1,3 +1,4 @@
+use super::super::logging::log_error;
 use crate::ironpunk::*;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
@@ -9,8 +10,7 @@ use tui::{
     widgets::{Block, Borders, Tabs},
     Frame, Terminal,
 };
-
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct MenuItem {
     pub label: String,
     pub route_path: String,
@@ -61,6 +61,27 @@ impl Menu {
             Some(pos) => Ok(pos),
             None => Err(Error::with_message(format!("invalid menu item: {}", item))),
         }
+    }
+
+    pub fn select_by_location(&mut self, location: String) {
+        log_error(format!("select_by_location({:?})", location));
+        for (key, item) in &self.items {
+            log_error(format!("\tselect_by_location {}: {:?}", key, item));
+
+            if item.route_path.eq(&location) {
+                let index = match self.index_of(&item.label) {
+                    Ok(index) => index,
+                    Err(err) => {
+                        log_error(format!("Cannot select menu item for {}: {}", location, err));
+                        0
+                    }
+                };
+                self.selected = Some(index);
+                log_error(format!("\tselect_by_location {}: {:?}", location, index));
+                return;
+            }
+        }
+        log_error(format!("NO MATCHES select_by_location({:?})", location));
     }
     pub fn selected_index(&self) -> usize {
         match self.selected {
@@ -162,7 +183,7 @@ impl Menu {
             .select(self.selected_index())
             .block(Block::default().title("Menu").borders(Borders::ALL))
             .style(Style::default().fg(Color::White))
-            .highlight_style(Style::default().fg(Color::LightGreen))
+            .highlight_style(Style::default().fg(Color::LightCyan))
             .divider(Span::raw("|"));
 
         parent.render_widget(tabs, chunk);
@@ -177,15 +198,17 @@ impl Component for Menu {
     fn id(&self) -> String {
         self.cid.clone()
     }
+
     #[allow(unused_variables)]
     fn process_keyboard(
         &mut self,
         event: KeyEvent,
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         context: SharedContext,
-        _router: SharedRouter,
+        router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
         let code = event.code;
+
         match code {
             KeyCode::Right => {
                 self.next();
@@ -219,6 +242,6 @@ impl Component for Menu {
                 }
             }
         }
-        Ok(Propagate)
+        Ok(Refresh)
     }
 }

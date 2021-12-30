@@ -25,7 +25,7 @@ use tui::{
 };
 
 const DEFAULT_STATUS: &'static str =
-    "'f' to filter / 't' toggle visibility / 'r' reveal / 'Enter' copy to clipboard";
+    "'f' to filter / 't' toggle visibility / 'r' reveal / 'c' copy to clipboard";
 
 pub fn log(message: String) {
     log_to_file("application.log", message).unwrap()
@@ -58,7 +58,7 @@ impl<'a> Application<'a> {
             searchbox: SearchBox::new("*"),
             started_at: Utc::now(),
             text: String::from(DEFAULT_STATUS),
-            label: String::from("actions"),
+            label: String::from("Keyboard Shortcuts"),
             visible: false,
             pin_visible: false,
             scroll: 0,
@@ -342,7 +342,7 @@ impl Component for Application<'_> {
                         // TODO: context.error.clear()
                         Ok(Propagate)
                     }
-                    KeyCode::Enter => match self.items.current() {
+                    KeyCode::Char('c') => match self.items.current() {
                         Some(secret) => match self.selected_secret_string() {
                             Ok(plaintext) => {
                                 let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
@@ -386,7 +386,7 @@ impl Route for Application<'_> {
             let (_top_left, top_right) = body_sides(top);
 
             let (sidebar, detail) = body_sides(body);
-            let _path = context.borrow().location.clone();
+            let location = context.borrow().location.clone();
             match self.render_secrets() {
                 Ok((left, right)) => {
                     rect.render_stateful_widget(left, sidebar, &mut self.items.state);
@@ -403,6 +403,8 @@ impl Route for Application<'_> {
                 None => (self.label.clone(), self.text.clone()),
             };
             let status_bar = status_paragraph(&footer_title, &footer_label);
+            // select menu item based on current route
+            self.menu.select_by_location(location);
             self.menu.render_in_parent(rect, top).unwrap();
             if self.search_visible() {
                 self.searchbox.render_in_parent(rect, top_right).unwrap();

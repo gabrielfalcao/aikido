@@ -43,8 +43,8 @@ impl Component for About<'_> {
         rect: &mut Frame<CrosstermBackend<io::Stdout>>,
         chunk: Rect,
     ) -> Result<(), Error> {
-        let (header, body, footer) = vertical_stack(chunk);
-        let chunk = get_modal_rect(body);
+        let (header, chunk, footer) = vertical_stack(chunk);
+
         Menu::default("About")
             .render_in_parent(rect, header)
             .unwrap();
@@ -80,7 +80,11 @@ impl Component for About<'_> {
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::NONE));
+        .block(
+            Block::default()
+                .borders(Borders::NONE)
+                .style(Style::default().fg(Color::LightCyan)),
+        );
         let middle = Paragraph::new(vec![
             Spans::from(vec![Span::raw("powered by")]),
             Spans::from(vec![Span::styled(

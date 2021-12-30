@@ -4,7 +4,7 @@ use std::io;
 use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Rect},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Paragraph, Wrap},
     Frame, Terminal,
@@ -40,7 +40,7 @@ impl SearchBox {
         let modal = Block::default()
             .borders(Borders::ALL)
             .style(block_style())
-            .title("Search using glob patterns (Esc: cancel, Enter: apply filter)")
+            .title("Search using glob patterns (<Esc> cancel <Enter> filter)")
             .border_type(BorderType::Rounded);
 
         let text = vec![Spans::from(Span::styled(
@@ -111,7 +111,7 @@ impl Component for SearchBox {
     }
 }
 pub fn block_style() -> Style {
-    Style::default().bg(Color::LightBlue).fg(Color::Black)
+    Style::default().bg(Color::LightRed).fg(Color::Black)
 }
 
 pub fn paragraph_style() -> Style {

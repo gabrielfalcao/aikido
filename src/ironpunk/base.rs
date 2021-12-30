@@ -104,7 +104,7 @@ impl<'a> Context<'_> {
         let location = String::from(location);
         self.history.push(location.clone());
         self.location = location.clone();
-        log(format!("goto: {}", location));
+        // log(format!("goto: {}", location));
     }
     pub fn goback(&mut self) {
         if self.history.len() == 1 {
@@ -114,7 +114,7 @@ impl<'a> Context<'_> {
             Some(_) => {
                 let location = self.history[self.history.len() - 1].clone();
                 self.location = location.clone();
-                log(format!("goback: {}", location));
+                // log(format!("goback: {}", location));
             }
             None => {}
         }
