@@ -10,7 +10,7 @@ use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
     layout::Alignment,
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
@@ -54,7 +54,7 @@ impl Component for About<'_> {
         let version = format!("Version {}", version());
         let block = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::Red))
+            .style(Style::default().fg(Color::Magenta))
             .title("<press (Esc) to dismiss>")
             .border_type(BorderType::Plain);
 
