@@ -40,7 +40,7 @@ impl SearchBox {
         let modal = Block::default()
             .borders(Borders::ALL)
             .style(block_style())
-            .title("Filter secrets (Esc: cancel and Enter: apply)")
+            .title("Search using glob patterns (Esc: cancel, Enter: apply filter)")
             .border_type(BorderType::Rounded);
 
         let text = vec![Spans::from(Span::styled(
@@ -111,14 +111,9 @@ impl Component for SearchBox {
     }
 }
 pub fn block_style() -> Style {
-    Style::default()
-        .bg(Color::LightYellow)
-        .fg(Color::Black)
-        .add_modifier(Modifier::BOLD)
+    Style::default().bg(Color::LightBlue).fg(Color::Black)
 }
 
 pub fn paragraph_style() -> Style {
-    Style::default()
-        .fg(Color::Black)
-        .add_modifier(Modifier::BOLD)
+    Style::default().fg(Color::Black)
 }

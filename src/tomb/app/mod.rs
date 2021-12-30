@@ -5,10 +5,7 @@ pub mod routes;
 pub mod state;
 
 use crate::ironpunk;
-pub use components::{
-    menu::{dummy_paragraph, Menu},
-    modal::Modal,
-};
+pub use components::{menu::Menu, modal::Modal, searchbox::SearchBox};
 
 pub use {application::*, geometry::*, logging::*, routes::*, state::*};
 

@@ -3,11 +3,7 @@ pub use super::super::state::*;
 use crate::ioutils::log_to_file;
 use chrono::prelude::*;
 
-pub use super::super::components::{
-    menu::{dummy_paragraph, Menu},
-    modal::Modal,
-    searchbox::SearchBox,
-};
+pub use super::super::components::{menu::Menu, modal::Modal, searchbox::SearchBox};
 
 use crate::ironpunk::*;
 
@@ -18,7 +14,7 @@ use crate::aes256cbc::{Config as AesConfig, Key};
 use clipboard::{ClipboardContext, ClipboardProvider};
 use crossterm::event::{KeyCode, KeyEvent};
 use mac_notification_sys::*;
-use std::{cell::RefCell, io, marker::PhantomData, rc::Rc};
+use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
     layout::Constraint,
@@ -48,7 +44,6 @@ pub struct Application<'a> {
     pub pin_visible: bool,
     pub menu: Menu,
     pub searchbox: SearchBox,
-    pub overlay: Option<SharedComponent>,
     pub scroll: u16,
     pub items: StatefulList,
 }
@@ -62,7 +57,6 @@ impl<'a> Application<'a> {
             menu: Menu::default("Secrets"),
             searchbox: SearchBox::new("*"),
             started_at: Utc::now(),
-            overlay: None,
             text: String::from(DEFAULT_STATUS),
             label: String::from("actions"),
             visible: false,
@@ -203,12 +197,6 @@ impl<'a> Application<'a> {
     pub fn set_text(&mut self, text: &str) {
         self.text = String::from(text);
     }
-    pub fn set_overlay<T: 'static + Component>(&mut self, overlay: T) {
-        self.overlay = Some(Rc::new(RefCell::new(overlay)));
-    }
-    pub fn remove_overlay(&mut self) {
-        self.overlay = None;
-    }
     #[allow(dead_code)]
     pub fn set_error(&mut self, error: String) {
         self.error = Some(error.clone());
@@ -262,19 +250,11 @@ impl Component for Application<'_> {
     }
     fn tick(
         &mut self,
-        terminal: &mut Terminal<Backend>,
-        context: SharedContext,
-        router: SharedRouter,
+        _terminal: &mut Terminal<Backend>,
+        _context: SharedContext,
+        _router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
-        match &mut self.overlay {
-            Some(overlay) => {
-                return overlay
-                    .borrow_mut()
-                    .tick(terminal, context.clone(), router.clone());
-            }
-            None => {}
-        }
-        Ok(Refresh)
+        Ok(Propagate)
     }
 
     #[allow(unused_variables)]
@@ -285,22 +265,6 @@ impl Component for Application<'_> {
         context: SharedContext,
         router: SharedRouter,
     ) -> Result<LoopEvent, Error> {
-        match &mut self.overlay {
-            Some(overlay) => {
-                if event.code == KeyCode::Esc {
-                    self.remove_overlay();
-                    return Ok(Propagate);
-                } else {
-                    return overlay.borrow_mut().process_keyboard(
-                        event,
-                        terminal,
-                        context.clone(),
-                        router.clone(),
-                    );
-                }
-            }
-            None => {}
-        }
         let code = event.code;
         match self.search_visible() {
             true => {
@@ -419,55 +383,45 @@ impl Route for Application<'_> {
     ) -> Result<(), Error> {
         terminal.draw(|rect| {
             let (top, body, footer) = vertical_stack(rect.size());
+            let (_top_left, top_right) = body_sides(top);
 
-            match &self.overlay {
-                Some(overlay) => {
-                    // TODO: render overlay as modal in the middle of the screen
-                    // step 1: divide the screen into 3 vertical chunks
-                    // step 2: take the middle chunk and split into 3 horizontal chunks
-                    // step 3: take the middle chunk
-                    let result = overlay.borrow_mut().render_in_parent(rect, body);
-                    return match result {
-                        Ok(_) => (),
-                        Err(err) => {
-                            log(format!("Overlay rendering error: {}", err));
-                        }
-                    };
+            let (sidebar, detail) = body_sides(body);
+            let _path = context.borrow().location.clone();
+            match self.render_secrets() {
+                Ok((left, right)) => {
+                    rect.render_stateful_widget(left, sidebar, &mut self.items.state);
+                    rect.render_widget(right, detail);
                 }
-                None => {
-                    let (sidebar, detail) = body_sides(body);
-                    let _path = context.borrow().location.clone();
-                    match self.render_secrets() {
-                        Ok((left, right)) => {
-                            rect.render_stateful_widget(left, sidebar, &mut self.items.state);
-                            rect.render_widget(right, detail);
-                        }
-                        Err(error) => {
-                            let error = error_text(
-                                "Application Error",
-                                "Uncaught exception:",
-                                &error.message,
-                            );
-                            rect.render_widget(error, get_modal_rect(body));
-                        }
-                    };
+                Err(error) => {
+                    let error =
+                        error_text("Application Error", "Uncaught exception:", &error.message);
+                    rect.render_widget(error, get_modal_rect(body));
                 }
-            }
+            };
             let (footer_title, footer_label) = match self.error.clone() {
                 Some(error) => (error.clone(), self.text.clone()),
                 None => (self.label.clone(), self.text.clone()),
             };
-            let status_bar = dummy_paragraph(&footer_title, &footer_label);
-            match self.search_visible() {
-                true => {
-                    self.searchbox.render_in_parent(rect, top).unwrap();
-                }
-                false => {
-                    self.menu.render_in_parent(rect, top).unwrap();
-                }
+            let status_bar = status_paragraph(&footer_title, &footer_label);
+            self.menu.render_in_parent(rect, top).unwrap();
+            if self.search_visible() {
+                self.searchbox.render_in_parent(rect, top_right).unwrap();
             }
             rect.render_widget(status_bar, footer);
         })?;
         Ok(())
     }
+}
+
+pub fn status_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
+    Paragraph::new(content)
+        .style(Style::default().fg(Color::LightGreen))
+        .alignment(Alignment::Center)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .title(title)
+                .border_type(BorderType::Plain),
+        )
 }

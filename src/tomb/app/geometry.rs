@@ -1,9 +1,6 @@
 pub use super::state::*;
 
-pub use super::components::{
-    menu::{dummy_paragraph, Menu},
-    modal::Modal,
-};
+pub use super::components::{menu::Menu, modal::Modal};
 
 use crate::ironpunk::*;
 

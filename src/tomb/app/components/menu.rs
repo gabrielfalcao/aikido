@@ -3,10 +3,10 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Rect},
+    layout::Rect,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, Paragraph, Tabs},
+    widgets::{Block, Borders, Tabs},
     Frame, Terminal,
 };
 
@@ -221,17 +221,4 @@ impl Component for Menu {
         }
         Ok(Propagate)
     }
-}
-
-pub fn dummy_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
-    Paragraph::new(content)
-        .style(Style::default().fg(Color::LightGreen))
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
-                .title(title)
-                .border_type(BorderType::Plain),
-        )
 }
