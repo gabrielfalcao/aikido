@@ -97,18 +97,18 @@ impl<'a> Component for ConfirmationDialog<'a> {
             format!("Yes, delete"),
             match self.selected {
                 Yes => Style::default()
-                    .bg(Color::LightYellow)
+                    .bg(Color::LightGreen)
                     .fg(Color::White)
                     .add_modifier(Modifier::UNDERLINED),
-                No => Style::default().bg(Color::Yellow).fg(Color::White),
+                No => Style::default().bg(Color::Green).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    Yes => Style::default().bg(Color::LightYellow).fg(Color::White),
-                    No => Style::default().bg(Color::Yellow).fg(Color::White),
+                    Yes => Style::default().bg(Color::LightGreen).fg(Color::White),
+                    No => Style::default().bg(Color::Green).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
@@ -116,18 +116,18 @@ impl<'a> Component for ConfirmationDialog<'a> {
             format!("No, cancel"),
             match self.selected {
                 No => Style::default()
-                    .bg(Color::LightYellow)
+                    .bg(Color::LightGreen)
                     .fg(Color::White)
                     .add_modifier(Modifier::UNDERLINED),
-                Yes => Style::default().bg(Color::LightYellow).fg(Color::White),
+                Yes => Style::default().bg(Color::LightGreen).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    No => Style::default().bg(Color::LightYellow).fg(Color::White),
-                    Yes => Style::default().bg(Color::LightYellow).fg(Color::White),
+                    No => Style::default().bg(Color::LightGreen).fg(Color::White),
+                    Yes => Style::default().bg(Color::LightGreen).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
@@ -193,7 +193,7 @@ pub fn paragraph_style() -> Style {
 }
 pub fn highlight_style() -> Style {
     Style::default()
-        .fg(Color::Yellow)
+        .fg(Color::Green)
         .add_modifier(Modifier::BOLD)
         .add_modifier(Modifier::UNDERLINED)
 }

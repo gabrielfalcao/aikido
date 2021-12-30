@@ -54,7 +54,7 @@ impl Component for About<'_> {
         let version = format!("Version {}", version());
         let block = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::Yellow))
+            .style(Style::default().fg(Color::Green))
             .title("<press (Esc) to dismiss>")
             .border_type(BorderType::Plain);
 
@@ -74,22 +74,22 @@ impl Component for About<'_> {
             Spans::from(vec![Span::raw("Tomb - Password Manager")]),
             Spans::from(vec![Span::raw(&version)]),
         ])
-        .style(Style::default().fg(Color::Yellow))
+        .style(Style::default().fg(Color::Green))
         .alignment(Alignment::Center)
         .block(
             Block::default()
                 .borders(Borders::NONE)
-                .style(Style::default().fg(Color::LightYellow)),
+                .style(Style::default().fg(Color::LightGreen)),
         );
         let middle = Paragraph::new(vec![
             Spans::from(vec![Span::raw("powered by")]),
             Spans::from(vec![Span::styled(
                 "AES-256-CBC",
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::Green),
             )]),
             Spans::from(vec![Span::raw("encryption")]),
         ])
-        .style(Style::default().fg(Color::LightYellow))
+        .style(Style::default().fg(Color::LightGreen))
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::NONE));
         let bottom = Paragraph::new(vec![
@@ -97,7 +97,7 @@ impl Component for About<'_> {
             Spans::from(vec![Span::raw("twitter: @gabrielfalcao")]),
             // Spans::from(vec![Span::raw("https://github.com/gabrielfalcao/tomb")]),
         ])
-        .style(Style::default().fg(Color::Yellow))
+        .style(Style::default().fg(Color::Green))
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::NONE));
 
