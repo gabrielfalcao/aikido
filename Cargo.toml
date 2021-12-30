@@ -1,6 +1,6 @@
 [package]
 name = "rustic-toolz"
-version = "1.9.1"
+version = "1.10.0"
 edition = "2021"
 authors = ["Gabriel Falcão <gabrielfalcao@protonmail.com>"]
 
