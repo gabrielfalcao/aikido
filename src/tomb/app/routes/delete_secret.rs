@@ -65,7 +65,7 @@ impl<'a> DeleteSecret<'a> {
         secret: AES256Secret,
     ) -> Result<LoopEvent, Error> {
         let path = secret.path.clone();
-        log_error(format!("Deleting secret: {:?}", path));
+
         match self.tomb.delete_secret(&path) {
             Ok(_) => match self.tomb.save() {
                 Ok(_) => {

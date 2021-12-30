@@ -1,4 +1,4 @@
-use super::super::logging::log_error;
+//use super::super::logging::log_error;
 use crate::ironpunk::*;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::{collections::BTreeMap, io};
@@ -64,24 +64,17 @@ impl Menu {
     }
 
     pub fn select_by_location(&mut self, location: String) {
-        log_error(format!("select_by_location({:?})", location));
+        // log_error(format!("select_by_location({:?})", location));
         for (key, item) in &self.items {
-            log_error(format!("\tselect_by_location {}: {:?}", key, item));
-
             if item.route_path.eq(&location) {
                 let index = match self.index_of(&item.label) {
                     Ok(index) => index,
-                    Err(err) => {
-                        log_error(format!("Cannot select menu item for {}: {}", location, err));
-                        0
-                    }
+                    Err(err) => 0,
                 };
                 self.selected = Some(index);
-                log_error(format!("\tselect_by_location {}: {:?}", location, index));
                 return;
             }
         }
-        log_error(format!("NO MATCHES select_by_location({:?})", location));
     }
     pub fn selected_index(&self) -> usize {
         match self.selected {
