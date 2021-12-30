@@ -261,7 +261,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .iter()
         .map(|i| {
             let lines = vec![Spans::from(i.path.as_str())];
-            ListItem::new(lines).style(Style::default().fg(Color::Green).bg(Color::Black))
+            ListItem::new(lines).style(Style::default().fg(Color::Blue).bg(Color::Black))
         })
         .collect();
 
@@ -270,7 +270,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .block(Block::default().borders(Borders::ALL).title("Secret"))
         .highlight_style(
             Style::default()
-                .bg(Color::Green)
+                .bg(Color::Blue)
                 .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
         )
@@ -292,7 +292,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // We can now render the item list
     let paragraph = match app.error.clone() {
         Some(err) => Paragraph::new(err.clone())
-            .style(Style::default().bg(Color::Red).fg(Color::Green))
+            .style(Style::default().bg(Color::Red).fg(Color::Blue))
             .block(create_block(app.label.clone()))
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: true })

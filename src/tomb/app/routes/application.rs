@@ -129,7 +129,7 @@ impl<'a> Application<'a> {
 
         let list = List::new(items)
             .block(secrets)
-            .highlight_style(Style::default().bg(Color::Green).fg(Color::White));
+            .highlight_style(Style::default().bg(Color::Blue).fg(Color::White));
 
         let secret = selected_secret.clone();
         let secret_detail = Table::new(vec![Row::new(vec![
@@ -175,7 +175,7 @@ impl<'a> Application<'a> {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::Green))
+                .style(Style::default().fg(Color::Blue))
                 .title("Metadata")
                 .border_type(BorderType::Plain),
         )
@@ -414,7 +414,7 @@ impl Route for Application<'_> {
 
 pub fn status_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
     Paragraph::new(content)
-        .style(Style::default().fg(Color::LightGreen))
+        .style(Style::default().fg(Color::LightBlue))
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -438,7 +438,7 @@ pub fn error_text<'a>(label: &'a str, title: &'a str, error: &'a str) -> Paragra
     .block(
         Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::Green).fg(Color::White))
+            .style(Style::default().bg(Color::Blue).fg(Color::White))
             .title(label)
             .border_type(BorderType::Plain),
     )
