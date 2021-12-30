@@ -6,9 +6,10 @@
 - [x] filter secrets
 - [x] handle errors gracefully
 - [x] match routes with crate router-recognizer
-- [ ] Confirmation dialog
-  - [ ] delete a secret
-
+- [x] Confirmation dialog
+  - [x] delete a secret
+- [ ] Store file path in AES256Tomb because it has to be capable of
+      reloading its contents from disk.
 - [ ] Multiline modal editor
   - [ ] edit a secret
 

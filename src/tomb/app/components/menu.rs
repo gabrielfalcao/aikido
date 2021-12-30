@@ -164,11 +164,7 @@ impl MenuComponent {
             .collect();
         let tabs = Tabs::new(menu)
             .select(self.selected_index())
-            .block(
-                Block::default()
-                    .title("Keyboard Shortcuts")
-                    .borders(Borders::ALL),
-            )
+            .block(Block::default().title("Menu").borders(Borders::ALL))
             .style(Style::default().fg(Color::White))
             .highlight_style(Style::default().fg(Color::LightGreen))
             .divider(Span::raw("|"));

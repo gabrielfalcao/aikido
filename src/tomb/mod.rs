@@ -15,7 +15,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::{borrow::Borrow, fmt};
 
-const DEFAULT_TOMB_PATH: &'static str = "~/.tomb.yaml";
+pub const DEFAULT_TOMB_PATH: &'static str = "~/.tomb.yaml";
+
+pub fn path_to_md5(path: &str) -> String {
+    format!("{:x}", md5::compute(String::from(path).as_bytes()))
+}
 
 #[derive(Debug, Clone)]
 pub struct Error {
@@ -65,7 +69,7 @@ impl AES256Secret {
         }
     }
     pub fn key(&self) -> String {
-        format!("{:x}", md5::compute(self.path.clone()))
+        path_to_md5(self.path.as_str())
     }
     pub fn value_bytes(&self) -> Vec<u8> {
         b64decode(&self.value.as_bytes()).unwrap()
@@ -169,7 +173,8 @@ impl AES256Tomb {
             }
         };
         let mut result = Vec::new();
-        for (path, secret) in &self.data {
+        for (_md5key, secret) in &self.data {
+            let path = secret.path.clone();
             if regex.is_match(&path) {
                 result.push(secret.clone());
             }
@@ -178,7 +183,8 @@ impl AES256Tomb {
     }
 
     pub fn delete_secret(&mut self, path: &str) -> Result<(), Error> {
-        match self.data.remove(&String::from(path)) {
+        let key = path_to_md5(path);
+        match self.data.remove(&key) {
             Some(_) => Ok(()),
             None => Err(Error::with_message(format!(
                 "{}{}",
@@ -217,14 +223,23 @@ impl AES256Tomb {
     }
 
     pub fn get(&self, path: &str) -> Result<AES256Secret, Error> {
-        let key = format!("{:x}", md5::compute(String::from(path).as_bytes()));
-
+        let key = path_to_md5(path);
         match self.data.get(&key) {
             Some(secret) => Ok(secret.clone()),
             None => Err(Error::with_message(format!(
                 "{}{}",
-                style("key not found: ").color256(198),
+                style("key (path) not found: ").color256(198),
                 style(path).color256(190),
+            ))),
+        }
+    }
+    pub fn get_by_md5(&self, key: &str) -> Result<AES256Secret, Error> {
+        match self.data.get(key) {
+            Some(secret) => Ok(secret.clone()),
+            None => Err(Error::with_message(format!(
+                "{}{}",
+                style("key (md5) not found: ").color256(198),
+                style(key).color256(190),
             ))),
         }
     }

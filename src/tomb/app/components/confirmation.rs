@@ -49,6 +49,9 @@ impl<'a> ConfirmationDialog<'a> {
     pub fn execute(&mut self) -> Result<LoopEvent, Error> {
         Ok(Propagate)
     }
+    pub fn choice(&self) -> ConfirmationOption {
+        self.selected.clone()
+    }
     pub fn set_question(&mut self, question: Option<Vec<Spans<'a>>>) -> Result<LoopEvent, Error> {
         self.question = question;
         Ok(Propagate)
@@ -184,9 +187,20 @@ pub fn horizontal_split(size: Rect) -> (Rect, Rect) {
     (left, right)
 }
 pub fn paragraph_style() -> Style {
-    Style::default().fg(Color::Blue)
+    Style::default()
+        .fg(Color::Black)
+        .add_modifier(Modifier::BOLD)
+}
+pub fn highlight_style() -> Style {
+    Style::default()
+        .fg(Color::Red)
+        .add_modifier(Modifier::BOLD)
+        .add_modifier(Modifier::UNDERLINED)
 }
 
 pub fn block_style() -> Style {
-    Style::default().bg(Color::White).fg(Color::Black)
+    Style::default()
+        .bg(Color::White)
+        .fg(Color::Black)
+        .add_modifier(Modifier::BOLD)
 }

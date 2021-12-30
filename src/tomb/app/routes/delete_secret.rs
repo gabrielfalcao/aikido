@@ -1,21 +1,17 @@
-use super::super::components::confirmation::{paragraph_style, ConfirmationDialog};
+use super::super::components::confirmation::{
+    highlight_style, paragraph_style, ConfirmationDialog, ConfirmationOption,
+};
 
 use crate::aes256cbc::Config as AesConfig;
 use crate::aes256cbc::Key;
-
+use crate::config::YamlFile;
 use crate::ironpunk::*;
-use crate::tomb::{AES256Secret, AES256Tomb};
+use crate::tomb::{AES256Secret, AES256Tomb, DEFAULT_TOMB_PATH};
 
 use super::super::logging::log_error;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{io, marker::PhantomData};
-use tui::{
-    backend::CrosstermBackend,
-    layout::Alignment,
-    style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Paragraph},
-    Terminal,
-};
+use tui::{backend::CrosstermBackend, Terminal};
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct DeleteSecret<'a> {
@@ -25,6 +21,7 @@ pub struct DeleteSecret<'a> {
     aes_config: AesConfig,
     phantom: PhantomData<&'a Option<()>>,
     dialog: ConfirmationDialog<'a>,
+    tomb_filepath: String,
 }
 
 impl<'a> DeleteSecret<'a> {
@@ -36,6 +33,7 @@ impl<'a> DeleteSecret<'a> {
             secret_path: None,
             phantom: PhantomData,
             dialog: ConfirmationDialog::new(None),
+            tomb_filepath: String::from(DEFAULT_TOMB_PATH),
         }
     }
     pub fn get_secret(
@@ -58,6 +56,32 @@ impl<'a> DeleteSecret<'a> {
             Err(err) => {
                 log_error(format!("{}", err));
                 None
+            }
+        }
+    }
+    fn delete_secret(
+        &mut self,
+        context: SharedContext,
+        secret: AES256Secret,
+    ) -> Result<LoopEvent, Error> {
+        let path = secret.path.clone();
+        let tomb_filepath = self.tomb_filepath.clone();
+        log_error(format!("Deleting secret: {:?}", path));
+        match self.tomb.delete_secret(&path) {
+            Ok(_) => match self.tomb.export(&tomb_filepath) {
+                Ok(_) => {
+                    log_error(format!("deleted secret: {}", path));
+                    context.borrow_mut().goto("/");
+                    Ok(Propagate)
+                }
+                Err(err) => {
+                    log_error(format!("error deleting secret {}: {}", path, err));
+                    Ok(Quit)
+                }
+            },
+            Err(err) => {
+                log_error(format!("error deleting secret {}: {}", path, err));
+                Ok(Quit)
             }
         }
     }
@@ -91,15 +115,30 @@ impl Component for DeleteSecret<'_> {
     ) -> Result<LoopEvent, Error> {
         self.dialog
             .process_keyboard(event, terminal, context.clone(), router.clone())?;
+
         match event.code {
             KeyCode::Esc => {
                 context.borrow_mut().goback();
                 Ok(Propagate)
             }
-            KeyCode::Left => {
-                context.borrow_mut().goback();
-                Ok(Propagate)
-            }
+            KeyCode::Enter => match self.dialog.choice() {
+                ConfirmationOption::Yes => {
+                    log_error("YES".to_string());
+                    match self.get_secret(context.clone(), router.clone()) {
+                        Some(secret) => self.delete_secret(context.clone(), secret),
+                        None => Ok(Propagate),
+                    }
+                }
+                ConfirmationOption::No => {
+                    log_error("NO".to_string());
+                    self.dialog
+                        .set_question(Some(vec![Spans::from(vec![Span::styled(
+                            "NO",
+                            paragraph_style(),
+                        )])]))?;
+                    Ok(Propagate)
+                }
+            },
             _ => {
                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('q') {
                     return Ok(Quit);
@@ -116,26 +155,25 @@ impl Route for DeleteSecret<'_> {
         context: SharedContext,
         router: SharedRouter,
     ) -> Result<(), Error> {
-        // match self.get_secret(context.clone(), router.clone()) {
-        //     Some(secret) => {
-        //         self.dialog.set_question(Some(vec![
-        //             Spans::from(vec![Span::raw(
-        //                 "are you sure you want to delete the secret",
-        //             )]),
-        //             Spans::from(vec![Span::styled(
-        //                 secret.path.clone(),
-        //                 Style::default().fg(Color::White),
-        //             )]),
-        //             Spans::from(vec![Span::raw("?")]),
-        //         ]));
-        //     }
-        //     None => {}
-        // };
-        self.dialog
-            .set_question(Some(vec![Spans::from(vec![Span::styled(
-                "are you sure you want to delete the secret",
-                paragraph_style(),
-            )])]));
+        match self.get_secret(context.clone(), router.clone()) {
+            Some(secret) => {
+                self.dialog.set_question(Some(vec![
+                    Spans::from(vec![Span::styled(
+                        "are you sure you want to delete the secret",
+                        paragraph_style(),
+                    )]),
+                    Spans::from(vec![Span::styled(secret.path.clone(), highlight_style())]),
+                    Spans::from(vec![Span::styled("?", paragraph_style())]),
+                ]))?;
+            }
+            None => {
+                self.dialog
+                    .set_question(Some(vec![Spans::from(vec![Span::styled(
+                        "could not retrieve secret",
+                        paragraph_style(),
+                    )])]))?;
+            }
+        };
 
         terminal.draw(|parent| {
             let chunk = parent.size();
