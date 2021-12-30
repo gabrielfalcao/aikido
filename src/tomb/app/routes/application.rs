@@ -319,11 +319,11 @@ impl Component for Application<'_> {
             }
             KeyCode::Char('s') => {
                 self.set_pattern("*");
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Char('p') => {
                 self.set_pattern("passwords/*");
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Char('r') => {
                 match self.selected_secret_string() {
@@ -334,7 +334,7 @@ impl Component for Application<'_> {
                     }
                     Err(error) => return Err(error),
                 }
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Char('t') => {
                 match self.selected_secret_string() {
@@ -348,7 +348,7 @@ impl Component for Application<'_> {
                     }
                     Err(error) => return Err(error),
                 }
-                Ok(Propagate)
+                Ok(Refresh)
             }
             KeyCode::Up => {
                 self.items.previous();
