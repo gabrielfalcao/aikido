@@ -45,6 +45,14 @@ release: check fix
 	cp target/release/obfuskat3 ~/usr/bin/
 	cp target/release/tomb ~/usr/bin/
 
+debug: check fix build
+	cp target/debug/slugify-filenames ~/usr/bin/
+	cp target/debug/aes-256-cbc ~/usr/bin/
+	cp target/debug/bip39 ~/usr/bin/
+	cp target/debug/ipleak ~/usr/bin/
+	cp target/debug/obfuskat3 ~/usr/bin/
+	cp target/debug/tomb ~/usr/bin/
+
 
 fix:
 	cargo fix --allow-dirty --allow-staged
