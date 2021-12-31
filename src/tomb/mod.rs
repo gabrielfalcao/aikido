@@ -54,6 +54,8 @@ pub struct AES256Secret {
     pub digest: Digest,
     pub path: String,
     pub value: String,
+    pub notes: Option<String>,
+    pub attributes: Option<BTreeMap<String, String>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -64,12 +66,17 @@ impl AES256Secret {
             digest: key.digest(),
             path,
             value: b64encode(&value),
+            notes: None,
+            attributes: Some(BTreeMap::new()),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }
     }
     pub fn key(&self) -> String {
         path_to_md5(self.path.as_str())
+    }
+    pub fn set_notes(&mut self, notes: Option<String>) {
+        self.notes = notes;
     }
     pub fn value_bytes(&self) -> Vec<u8> {
         b64decode(&self.value.as_bytes()).unwrap()
@@ -224,7 +231,7 @@ impl AES256Tomb {
         let mut result = Vec::new();
         for (md5key, secret) in &self.data {
             let path = secret.path.clone();
-            if regex.is_match(&path) && md5key.eq(&secret.key()) {
+            if regex.is_match(&path) && (md5key.eq(&secret.key()) || md5key.eq(&path)) {
                 result.push(secret.clone());
             }
         }
