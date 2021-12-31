@@ -129,7 +129,7 @@ impl<'a> Application<'a> {
 
         let list = List::new(items)
             .block(secrets)
-            .highlight_style(Style::default().bg(Color::Magenta).fg(Color::White));
+            .highlight_style(Style::default().bg(Color::Cyan).fg(Color::White));
 
         let secret = selected_secret.clone();
         let secret_detail = Table::new(vec![Row::new(vec![
@@ -175,7 +175,7 @@ impl<'a> Application<'a> {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::Magenta))
+                .style(Style::default().fg(Color::Cyan))
                 .title("Metadata")
                 .border_type(BorderType::Plain),
         )
@@ -339,7 +339,7 @@ impl Component for Application<'_> {
                         // TODO: context.error.clear()
                         Ok(Propagate)
                     }
-                    KeyCode::Char('c') => match self.items.current() {
+                    KeyCode::Char('c') | KeyCode::Enter => match self.items.current() {
                         Some(secret) => match self.selected_secret_string() {
                             Ok(plaintext) => {
                                 let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
@@ -381,7 +381,7 @@ impl Route for Application<'_> {
         terminal.draw(|rect| {
             let (top, body, footer) = vertical_stack(rect.size());
             let (_top_left, top_right) = body_sides(top);
-
+            // let top_right = overlay_position(body);
             let (sidebar, detail) = body_sides(body);
             let location = context.borrow().location.clone();
             match self.render_secrets() {
@@ -414,7 +414,7 @@ impl Route for Application<'_> {
 
 pub fn status_paragraph<'a>(title: &'a str, content: &'a str) -> Paragraph<'a> {
     Paragraph::new(content)
-        .style(Style::default().fg(Color::LightMagenta))
+        .style(Style::default().fg(Color::LightCyan))
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -438,8 +438,16 @@ pub fn error_text<'a>(label: &'a str, title: &'a str, error: &'a str) -> Paragra
     .block(
         Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().bg(Color::Magenta).fg(Color::White))
+            .style(Style::default().bg(Color::Cyan).fg(Color::White))
             .title(label)
             .border_type(BorderType::Plain),
     )
+}
+pub fn overlay_position(size: Rect) -> Rect {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints([Constraint::Max(3), Constraint::Percentage(80)].as_ref())
+        .split(size);
+    chunks[0]
 }
