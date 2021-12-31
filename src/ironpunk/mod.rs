@@ -94,6 +94,7 @@ pub fn start(router: SharedRouter) -> Result<(), SharedError> {
                     Ok(Propagate) => continue,
                     Ok(Prevent) => break Ok(()),
                     Ok(Refresh) => {
+                        terminal.clear()?;
                         window.render(&mut terminal, context.clone(), router.clone())?;
                     }
                     Err(err) => {

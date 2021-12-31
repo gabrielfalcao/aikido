@@ -75,7 +75,7 @@ impl<'a> Component for ConfirmationDialog<'a> {
             .borders(Borders::ALL)
             .style(block_style())
             .title(format!("Delete Secret"))
-            .border_type(BorderType::Rounded);
+            .border_type(BorderType::Thick);
 
         let (top, bottom) = vertical_split(chunk);
 
@@ -97,18 +97,18 @@ impl<'a> Component for ConfirmationDialog<'a> {
             format!("Yes, delete"),
             match self.selected {
                 Yes => Style::default()
-                    .bg(Color::LightMagenta)
+                    .bg(Color::LightGreen)
                     .fg(Color::White)
                     .add_modifier(Modifier::UNDERLINED),
-                No => Style::default().bg(Color::Magenta).fg(Color::White),
+                No => Style::default().bg(Color::Green).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    Yes => Style::default().bg(Color::LightMagenta).fg(Color::White),
-                    No => Style::default().bg(Color::Magenta).fg(Color::White),
+                    Yes => Style::default().bg(Color::LightGreen).fg(Color::White),
+                    No => Style::default().bg(Color::Green).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
@@ -116,18 +116,18 @@ impl<'a> Component for ConfirmationDialog<'a> {
             format!("No, cancel"),
             match self.selected {
                 No => Style::default()
-                    .bg(Color::LightMagenta)
+                    .bg(Color::LightRed)
                     .fg(Color::White)
                     .add_modifier(Modifier::UNDERLINED),
-                Yes => Style::default().bg(Color::LightMagenta).fg(Color::White),
+                Yes => Style::default().bg(Color::Red).fg(Color::White),
             },
         ))])
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(match self.selected {
-                    No => Style::default().bg(Color::LightMagenta).fg(Color::White),
-                    Yes => Style::default().bg(Color::LightMagenta).fg(Color::White),
+                    No => Style::default().bg(Color::LightRed).fg(Color::White),
+                    Yes => Style::default().bg(Color::Red).fg(Color::White),
                 }),
         )
         .alignment(Alignment::Center);
@@ -187,20 +187,14 @@ pub fn horizontal_split(size: Rect) -> (Rect, Rect) {
     (left, right)
 }
 pub fn paragraph_style() -> Style {
-    Style::default()
-        .fg(Color::Black)
-        .add_modifier(Modifier::BOLD)
+    Style::default().fg(Color::Black)
 }
 pub fn highlight_style() -> Style {
     Style::default()
-        .fg(Color::Magenta)
-        .add_modifier(Modifier::BOLD)
+        .fg(Color::Red)
         .add_modifier(Modifier::UNDERLINED)
 }
 
 pub fn block_style() -> Style {
-    Style::default()
-        .bg(Color::White)
-        .fg(Color::Black)
-        .add_modifier(Modifier::BOLD)
+    Style::default().bg(Color::White).fg(Color::Black)
 }

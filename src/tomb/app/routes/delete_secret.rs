@@ -168,7 +168,7 @@ impl Route for DeleteSecret<'_> {
             Some(secret) => {
                 self.dialog.set_question(Some(vec![
                     Spans::from(vec![Span::styled(
-                        "are you sure you want to delete the secret",
+                        "Are you sure you want to delete the secret",
                         paragraph_style(),
                     )]),
                     Spans::from(vec![Span::styled(secret.path.clone(), highlight_style())]),
