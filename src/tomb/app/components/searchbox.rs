@@ -40,7 +40,7 @@ impl SearchBox {
         let modal = Block::default()
             .borders(Borders::ALL)
             .style(block_style())
-            .title("Search using glob patterns (<Esc> cancel <Enter> filter)")
+            .title("Search using glob patterns (<Esc> / <Enter>)")
             .border_type(BorderType::Rounded);
 
         let text = vec![Spans::from(Span::styled(

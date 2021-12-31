@@ -1,6 +1,7 @@
 /*.aes
 /*.key
 /*key*.yaml
+/.*.yaml
 /0b4sk8d*
 /plain.txt
 /target

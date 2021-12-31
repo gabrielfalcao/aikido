@@ -1,5 +1,6 @@
 pub mod app;
 pub mod logging;
+use crate::core::version;
 //pub mod ui;
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};
 use crate::{
@@ -55,6 +56,8 @@ pub struct AES256Secret {
     pub path: String,
     pub value: String,
     pub notes: Option<String>,
+    pub username: Option<String>,
+    pub url: Option<String>,
     pub attributes: Option<BTreeMap<String, String>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -67,6 +70,8 @@ impl AES256Secret {
             path,
             value: b64encode(&value),
             notes: None,
+            username: None,
+            url: None,
             attributes: Some(BTreeMap::new()),
             created_at: Utc::now(),
             updated_at: Utc::now(),
@@ -77,6 +82,12 @@ impl AES256Secret {
     }
     pub fn set_notes(&mut self, notes: Option<String>) {
         self.notes = notes;
+    }
+    pub fn set_username(&mut self, username: Option<String>) {
+        self.username = username;
+    }
+    pub fn set_url(&mut self, url: Option<String>) {
+        self.url = url;
     }
     pub fn value_bytes(&self) -> Vec<u8> {
         b64decode(&self.value.as_bytes()).unwrap()
@@ -151,6 +162,7 @@ pub struct AES256Tomb {
     pub config: AesConfig,
     pub filepath: Option<String>,
     pub data: BTreeMap<String, AES256Secret>,
+    pub version: Option<String>,
 }
 impl YamlFile<Error> for AES256Tomb {
     fn default() -> Result<AES256Tomb, Error> {
@@ -166,6 +178,7 @@ impl AES256Tomb {
             digest: key.digest(),
             data: BTreeMap::new(),
             filepath: Some(String::from(filepath)),
+            version: Some(version()),
             config,
         }
     }
