@@ -187,9 +187,9 @@ fn main() {
         eprintln!("{}", e);
     }));
 
-    let app = App::new("tomb")
+    let app = App::new("⚰Tomb")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .about("Tomb file tree")
+        .about("Password Manager")
         .subcommand(
             SubCommand::with_name("save")
                 .about("store a secret in the tomb")

@@ -71,7 +71,7 @@ impl Component for About<'_> {
             .split(chunk);
 
         let top = Paragraph::new(vec![
-            Spans::from(vec![Span::raw("Tomb - Password Manager")]),
+            Spans::from(vec![Span::raw("️⚰Tomb - Password Manager")]),
             Spans::from(vec![Span::raw(&version)]),
         ])
         .style(Style::default().fg(Color::Magenta))
