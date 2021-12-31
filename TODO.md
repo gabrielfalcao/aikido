@@ -8,15 +8,15 @@
 - [x] match routes with crate router-recognizer
 - [x] Confirmation dialog
   - [x] delete a secret
-- [ ] Store file path in AES256Tomb because it has to be capable of
+- [x] Store file path in AES256Tomb because it has to be capable of
       reloading its contents from disk.
+- [ ] add "help" route
+- [ ] fix bug in listing duplicated secrets
 - [ ] Multiline modal editor
   - [ ] edit a secret
-
 - [ ] render subroutes
 
 # aes-256-cbc
 
 - [X] "unit" tests
 - [X] load default key from config if --key-file is not specified
-- [ ] use open file instead of BufWriter
