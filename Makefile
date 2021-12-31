@@ -33,6 +33,7 @@ clean: cls
 	@rm -fr *.aes
 	@rm -fr *.yaml
 	@rm -f *.log
+	@touch {ironpunk,tomb}.log
 
 cls:
 	-@reset || tput reset
@@ -162,10 +163,10 @@ tomb-delete: build cls
 	$(TOMB_BIN) delete -k $(TOMB_KEY) -t $(TOMB_FILE) temporary-secret
 
 tomb-ui: tomb-init tomb-save
-	$(TOMB_BIN) ui -T 100 -k $(TOMB_KEY) -t $(TOMB_FILE)
+	$(TOMB_BIN) ui -T 314 -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 ui:
-	cargo run --bin tomb ui -T 250 -k $(TOMB_KEY) -t $(TOMB_FILE)
+	cargo run --bin tomb ui -T 400 -k $(TOMB_KEY) -t $(TOMB_FILE)
 
 obfuskat3: cls 0b4sk8d.yaml
 
