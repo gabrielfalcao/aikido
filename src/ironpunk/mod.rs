@@ -24,7 +24,7 @@ use std::{
 
 use tui::{backend::CrosstermBackend, Terminal};
 
-pub fn start(router: SharedRouter) -> Result<(), SharedError> {
+pub fn start(router: SharedRouter, tick_interval: u64) -> Result<(), SharedError> {
     panic::set_hook(Box::new(|e| {
         disable_raw_mode().unwrap_or(());
         reset();
@@ -44,7 +44,7 @@ pub fn start(router: SharedRouter) -> Result<(), SharedError> {
 
     console::set_colors_enabled(false);
     let (tx, rx) = mpsc::channel();
-    let tick_rate = Duration::from_millis(314);
+    let tick_rate = Duration::from_millis(tick_interval);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
         loop {

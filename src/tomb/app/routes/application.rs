@@ -1,9 +1,9 @@
+pub use super::super::components::{menu::Menu, modal::Modal, searchbox::SearchBox};
 use super::super::geometry::*;
+use super::super::log_error;
 pub use super::super::state::*;
 use crate::ioutils::log_to_file;
 use chrono::prelude::*;
-
-pub use super::super::components::{menu::Menu, modal::Modal, searchbox::SearchBox};
 
 use crate::ironpunk::*;
 
@@ -50,6 +50,7 @@ pub struct Application<'a> {
 
 impl<'a> Application<'a> {
     pub fn new(key: Key, tomb: AES256Tomb, aes_config: AesConfig) -> Application<'a> {
+        log_error(format!("tomb opened"));
         Application {
             key,
             tomb,
@@ -88,7 +89,16 @@ impl<'a> Application<'a> {
         };
     }
 
-    pub fn reset_search(&mut self) {}
+    pub fn log_visibility(&mut self) {
+        if self.visible {
+            match self.items.current() {
+                Some(secret) => {
+                    log_error(format!("Browsing visible secret: {}", secret.path));
+                }
+                None => {}
+            }
+        }
+    }
     pub fn render_secrets(&mut self) -> Result<(List<'a>, Table<'a>), Error> {
         match self.tomb.reload() {
             // load latest version from disk
@@ -235,6 +245,7 @@ impl<'a> Application<'a> {
                 self.set_text(&error);
             }
         }
+        self.log_visibility();
     }
 }
 
@@ -276,7 +287,10 @@ impl Component for Application<'_> {
                 self.menu
                     .process_keyboard(event, terminal, context.clone(), router.clone())?;
                 match code {
-                    KeyCode::Char('q') => Ok(Quit),
+                    KeyCode::Char('q') => {
+                        log_error(format!("tomb closed"));
+                        Ok(Quit)
+                    }
                     KeyCode::Char('d') => match self.items.current() {
                         Some(secret) => {
                             let path = format!("/delete/{}", secret.key());
@@ -305,9 +319,12 @@ impl Component for Application<'_> {
                                 self.reset_statusbar();
                                 self.set_visible(true);
                                 self.set_pinned(false);
+                                self.set_text(&format!("Secret: {}", plaintext));
                             }
-                            Err(error) => return Err(error),
-                        }
+                            Err(error) => {
+                                log_error(format!("cannot reveal secret: {}", error));
+                            }
+                        };
                         Ok(Refresh)
                     }
                     KeyCode::Char('t') => {
@@ -320,8 +337,12 @@ impl Component for Application<'_> {
                                     false => "Secrets hidden. (Press 't' again to toggle)",
                                 });
                             }
-                            Err(error) => return Err(error),
-                        }
+                            Err(error) => {
+                                log_error(format!("cannot toggle visibility: {}", error));
+                            }
+                        };
+                        log_error(format!("toggle visible: {:?}", self.visible));
+
                         Ok(Refresh)
                     }
                     KeyCode::Up => {
@@ -335,7 +356,6 @@ impl Component for Application<'_> {
                         Ok(Propagate)
                     }
                     KeyCode::Esc => {
-                        self.reset_search();
                         // TODO: context.error.clear()
                         Ok(Propagate)
                     }
@@ -344,7 +364,8 @@ impl Component for Application<'_> {
                             Ok(plaintext) => {
                                 let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
                                 ctx.set_contents(plaintext).unwrap();
-                                let text = format!("{} copied to clipboard", secret.path);
+                                log_error(format!("copied secret to clipboard: {:?}", secret.path));
+                                let text = format!("{:?} copied to clipboard", secret.path);
                                 self.set_text(&text);
                                 send_notification(
                                     format!("Secret {}", secret.path).as_str(),

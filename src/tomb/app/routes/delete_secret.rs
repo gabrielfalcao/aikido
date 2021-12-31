@@ -132,13 +132,9 @@ impl Component for DeleteSecret<'_> {
                 };
                 match self.dialog.choice() {
                     ConfirmationOption::Yes => {
-                        log_error("YES".to_string());
                         match self.get_secret(context.clone(), router.clone()) {
                             Some(secret) => self.delete_secret(context.clone(), secret),
-                            None => {
-                                log_error(format!("YES, but could not retrieve secret"));
-                                Ok(Propagate)
-                            }
+                            None => Ok(Propagate),
                         }
                     }
                     ConfirmationOption::No => {

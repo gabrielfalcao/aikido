@@ -18,6 +18,7 @@ pub fn start(
     tomb: AES256Tomb,
     key: Key,
     aes_config: AesConfig,
+    tick_interval: u64,
 ) -> Result<(), ironpunk::SharedError> {
     let mut router = ironpunk::SharedRouter::new();
 
@@ -41,5 +42,5 @@ pub fn start(
     );
     router.add("/:filter", app.clone());
     router.add("/", app);
-    ironpunk::start(router)
+    ironpunk::start(router, tick_interval)
 }

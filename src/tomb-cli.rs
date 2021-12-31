@@ -103,10 +103,10 @@ fn copy_command(matches: &ArgMatches) {
         Ok(plaintext) => {
             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
             ctx.set_contents(plaintext).unwrap();
-            eprintln!("{} secret copied to clipboard", path);
+            eprintln!("{} secret copied to clipboard 🎉", path);
             send_notification(
                 format!("{} secret", path).as_str(),
-                &Some("copied to clipboard!"),
+                &Some("copied to clipboard 🎉"),
                 "",
                 &Some(sound),
             )
@@ -172,8 +172,18 @@ fn ui_command(matches: &ArgMatches) {
     };
 
     let aes_config = AesConfig::default().unwrap_or(AesConfig::builtin(None));
-
-    match app::start(tomb, key, aes_config) {
+    let tick_interval = matches.value_of("tick_interval").unwrap_or("314");
+    let tick_interval = match tick_interval.parse::<u64>() {
+        Ok(tick_interval) => tick_interval,
+        Err(err) => {
+            logger::err::error(format!(
+                "tick interval is not a valid number {:?}: {}",
+                tick_interval, err
+            ));
+            std::process::exit(1);
+        }
+    };
+    match app::start(tomb, key, aes_config, tick_interval) {
         Ok(()) => {}
         Err(error) => {
             eprintln!("{}", error);
@@ -258,6 +268,15 @@ fn main() {
                         .short("k")
                         .default_value("~/.tomb.key")
                         .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("tick_interval")
+                        .long("--tick-interval")
+                        .help("the duration of each internal tick in milliseconds")
+                        .short("T")
+                        .default_value("314")
+                        .required(false)
                         .takes_value(true),
                 )
                 .arg(

@@ -1,8 +1,7 @@
 pub mod app;
 pub mod logging;
-use crate::core::version;
-//pub mod ui;
 use crate::aes256cbc::{Config as AesConfig, Digest, Key};
+use crate::core::version;
 use crate::{
     config::{YamlFile, YamlFileError},
     ioutils::{b64decode, b64encode},
@@ -83,11 +82,23 @@ impl AES256Secret {
     pub fn set_notes(&mut self, notes: Option<String>) {
         self.notes = notes;
     }
+    pub fn with_notes(&mut self, notes: Option<String>) -> AES256Secret {
+        self.set_notes(notes);
+        self.clone()
+    }
     pub fn set_username(&mut self, username: Option<String>) {
         self.username = username;
     }
+    pub fn with_username(&mut self, username: Option<String>) -> AES256Secret {
+        self.set_username(username);
+        self.clone()
+    }
     pub fn set_url(&mut self, url: Option<String>) {
         self.url = url;
+    }
+    pub fn with_url(&mut self, url: Option<String>) -> AES256Secret {
+        self.set_url(url);
+        self.clone()
     }
     pub fn value_bytes(&self) -> Vec<u8> {
         b64decode(&self.value.as_bytes()).unwrap()
@@ -211,7 +222,10 @@ impl AES256Tomb {
     }
     pub fn reload(&mut self) -> Result<(), Error> {
         let filepath = match self.filepath.clone() {
-            Some(filepath) => filepath,
+            Some(filepath) => {
+                // log_error(format!("tomb reloaded: {}", filepath));
+                filepath
+            }
             None => {
                 log_error(format!("attempt to reload tomb that does not have a filepath, falling back to DEFAULT_TOMB_PATH: {}", DEFAULT_TOMB_PATH));
                 String::from(DEFAULT_TOMB_PATH)
