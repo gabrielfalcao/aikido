@@ -22,16 +22,17 @@ SLUGIFY_FILENAMES_RELEASE_BIN	:=target/release/slugify-filenames
 SLUGIFY_FILENAMES_BIN		:=$(SLUGIFY_FILENAMES_DEBUG_BIN)
 PASSWORD			:="I X@X@ Nickelback <3"
 PLAINTEXT			:="Hello World"
-TOMB_KEY			:= ~/.test-tomb-key.yaml
-TOMB_FILE			:= ~/.test-tomb-file.yaml
+TOMB_KEY			:= .test-tomb-key.yaml
+TOMB_FILE			:= .test-tomb-file.yaml
 
 all: fix release
 
 clean: cls
+	@rm -f $(TOMB_FILE) $(TOMB_KEY)
 	@rm -fr 0b4sk8d
 	@rm -fr *.aes
 	@rm -fr *.yaml
-	@echo rm -f *.log | echo
+	@rm -f *.log
 
 cls:
 	-@reset || tput reset
