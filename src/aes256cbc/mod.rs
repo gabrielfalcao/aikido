@@ -45,7 +45,8 @@ use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
 use crypto::sha2::Sha256;
-use crypto::{aes, blockmodes, buffer, pbkdf2};
+use crypto::symmetriccipher::Encryptor;
+use crypto::{aes, aessafe, blockmodes, buffer, pbkdf2};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use shellexpand;
@@ -56,7 +57,7 @@ use std::{fmt, fs::File};
 const ALGO: &'static str = "aes-256-cbc";
 const DIGEST_SIZE: usize = 32;
 ///The path used by `Config::default()`
-pub const DEFAULT_CONFIG_PATH: &'static str = "~/.rustic-toolz.yaml";
+pub const DEFAULT_CONFIG_PATH: &'static str = "~/.toolz.yaml";
 pub const DEFAULT_KEY_PATH: &'static str = "~/.rustic-toolz.key";
 
 ///The builtin number of cycles for a key derivation
@@ -66,8 +67,13 @@ const SALT_CYCLES: u32 = 1000;
 ///The builtin number of cycles for a ivv derivation
 const IV_CYCLES: u32 = 1000;
 
-const KEY_SIZE: usize = 256;
-const IV_SIZE: usize = 16;
+const KEY_SIZE: usize = 128;
+const KEY_LOWER_BOUND_SLICE_0 :usize = 0;
+const KEY_UPPER_BOUND_SLICE_0 :usize = 31;
+const KEY_LOWER_BOUND_SLICE_1 :usize = 32;
+const KEY_UPPER_BOUND_SLICE_1 :usize = 63;
+
+const IV_SIZE: usize = 32;
 const BUF_SIZE: usize = 4096;
 
 pub type Digest = [u8; DIGEST_SIZE];
@@ -87,6 +93,16 @@ impl YamlFileError for Error {
             message: logger::paint::error(format!("{}", message)),
         }
     }
+}
+
+pub fn cbc_encryptor<X: blockmodes::PaddingProcessor + Send + 'static>(
+    key: &[u8],
+    iv: &[u8],
+    padding: X,
+) -> Box<dyn Encryptor + 'static> {
+    let aes_enc = aessafe::AesSafe256Encryptor::new(key);
+    let enc = Box::new(blockmodes::CbcEncryptor::new(aes_enc, padding, iv.to_vec()));
+    enc
 }
 
 pub fn bytes_match(a: &[u8], b: &[u8]) -> bool {
@@ -151,7 +167,10 @@ impl CyclesConfig {
         }
     }
 }
-
+pub fn get_default_config_path() -> String {
+    let value = shellexpand::tilde(DEFAULT_CONFIG_PATH);
+    value.to_string()
+}
 /// The configuration for the Key.
 ///
 /// It contains the cycles for key, salt and iv used in key derivation.
@@ -163,7 +182,7 @@ pub struct Config {
 
 impl YamlFile<Error> for Config {
     fn default() -> Result<Config, Error> {
-        let filename = shellexpand::tilde(DEFAULT_CONFIG_PATH);
+        let filename = get_default_config_path();
         Config::import(filename.borrow())
     }
 }
@@ -238,8 +257,8 @@ impl Key {
         //let salt = generate_iv();
         let key_material = config.derive_key(password, &salt);
 
-        let enc_key = &key_material[0..127];
-        let mac_key = &key_material[128..255];
+        let enc_key = &key_material[KEY_LOWER_BOUND_SLICE_0..KEY_UPPER_BOUND_SLICE_0];
+        let mac_key = &key_material[KEY_LOWER_BOUND_SLICE_1..KEY_UPPER_BOUND_SLICE_1];
 
         Key {
             key: b64encode(&enc_key),
@@ -253,8 +272,8 @@ impl Key {
     pub fn generate() -> Key {
         let iv = generate_iv();
         let key_material = generate_key();
-        let enc_key = &key_material[0..127];
-        let mac_key = &key_material[128..255];
+        let enc_key = &key_material[KEY_LOWER_BOUND_SLICE_0..KEY_UPPER_BOUND_SLICE_0];
+        let mac_key = &key_material[KEY_LOWER_BOUND_SLICE_1..KEY_UPPER_BOUND_SLICE_1];
 
         Key {
             key: b64encode(&enc_key),
@@ -319,12 +338,7 @@ impl Key {
         // type available for the platform.
         let enc_key = self.key_bytes().unwrap();
         let iv = self.iv_bytes().unwrap();
-        let mut encryptor = aes::cbc_encryptor(
-            aes::KeySize::KeySize256,
-            &enc_key,
-            &iv,
-            blockmodes::PkcsPadding,
-        );
+        let mut encryptor = cbc_encryptor(&enc_key, &iv, blockmodes::PkcsPadding);
 
         // Each encryption operation encrypts some data from
         // an input buffer into an output buffer. Those buffers

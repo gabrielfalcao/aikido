@@ -4,8 +4,8 @@ use std::io::Write;
 use std::{fs::File, panic};
 use toolz::ioutils::{b64encode, create_file};
 
-use toolz::aes256cbc::Config;
 use toolz::aes256cbc::Key;
+use toolz::aes256cbc::{get_default_config_path, Config};
 use toolz::config::YamlFile;
 use toolz::{colors, core, ioutils::read_bytes, logger};
 
@@ -265,10 +265,11 @@ fn main() {
     panic::set_hook(Box::new(|e| {
         eprintln!("PANIC: {:?}", e);
     }));
-    let config = Config::default().expect("cannot read default config: ~/.toolz.yaml");
+    let config = Config::default().unwrap_or(Config::builtin(Some(get_default_config_path())));
     let key_cycles = config.cycles.key.to_string();
     let salt_cycles = config.cycles.salt.to_string();
     let iv_cycles = config.cycles.iv.to_string();
+
     let author = core::author();
     let version = core::version();
     let app = App::new("aes256")
