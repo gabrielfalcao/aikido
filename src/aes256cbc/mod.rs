@@ -67,11 +67,7 @@ const SALT_CYCLES: u32 = 1000;
 ///The builtin number of cycles for a ivv derivation
 const IV_CYCLES: u32 = 1000;
 
-const KEY_SIZE: usize = 128;
-const KEY_LOWER_BOUND_SLICE_0 :usize = 0;
-const KEY_UPPER_BOUND_SLICE_0 :usize = 31;
-const KEY_LOWER_BOUND_SLICE_1 :usize = 32;
-const KEY_UPPER_BOUND_SLICE_1 :usize = 63;
+const KEY_SIZE: usize = 32;
 
 const IV_SIZE: usize = 32;
 const BUF_SIZE: usize = 4096;
@@ -134,6 +130,13 @@ pub fn hmac_256_digest(mac_key: &[u8], iv: &[u8]) -> Result<Digest, Error> {
 pub fn generate_key() -> [u8; KEY_SIZE] {
     let mut rng = rand::thread_rng();
     let mut key: [u8; KEY_SIZE] = [0; KEY_SIZE];
+    rng.fill_bytes(&mut key);
+    key
+}
+/// Generates a random MAC;
+pub fn generate_mac() -> [u8; DIGEST_SIZE] {
+    let mut rng = rand::thread_rng();
+    let mut key: [u8; DIGEST_SIZE] = [0; DIGEST_SIZE];
     rng.fill_bytes(&mut key);
     key
 }
@@ -221,6 +224,12 @@ impl Config {
         pbkdf2::pbkdf2(&mut mac, &salt, self.key_cycles(), &mut dk);
         dk
     }
+    pub fn derive_digest<'a>(&self, password: &[u8], salt: &[u8]) -> [u8; DIGEST_SIZE] {
+        let mut dk = [0u8; DIGEST_SIZE]; // derived mac
+        let mut mac = Hmac::new(Sha256::new(), password);
+        pbkdf2::pbkdf2(&mut mac, &salt, self.key_cycles(), &mut dk);
+        dk
+    }
     pub fn derive_salt<'a>(&self, password: &[u8]) -> [u8; KEY_SIZE] {
         let mut dk = [0u8; KEY_SIZE]; // derived key
         let mut mac = Hmac::new(Sha256::new(), password);
@@ -255,10 +264,8 @@ impl Key {
         let iv = config.derive_iv(password);
         let salt = config.derive_salt(password);
         //let salt = generate_iv();
-        let key_material = config.derive_key(password, &salt);
-
-        let enc_key = &key_material[KEY_LOWER_BOUND_SLICE_0..KEY_UPPER_BOUND_SLICE_0];
-        let mac_key = &key_material[KEY_LOWER_BOUND_SLICE_1..KEY_UPPER_BOUND_SLICE_1];
+        let enc_key = config.derive_key(password, &salt);
+        let mac_key = config.derive_digest(password, &salt);
 
         Key {
             key: b64encode(&enc_key),
@@ -271,9 +278,8 @@ impl Key {
     /// Generate a new key
     pub fn generate() -> Key {
         let iv = generate_iv();
-        let key_material = generate_key();
-        let enc_key = &key_material[KEY_LOWER_BOUND_SLICE_0..KEY_UPPER_BOUND_SLICE_0];
-        let mac_key = &key_material[KEY_LOWER_BOUND_SLICE_1..KEY_UPPER_BOUND_SLICE_1];
+        let enc_key = generate_key();
+        let mac_key = generate_mac();
 
         Key {
             key: b64encode(&enc_key),
