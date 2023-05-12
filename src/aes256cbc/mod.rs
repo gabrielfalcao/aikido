@@ -68,7 +68,6 @@ const SALT_CYCLES: u32 = 1000;
 const IV_CYCLES: u32 = 1000;
 
 const KEY_SIZE: usize = 32;
-
 const IV_SIZE: usize = 32;
 const BUF_SIZE: usize = 4096;
 

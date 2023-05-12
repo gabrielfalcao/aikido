@@ -24,7 +24,7 @@ PASSWORD			:="I X@X@ Nickelback <3"
 PLAINTEXT			:="Hello World"
 TOMB_KEY			:= .test-tomb-key.yaml
 TOMB_FILE			:= .test-tomb-file.yaml
-
+export RUSTFLAGS		:= -Ctarget-feature=+aes,+ssse3
 all: fix release
 
 clean: cls
@@ -39,7 +39,7 @@ cls:
 	-@reset || tput reset
 
 release: check fix
-	@cargo build --release
+	cargo build --cfg aes_armv8 --release
 	cp target/release/slugify-filenames ~/usr/bin/
 	cp target/release/aes-256-cbc ~/usr/bin/
 	cp target/release/bip39 ~/usr/bin/
@@ -81,7 +81,7 @@ test-aes-256: aes-256-key aes-256-password
 test-obfuskat3: clean tmp build obfuskat3 unobfuskat3
 
 build: check
-	cargo build
+	cargo build --cfg aes_armv8
 
 check:
 	cargo check --all-targets

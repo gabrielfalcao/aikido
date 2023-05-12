@@ -2,7 +2,7 @@ extern crate clap;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
-use mac_notification_sys::*;
+//use mac_notification_sys::*;
 //use console::style;
 use std::panic;
 use toolz::{
@@ -96,7 +96,7 @@ fn get_command(matches: &ArgMatches) {
 }
 fn copy_command(matches: &ArgMatches) {
     let path = matches.value_of("path").expect("missing key path");
-    let sound = matches.value_of("sound").unwrap_or("Glass");
+    let _sound = matches.value_of("sound").unwrap_or("Glass");
     let key = load_key(matches);
     let tomb = load_tomb(matches);
     match tomb.get_string(path, key) {
@@ -104,13 +104,6 @@ fn copy_command(matches: &ArgMatches) {
             let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
             ctx.set_contents(plaintext).unwrap();
             eprintln!("{} secret copied to clipboard 🎉", path);
-            send_notification(
-                format!("{} secret", path).as_str(),
-                &Some("copied to clipboard 🎉"),
-                "",
-                &Some(sound),
-            )
-            .unwrap();
         }
         Err(err) => {
             eprintln!("{}", err);

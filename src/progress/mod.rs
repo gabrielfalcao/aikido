@@ -6,6 +6,7 @@ pub fn template_bar<'a>(size: u64, template: &'a str) -> ProgressBar {
     progress_bar.set_style(
         ProgressStyle::default_bar()
             .template(style(template).color256(199).to_string().as_str())
+            .expect("set template")
             .progress_chars("█▉▊▋▌▍▎▏  "),
     );
     progress_bar

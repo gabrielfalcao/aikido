@@ -13,7 +13,7 @@ use crate::aes256cbc::{Config as AesConfig, Key};
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use crossterm::event::{KeyCode, KeyEvent};
-use mac_notification_sys::*;
+
 use std::{io, marker::PhantomData};
 use tui::{
     backend::CrosstermBackend,
@@ -367,13 +367,6 @@ impl Component for Application<'_> {
                                 log_error(format!("copied secret to clipboard: {:?}", secret.path));
                                 let text = format!("{:?} copied to clipboard", secret.path);
                                 self.set_text(&text);
-                                send_notification(
-                                    format!("Secret {}", secret.path).as_str(),
-                                    &Some("copied to clipboard"),
-                                    "",
-                                    &Some("Glass"),
-                                )
-                                .unwrap();
                                 Ok(Propagate)
                             }
                             Err(error) => {
