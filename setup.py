@@ -87,7 +87,7 @@ if __name__ == '__main__':
     setup(
         name="aikido",
         version=read_version(),
-        description="set of tools for the self-defense of MacOS users",
+        description="Aikido is a set of tools for the self-defense of MacOS users",
         long_description=local_file('README.rst'),
         long_description_content_type="text/x-rst",
         author='Gabriel Falcao',

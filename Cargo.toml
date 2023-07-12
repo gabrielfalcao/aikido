@@ -3,7 +3,10 @@ name = "aikido"
 version = "0.0.1"
 edition = "2021"
 authors = ["Gabriel Falcão <gabriel@nacaolivre.org>"]
-
+description = "Aikido is a set of tools for the self-defense of MacOS users"
+license-file = "COPYING"
+license = "GPL-3.0-or-later"
+documentation = "https://docs.rs/aikido"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
