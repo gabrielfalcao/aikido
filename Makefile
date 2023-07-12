@@ -72,7 +72,7 @@ run: | $(PYTHON_CLI_PATH)
 	@$(PYTHON_CLI_PATH) --help
 
 # Pushes release of this package to pypi
-push-release:  # pushes distribution tarballs of the current version
+push-release: build-release  # pushes distribution tarballs of the current version
 	$(VENV)/bin/twine upload dist/*.tar.gz
 
 # Prepares release of this package prior to pushing to pypi
@@ -81,16 +81,13 @@ build:
 	cargo build
 
 # Prepares release of this package prior to pushing to pypi
-build-release: clean
+build-release: clean tests
 	cargo build --release
 	$(VENV)/bin/python setup.py build sdist
 	$(VENV)/bin/twine check dist/*.tar.gz
-	$(VENV)/bin/python setup.py build sdist
 
 # Convenience target that runs all tests then builds and pushes a release to pypi
-release: tests
-	$(MAKE) build-release
-	$(MAKE) push-release
+release: build-release push-release
 
 # Convenience target to delete the virtualenv
 purge:

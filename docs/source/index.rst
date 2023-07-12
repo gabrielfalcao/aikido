@@ -3,7 +3,7 @@
 Welcome to Aikido's documentation!
 ----------------------------------
 
-Aikido is a set of tools for the self-defense of MacOS user...
+Aikido is a multi-language set of tools for the self-defense of MacOS users
 
 .. toctree::
    :maxdepth: 2

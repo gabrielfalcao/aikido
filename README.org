@@ -1,0 +1,12 @@
+* AIKIDO
+
+** Intro
+
+Aikido is a multi-language set of tools for the self-defense of MacOS users
+
+** Installing
+
+#+begin_src bash
+brew tap gabrielfalcao/aikido
+brew install gabrielfalcao/aikido
+#+end_src

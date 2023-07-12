@@ -1,0 +1,5 @@
+include requirements.txt
+include COPYING
+include Cargo.toml
+include README.org
+recursive-include docs tests *.py *.rst

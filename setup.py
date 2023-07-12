@@ -31,7 +31,6 @@ from setuptools import setup, find_packages
 
 
 class VersionFinder(ast.NodeVisitor):
-
     def __init__(self):
         self.version = None
 
@@ -43,12 +42,12 @@ class VersionFinder(ast.NodeVisitor):
 def read_version():
     """Read version from aikido/version.py without loading any files"""
     finder = VersionFinder()
-    finder.visit(ast.parse(local_file('aikido', 'version.py')))
+    finder.visit(ast.parse(local_file('src', 'version.py')))
     return finder.version
 
 
-def parse_requirements(path):
-    """Rudimentary parser for the `requirements.txt` file
+def parse_requirements(path: str):
+    """Rudimentary parser for a `requirements.txt` file
 
     We just want to separate regular packages from links to pass them to the
     `install_requires` and `dependency_links` params of the `setup()`
@@ -57,7 +56,7 @@ def parse_requirements(path):
     try:
         requirements = map(str.strip, local_file(path).splitlines())
     except IOError:
-        raise RuntimeError("Couldn't find the `requirements.txt' file :(")
+        raise RuntimeError(f"Couldn't find the `{path}' file :(")
 
     links = []
     pkgs = []
