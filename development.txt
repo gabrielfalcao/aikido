@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest==7.4.0
 pip==23.1.2
+twine==4.0.2

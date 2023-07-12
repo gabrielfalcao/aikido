@@ -73,6 +73,7 @@ run: | $(PYTHON_CLI_PATH)
 
 # Pushes release of this package to pypi
 push-release: build-release  # pushes distribution tarballs of the current version
+	cargo publish
 	$(VENV)/bin/twine upload dist/*.tar.gz
 
 # Prepares release of this package prior to pushing to pypi
