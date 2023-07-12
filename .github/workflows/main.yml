@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  cargo_build:
+    name: Cargo Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build release
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+  cargo_test:
+    name: Cargo Test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build release
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  python_build:
+    name: Python Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build release
+        uses: gabrielfalcao/pyenv@v15
+        with:
+          default: 3.8.17
+          command: |
+            pip install -U pip
+            python setup.py build
+
+  python_test:
+    name: Python Test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build release
+        uses: gabrielfalcao/pyenv@v15
+        with:
+          default: 3.8.17
+          command: |
+            pip install -U pip
+            pip install -r development.txt
+            pip install -e .
