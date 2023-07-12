@@ -73,8 +73,8 @@ run: | $(PYTHON_CLI_PATH)
 
 # Pushes release of this package to pypi
 push-release: build-release  # pushes distribution tarballs of the current version
-	cargo publish
 	$(VENV)/bin/twine upload dist/*.tar.gz
+	cargo publish
 
 # Prepares release of this package prior to pushing to pypi
 build:
@@ -83,9 +83,9 @@ build:
 
 # Prepares release of this package prior to pushing to pypi
 build-release: clean tests
-	cargo build --release
 	$(VENV)/bin/python setup.py build sdist
 	$(VENV)/bin/twine check dist/*.tar.gz
+	cargo build --release
 
 # Convenience target that runs all tests then builds and pushes a release to pypi
 release: build-release push-release
