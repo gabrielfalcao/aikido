@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: build release
-        uses: gabrielfalcao/pyenv@v15
+        uses: gabrielfalcao/pyenv-action@v15
         with:
           default: 3.8.17
           command: |
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: build release
-        uses: gabrielfalcao/pyenv@v15
+        uses: gabrielfalcao/pyenv-action@v15
         with:
           default: 3.8.17
           command: |
