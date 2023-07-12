@@ -9,7 +9,7 @@
 project = 'Aikido'
 copyright = '2023, Gabriel Falcão'
 author = 'Gabriel Falcão'
-release = '0.0.1'
+release = '0.0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
