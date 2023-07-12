@@ -1,0 +1,276 @@
+#!/usr/bin/env python
+# Copyright (c) Gabriel Falcão <gabrielteratos@gmail.com>
+import warnings
+
+warnings.filterwarnings(action="ignore", category=DeprecationWarning)
+
+import os
+import re
+import sys
+import tempfile
+import time
+import math
+from datetime import datetime
+from collections import OrderedDict
+from pathlib import Path
+from pprint import pprint
+from random import choice
+from subprocess import getoutput
+from typing import List
+
+import click
+
+
+def is_hex(string):
+    return re.search(r"[#]?[a-fA-F0-9]{6}", string.strip()) is not None
+
+
+strip_ansi_regex = re.compile(r"\033\[[][0-9;]+m")
+
+
+def strip_ansi(val) -> str:
+    return strip_ansi_regex.sub("", val)
+
+
+home_path = Path("~/").expanduser().absolute()
+DEFAULT_SSID = "Verizon_VDL6HZ"
+DEFAULT_IFACE = "en0"
+DEFAULT_TIMEOUT = 54
+DEFAULT_DNS_SEARCH_DOMAINS = [
+    "one.one",
+]
+DEFAULT_DNS_LIST = [
+    "8.8.4.4",
+    "8.8.8.8",
+    "1.1.1.1",
+]
+
+
+def color(msg, real_color=33):
+    return f"\033[1;38;5;{real_color}m{msg}\033[0m"
+
+
+def run(cmd, show_cmd=True, real_color=33):
+    show_cmd and sys.stderr.write(f"{color(cmd, real_color)}\r\n")
+    return getoutput(strip_ansi(cmd)).strip()
+
+
+def stderr(out, show_output=False):
+    if show_output and out.strip():
+        show_output and sys.stdout.write(f"{out}")
+
+
+def sudo(cmd, show_cmd=True, show_output=False, real_color=124, **kw):
+    out = run(f"sudo {strip_ansi(cmd)}", show_cmd=show_cmd, **kw).strip()
+    stderr(
+        f"{color('sudo', 208)} {color(cmd, real_color)}\r\n", show_output=show_output
+    )
+
+    return out
+
+
+def load_password(name):
+    path = home_path.joinpath(f".p455w0rten/.{name}")
+    if path.exists():
+        with path.open() as fd:
+            return fd.read().strip()
+    else:
+        raise RuntimeError(f"path does not exist: \033[1;31m{path}\033[0m")
+
+
+def is_wifi_off(
+    iface: str,
+    ssid: str,
+    password: str,
+    verbose=False,
+    output=False,
+    dns_list: List[str] = DEFAULT_DNS_LIST,
+    dns_search_domains: List[str] = DEFAULT_DNS_SEARCH_DOMAINS,
+):
+    return (
+        "wi-fi power is currently of"
+        in run(
+            f"networksetup -getairportnetwork {iface}",
+            show_cmd=False,
+        ).lower()
+    )
+
+
+def is_wifi_disconnected(
+    iface: str,
+    ssid: str,
+    password: str,
+    verbose=False,
+    output=False,
+    dns_list: List[str] = DEFAULT_DNS_LIST,
+    dns_search_domains: List[str] = DEFAULT_DNS_SEARCH_DOMAINS,
+):
+    stdout = run(
+        f"networksetup -getairportnetwork {iface}",
+        show_cmd=False
+    ).lower()
+    yepnope = "you are not associated with an airport network" in stdout
+    return yepnope
+
+
+def create_tmp_resolv_conf(
+    iface: str,
+    ssid: str,
+    password: str,
+    verbose=False,
+    output=False,
+    dns_list: List[str] = DEFAULT_DNS_LIST,
+    dns_search_domains: List[str] = DEFAULT_DNS_SEARCH_DOMAINS,
+):
+    dns_servers = " ".join(dns_list)
+    stderr(
+        f'{color("# generating temporary resolv.conf at", 124)} {color(dns_servers, 231)}\r\n',
+        show_output=output,
+    )
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write("\n".join(map(lambda domain: f"search {domain}", dns_search_domains)).encode("ascii"))
+        file.write(b"\n")
+        file.write(dns_servers.replace(" ", "\n").encode("ascii"))
+        file.write(b"\n")
+        return Path(file.name)
+
+
+def connect_wifi(
+    iface: str,
+    ssid: str,
+    password: str,
+    verbose=False,
+    output=False,
+    dns_list: List[str] = DEFAULT_DNS_LIST,
+    dns_search_domains: List[str] = DEFAULT_DNS_SEARCH_DOMAINS,
+):
+    kwargs = locals()
+    dns_servers = " ".join(dns_list)
+    password = load_password(f"{ssid}")
+    if is_wifi_off(**kwargs):
+        stderr(
+            f'{color("# Enabling Wi-Fi on interface", 124)} {color(iface, 231)}',
+            show_output=output,
+        )
+        sudo(
+            f"networksetup -setairportpower {iface} on",
+            show_output=output,
+            show_cmd=verbose,
+        )
+
+    if is_wifi_disconnected(**kwargs):
+        sudo(
+            f'networksetup -setairportnetwork {iface} {ssid} "{password}"',
+            show_output=output,
+            show_cmd=verbose,
+        )
+    for x in range(math.ceil(DEFAULT_TIMEOUT * math.pi)):
+        if is_wifi_disconnected(**kwargs):
+            time.sleep(0.1)
+            stderr(f"{color('.', 45)}", show_output=True)
+            break
+    if is_wifi_disconnected(**kwargs):
+        stderr(
+            f"\r\n{color('Error:', 154)} Wi-Fi did not connect within the given timeout\r\n",
+            show_output=show_output,
+        )
+
+    now = datetime.now().strftime("%Y-%m-%dT%H%M%S")
+    new_resolv_conf = create_tmp_resolv_conf(**kwargs)
+    sudo(
+        f"cp /etc/resolv.conf /etc/resolv.conf.{now}.yfibackup",
+        show_output=output,
+        show_cmd=verbose,
+    )
+    sudo(
+        f"mv {new_resolv_conf} /etc/resolv.conf",
+        show_output=output,
+        show_cmd=verbose,
+    )
+    sudo(
+        f"sudo networksetup -setdnsservers Wi-Fi {dns_servers}",
+        show_output=output,
+        show_cmd=verbose,
+    )
+    sudo(
+        f"dscacheutil -flushcache",
+        show_output=output,
+        show_cmd=verbose,
+    )
+    sudo(
+        "pkill mds_stores mdsync",
+        show_output=output,
+        show_cmd=verbose,
+    )
+
+
+def disconnect_wifi(
+    iface: str,
+    ssid: str,
+    password: str,
+    verbose=False,
+    output=False,
+    dns_list: List[str] = DEFAULT_DNS_LIST,
+    dns_search_domains: List[str] = DEFAULT_DNS_SEARCH_DOMAINS,
+):
+    sudo(
+        f"networksetup -setairportpower {iface} off",
+        show_output=output,
+        show_cmd=verbose,
+    )
+
+
+@click.command()
+@click.option("-c", "--connect", is_flag=True)
+@click.option("-o", "--output", is_flag=True)
+@click.option("-v", "--verbose", is_flag=True)
+@click.option("-i", "--interface", default="en0")
+@click.option("-d", "--disconnect", is_flag=True)
+@click.option("-S", "--dns-search-domains", multiple=True, default=DEFAULT_DNS_SEARCH_DOMAINS)
+@click.option("-s", "--dns-servers", multiple=True, default=DEFAULT_DNS_LIST)
+@click.option(
+    "-a",
+    "--authentication",
+    default=None,
+    help="colon-separated tuple of ssid:password",
+)
+def main(
+    verbose,
+    interface,
+    connect,
+    authentication,
+    disconnect,
+    output,
+    dns_servers,
+    dns_search_domains,
+):
+    if authentication:
+        ssid, password = authentication.split(":", 1)
+    else:
+        ssid, password = (DEFAULT_SSID, load_password(DEFAULT_SSID))
+
+    disconnect and disconnect_wifi(
+        interface,
+        ssid=ssid,
+        password=password,
+        verbose=verbose,
+        output=output,
+        dns_list=dns_servers,
+        dns_search_domains=dns_search_domains,
+    )
+    connect and connect_wifi(
+        interface,
+        ssid=ssid,
+        password=password,
+        verbose=verbose,
+        output=output,
+        dns_list=dns_servers,
+        dns_search_domains=dns_search_domains,
+    )
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        raise SystemExit(2)
