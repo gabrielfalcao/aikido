@@ -35,7 +35,7 @@ class VersionFinder(ast.NodeVisitor):
         self.version = None
 
     def visit_Assign(self, node):
-        if node.targets[0].id == '__version__':
+        if node.targets[0].id == 'version':
             self.version = node.value.s
 
 
@@ -85,7 +85,7 @@ install_requires, dependency_links = \
 
 if __name__ == '__main__':
     setup(
-        name="aikido",
+        name="ki-aikido",
         version=read_version(),
         description="Aikido is a set of tools for the self-defense of MacOS users",
         long_description=local_file('README.rst'),
