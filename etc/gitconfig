@@ -1,0 +1,41 @@
+[core]
+	editor = emacsclient
+	excludesfile = /path/to/.gitignoreglobal
+[user]
+	name = # retrieve from gpg --list-secret-keys
+	email = # retrieve from gpg --list-secret-keys
+	signingkey = # retrieve from gpg --list-secret-keys
+[color]
+	ui = true
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+	s = !git status .
+	t = !git status .
+        local-remote = !git-local-remote
+        ss = !git-ss
+        cm = !git-commit-dated
+        ps = !git-push --mirror
+        takeout = !git-takeout
+
+[init]
+	defaultBranch = clade
+[push]
+	autoSetupRemote = true
+
+#   ___          ___  ___
+#  / __|_ _ _  _| _ \/ __|
+# | (_ | ' \ || |  _/ (_ |
+#  \___|_||_\_,_|_|  \___|
+[commit]
+	gpgsign = true
+[log]
+	showSignature = true
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

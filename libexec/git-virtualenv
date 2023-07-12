@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# getopts examples:
+# ~~~~~~~~~~~~~~~~
+#
+# "a:bc::d"
+#
+# - "a" has a required argument
+# - "b" has no argument
+# - "c" has an optional
+# - "d" has a required argument.
+
+# The options string "aaa,bbb::,ccc:,ddd"
+# means that there are four options:
+#
+# 1. "aaa" - has no argument
+# 2. "bbb" - has an optional argument
+# 3. "ccc" - has a required argument
+# 4. "ddd" - has no argument.
+
+declare basedir=${PWD}
+
+declare -r uri="${@}"
+
+
+while getopts "p,w,3,dw:" arg; do
+  case ${arg} in
+    p)
+        basedir="$HOME/projects/personal"
+      ;;
+    w)
+        basedir="$HOME/projects/work"
+      ;;
+    3)
+        basedir="$HOME/projects/3rdparty"
+      ;;
+  esac
+done
+
+
+declare -a gitclone=('git' 'clone')
+
+declare -r curdir=$(pwd)
+declare -r filter1=${uri##*/}
+declare -r filter2=${filter1%%.git}
+
+reponame=${filter2}
+
+gitclone+=("${uri}")
+gitclone+=("$(slugify-string $reponame)")
+
+set -e
+echo ${gitclone[@]}

@@ -1,0 +1,128 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+import os
+import io
+import re
+import shutil
+import tempfile
+
+import couleur
+import requests
+
+from zipfile import ZipFile
+from fnmatch import fnmatch
+
+from flkwnlib.core import slugify_string
+from flkwnlib.shellscripter import script
+from flkwnlib.shellscripter import terminal
+
+
+
+def parse_github_url(url):
+    found = re.search(r'github.com/(?P<full_name>(?P<owner>[^/]+)[/](?P<name>[^/]+))', url)
+    if not found:
+        return {}
+
+    return found.groupdict()
+
+def request_get_stream(url, tries=3):
+    count = 0
+    for _ in range(tries):
+        try:
+            response = requests.get(url, stream=True)
+            size = int(response.headers['Content-Length'])
+            return response, size
+        except Exception:
+            count += 1
+            if count == tries:
+                raise
+
+
+def download_zipfile(url):
+    temp_name = os.path.join(tempfile.gettempdir(), slugify_string(url, '_'))
+    response, response_size = request_get_stream(url)
+    chunk_size = response_size % 1024 or 1024
+
+    if os.path.isfile(temp_name):
+        if os.stat(temp_name).st_size < response_size:
+            os.unlink(temp_name)
+
+    with io.open(temp_name, 'wb') as temp_fp:
+        for chunk in response.iter_content(chunk_size=chunk_size, decode_unicode=False):
+            temp_fp.write(chunk)
+
+
+    return ZipFile(temp_name)
+
+
+def build_github_master_zip_url(url):
+    parsed = parse_github_url(url)
+    if not parsed:
+        raise ValueError('{} is not a valid github url'.format(url))
+
+    return 'https://github.com/{full_name}/archive/master.zip'.format(**parsed)
+
+# https://github.com/x-raizor/Efficiency/archive/master.zip
+# https://github.com/x-raizor/Efficiency
+
+def download_github_repository_zipfile(url):
+    target_url = build_github_master_zip_url(url)
+    return download_zipfile(target_url)
+
+
+
+if __name__ == '__main__':
+    with script as params:
+        params.positional('url', help='the github url')
+        params.positional('glob', help='the path or glob pattern to extract from within the repo', default='*')
+        params.argument('-o', '--output-dir', help='the download path', default=os.path.abspath(os.getcwd()))
+        options = params.parse()
+
+    target_url = options.url
+    target_dir = options.output_dir
+    target_glob = options.glob
+
+    github = parse_github_url(target_url)
+
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    elif not os.path.isdir(target_dir):
+        terminal.err.red_and_bold_black_and_yellow('|'.join(
+            (
+                '[ERROR]:',
+                ' destination dir is not a folder ',
+                target_dir,
+            )
+        ))
+        raise SystemExit(1)
+
+    zipfile = download_github_repository_zipfile(options.url)
+    members = filter(lambda info: fnmatch(info.filename, target_glob) and not info.filename.endswith(os.sep), zipfile.filelist)
+    member_names = [m.filename for m in members]
+    for member in members:
+        filename = member.filename
+        target_subpath = os.path.join(target_dir, re.sub(r'{name}-master[/]?'.format(**github), '', filename))
+
+        target_subdir = os.path.dirname(target_subpath)
+
+        if not os.path.isdir(target_subdir):
+            os.makedirs(target_subdir)
+
+        source = zipfile.open(member)
+        target = io.open(target_subpath, "wb")
+        with source, target:
+            shutil.copyfileobj(source, target)
+            terminal.out.bold_black_and_green('|'.join(
+                (
+                    'extracted: ',
+                    target_subpath,
+                )
+            ))
+
+    terminal.out.bold_black_and_green('|'.join(
+        (
+            'total: ',
+            str(len(member_names)),
+        )
+    ))

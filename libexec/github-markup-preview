@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+input_filename=$1
+output_filename=$(basename "${input_filename%%.*}").html
+
+pandoc --css="$HOME/usr/share/css/pandoc-github.css" -i "$input_filename" -o "$output_filename"
+open "$output_filename"

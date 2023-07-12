@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -exu
+
+function show_usage() {
+    argument="$1"
+    echo -e "\033[1;38;5;160mMissing ${argument} argument\033[0m"
+    echo -e "\033[1;38;5;220mUSAGE: $0 <EMAIL> <FULL_NAME>"
+    exit 54
+}
+email="$1"
+
+if [ -z "${email}" ]; then
+    show_usage email
+fi
+shift
+name="${@}"
+if [ -z "${name}" ]; then
+    show_usage name
+fi
+
+slug=$(echo -n "${name}" | sed 's/[^0-9a-zA-Z]\+/-/g')
+
+cat > /tmp/${slug}-quick-gpg.batch <<BATCH
+Key-Type: eddsa
+Key-Curve: Ed25519
+Key-Usage: sign
+Subkey-Type: ecdh
+Subkey-Curve: Curve25519
+Subkey-Usage: encrypt
+%no-protection
+Name-Real: ${name}
+Name-Email: ${email}
+Creation-Date: $(date +"%Y-%m-%dT%H%M%S")
+Expire-Date: 0
+%commit
+BATCH

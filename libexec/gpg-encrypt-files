@@ -1,0 +1,29 @@
+#!/bin/bash
+
+target="${*}"
+fingerprint="1B90E6C19890D7C53E2C03C20AE7DE5129AE40E4"
+
+if [ -z "${target}" ]; then
+    exit 1
+fi
+target="${target%%/}"
+echo -e "\033[0;34mtarget:\033[1;30m ${target}\033[0m"
+
+while IFS= read -r -d '' src
+do
+  let count++
+    name=${src%%.pgp}
+    dst=${name}.pgp
+    if [ "${src}" == "${dst}" ]; then
+	continue;
+    fi;
+
+    if keybone encrypt "${fingerprint}" "${src}" > "${dst}"; then
+        echo -e "\033[1;30m$src => $dst\033[0m"
+        rm -fv "${src}"
+    else
+        echo "failed to encrypt $src"
+        exit 1
+    fi
+
+done <   <(find "${target}" -type f -not -path '*.pgp' -print0)

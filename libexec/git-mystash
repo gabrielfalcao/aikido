@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -ex
+mkdir -p .git/my-stash
+for ignoble in $(git st --porcelain=v2 --untracked-files=all | grep '^[?]' | awk '{ print $2 }'); do
+    mv -f "${ignoble}" .git/my-stash/
+done

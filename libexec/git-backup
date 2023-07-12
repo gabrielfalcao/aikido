@@ -1,0 +1,43 @@
+#!/bin/bash
+# shellcheck disable=1090,1091,2154
+
+source "$HOME/usr/etc/.@/@scr1pt"
+source "$HOME/usr/etc/.@/@sl00t"
+
+if [ ! -d ".git" ]; then
+    printf "\r\033[1;31mNot a git repo\033[0m\n"
+    exit 1;
+fi
+
+path=$(pwd)
+name=$(basename "${path%%/}")
+declare -r path
+declare -r name
+
+declare -r target_path="${ycnvd_git_root}/${name%%.}"
+declare -r target_uri="${target_path}"  #file://
+
+if [ ! -d "${target_path}" ]; then
+    ycnvd.ansi.dark.yellow "${target_path} does not exist, creating...\n"
+    output=$(mkdir -vp "${target_path}" && git init --bare "${target_path}" && cd "${target_path}" && pwd)
+    status=$?
+    if [[ $status ]]; then
+        ycnvd.ansi.dark.red "${output}\n"
+        exit $?
+    else
+        ycnvd.ansi.dark.blue "${output}\n"
+    fi
+fi
+
+origin=$(git remote show origin)
+origin=${origin:-$target_uri}
+
+backup=$(git remote show backup)
+backup=${backup:-$target_uri}
+
+
+(git remote add origin "$origin" 2>&1)>/dev/null
+(git remote add backup "$backup" 2>&1)>/dev/null
+
+git push --all origin
+git push --all backup

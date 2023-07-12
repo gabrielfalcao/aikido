@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+function slugify(){
+    gsed 's/[^a-zA-Z0-9_-]/-/g' | tr '[:upper:]' '[:lower:]'
+}
+
+function derive-or-guess__remote_name_from_possibly_opaque_data() {
+    gsed 's/[^a-zA-Z0-9._]/ /g' | gawk '{ print $NF }'
+}
+function err() {
+    1>&2 echo -e "\e[1;38;5;196mERROR: \e[1;38;5;220m${@}\e[0m"
+    exit 27
+}
+
+ipt=$(echo -n "${@}" | slugify)
+here="$(pwd)"
+fallback=$(pwd | gsed "s,/Users/${USER}/,,g" | slugify)
+if [ -z "$ipt" ]; then
+    ipt="${fallback}"
+fi
+
+name=$(echo -n "${ipt}" | slugify)
+if [ -z "${name}" ]; then
+    err "please provide a name for the local git-remote"
+fi
+
+GITROOT="${here}/.git"
+if [ ! -e "${GITROOT}" ]; then
+    err "this command MUST only be executed at the root-level of a non-bare git-repo"
+fi
+
+set -ex
+
+local_remoteish_path="${HOME}/projects/.gitrepos/${name}.git"
+if [ ! -e "${local_remoteish_path}" ]; then
+    git init --bare "${local_remoteish_path}"
+fi
+
+fallback_remote_name=$(echo -n "${ipt}" | derive-or-guess__remote_name_from_possibly_opaque_data)
+if [ -z "${fallback_remote_name}" ]; then
+    err "could not derive-or-guess remote name from '${ipt}'"
+fi
+remote_name=${fallback_remote_name}
+remote="file://${local_remoteish_path}"
+if ! 2>/dev/null git remote show -n "${remote_name}"; then
+    git remote add "${remote_name}" "${remote}"
+    git push -u "${remote_name}" --mirror
+else
+
+    git remote add "${fallback_remote_name}" "${remote}"
+    git push -u "${remote}" --mirror
+fi

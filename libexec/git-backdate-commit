@@ -1,0 +1,11 @@
+#!/bin/bash
+# shellcheck disable=1090,1091,2044,2054,2055,2016,2043,2154,2086,2048,2120
+
+source "$HOME/usr/etc/.@/@scr1pt"
+
+date="$1"
+shift
+export GIT_AUTHOR_DATE=$date
+export GIT_COMMITTER_DATE=$date
+
+git commit $*

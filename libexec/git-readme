@@ -1,0 +1,10 @@
+#!/bin/bash
+
+declare -ar candidates=('README.rst' 'README.md' 'README.markdown')
+
+for name in "${candidates[@]}"; do
+    if [ -f "$(pwd)/${name}" ];then
+        github-markup-preview "$name"
+        exit $?
+    fi
+done

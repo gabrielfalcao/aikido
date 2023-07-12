@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+for vm in $(gcloud-list-instances | grep -v gke-k8s); do
+    gcloud compute instances start "${vm}";
+    for key in $(find "${HOME}/.ssh" -name '*.pub'); do
+        printf "\e[1;38;5;84mAdding key \033[1;38;5;33m${key} \e[1;38;5;84mto \e[1;38;5;220m${vm}\033[0m\r\n"
+        2>/dev/null gcloud compute instances add-metadata "${vm}" --metadata-from-file ssh-keys="${key}";
+    done
+done

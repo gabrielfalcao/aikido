@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+declare -a KEYSERVERS=(
+    pgp.mit.edu
+    keyring.debian.org
+    keyserver.ubuntu.com
+);
+
+email_to_query="$@"
+
+if [ -z "${email_to_query}" ];then
+   1>&2 echo -e "\e[1;38;5;220mMissing email\e[0m"
+   exit 84
+fi
+
+for server in ${KEYSERVERS[*]}; do
+    echo -ne "\e[1;38;5;154msearching for \e[1;38;5;33m${email_to_query} \e[1;38;5;154min server \e[1;38;5;220m${server}\e[0m\n"
+    # set -x # <debug>
+    gpg --keyserver "${server}" --search-keys "${email_to_query}"
+    # set +x # </debug>
+done

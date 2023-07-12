@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+for ignoble in $(git st --porcelain=v2 --untracked-files=all | grep '^[?]' | awk '{ print $2 }'); do
+    echo -en "\033[1;38;5;220mignoring file \033[1;38;5;33m${ignoble}\033[1;38;5;142m... \033[0m"
+    echo -e "\n# <git-ignore at=@$(nowaapl)\n${ignoble}\n# </git-ignore>\n# <$(nowaapl) />\n" >> .gitignore
+    echo -e "\033[1;38;5;70mOK\033[0m"
+done

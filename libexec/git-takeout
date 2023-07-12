@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+current_dir="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+function currently() {
+    date +"%Y-%m-%d-%H%M%S-%Z%z"
+}
+
+function nontty() {
+    tr -d '[:space:]'
+}
+
+function  nowz() {
+    if [ -t 1 ]; then
+        currently
+    else
+        currently | nontty
+    fi
+}
+
+function sanitized(){
+    gsed 's/[^a-zA-Z0-9_-]/-/g' | tr '[:upper:]' '[:lower:]'
+}
+
+function derive-or-guess__remote_name_from_possibly_opaque_data() {
+    gsed 's/[^a-zA-Z0-9._]/ /g' | gawk '{ print $NF }'
+}
+function err() {
+    1>&2 echo -e "\e[1;38;5;196mERROR: \e[1;38;5;220m${@}\e[0m"
+    exit 27
+}
+
+ipt=$(echo -n "${@}" | sanitized)
+here="$(pwd)"
+fallback=$(pwd | gsed "s,/Users/${USER}/,,g" | sanitized)
+if [ -z "$ipt" ]; then
+    ipt="${fallback}"
+fi
+
+name=$(echo -n "${ipt}" | sanitized)
+
+if [ -z "${name}" ]; then
+    err "please provide a name for the local git-remote"
+fi
+
+GITROOT="${here}/.git"
+if [ ! -e "${GITROOT}" ]; then
+    err "this command MUST only be executed at the root-level of a non-bare git-repo"
+fi
+
+set -ex
+
+target_folder="${HOME}/projects/.gitrepos/takeout"
+
+if [ ! -e "${target_folder}" ]; then
+    mkdir -p "${target_folder}"
+fi
+
+target_name="${target_folder}/${name}-$(nowz | sanitized)"
+
+zip -rq "${target_name}.zip" .git
+signfile "${target_name}.zip"
+
+tar cJf "${target_name}.tar.xz" .git
+signfile "${target_name}.tar.xz"
+
+tar cjf "${target_name}.tar.bz2" .git
+signfile "${target_name}.tar.bz2"
+
+tar czf "${target_name}.tar.gz" .git
+signfile "${target_name}.tar.gz"
+
+rm -rf .git

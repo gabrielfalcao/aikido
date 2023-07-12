@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+git commit -am "saving state"
+git notes append -m "$(nowz)"

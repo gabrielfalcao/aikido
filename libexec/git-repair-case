@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# flake8: noqa
+import warnings
+
+warnings.filterwarnings(action="ignore", category=DeprecationWarning)
+import os
+import click
+import shutil
+from pathlib import Path
+
+
+INFRA_FILES = [
+    '.coveragerc',
+    '.git',
+    '.github',
+    '.gitignore',
+    'CHANGELOG.rst',
+    'LICENSE',
+    'MANIFEST.in',
+    'Makefile',
+    'README.rst',
+    'development.txt',
+    'requirements.txt',
+    'setup.cfg',
+    'setup.py',
+]
+
+
+@click.command()
+def main():
+    cwd = Path(os.getcwd()).absolute()
+    for adequate in INFRA_FILES:
+        correct = cwd.joinpath(adequate)
+        incorrect = adequate.lower()
+        aslowerpath = cwd.joinpath(incorrect)
+        if aslowerpath.is_file():
+            tmp = cwd.joinpath(f'{incorrect}.tmp')
+            shutil.move(aslowerpath, tmp)
+            shutil.move(tmp, correct)
+            print(f'\033[1;38;5;154mrenamed {incorrect} \033[1;38;5;196mto \033[1;38;5;33m{correct}\033[0m')
+
+
+if __name__ == "__main__":
+    main()

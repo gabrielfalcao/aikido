@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+set -e
+gcloud compute instances list --format=json | jq '.[].name' | tr -d '"'

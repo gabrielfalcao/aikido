@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -ue
+
+date +"%Y-%m-%dT%H%M%S@%Z"
+order="${@}"
+
+function report() {
+    declare message="$@"
+    1>&2 echo -e "\e[1;35;8;160m${message}\e[0m";
+}
+
+if ! alias realize="$(which figlet) -f isometric1 "; then
+    # yeah
+    report "figlet does not appear to be installed"
+    exit 0x53
+fi
+
+if [ -n "${order}" ];then
+   realize "${order}"  #ᎦᎡᏓᏛᎡᏔᎢᎾᎯᎣ ᏢᏩᏙ
+   echo "ᎦᎡᏓᏛᎡᏔᎢᎾᎯᎣ ᏢᏩᏙ" > /dev/null
+fi

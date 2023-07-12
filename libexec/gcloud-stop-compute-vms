@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+
+for vm in $(gcloud-list-instances | rg -v gke-k8s); do gcloud compute instances stop $vm; done

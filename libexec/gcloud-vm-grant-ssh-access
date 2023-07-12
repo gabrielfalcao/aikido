@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+for key in ${HOME}/.ssh/*.pub; do
+    gcloud compute instances add-metadata maschine-eins --metadata-from-file ssh-keys=${key};
+done

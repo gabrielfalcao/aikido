@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import sys
+import click
+
+
+TISCH = {
+    2: ('0b', 'binary'),
+    8: ('0', 'octal'),
+    10: ('', 'decimal'),
+    16: ('0x', 'hexadecimal'),
+}
+
+
+@click.command()
+@click.option("-b", '--base', type=click.Choice(['2', '8', '10', '16']), default=16)
+@click.argument('d', nargs=-1)
+def main(d, base):
+    base = int(base)
+    prefix, kind = TISCH.pop(base)
+
+    def st(ernal):
+        eraction = int(ernal.replace(prefix, ''), base)
+        return chr(int(eraction))
+
+    for position, arg in enumerate(d, start=0):
+        if not arg.startswith(prefix):
+            sys.stderr.write(f'invalid {kind} at argument {position}')
+            raise SystemExit(0x53)
+
+    print("".join(map(lambda ate: st(ate), d)))
+
+
+if __name__ == '__main__':
+    main()

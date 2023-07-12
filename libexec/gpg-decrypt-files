@@ -1,0 +1,26 @@
+#!/bin/bash
+
+target="${*}"
+
+if [ -z "${target}" ]; then
+    exit 1
+fi
+target="${target%%/}"
+echo -e "\033[0;34mtarget:\033[1;30m ${target}\033[0m"
+
+while IFS= read -r -d '' src
+do
+    let count++
+    dst=${src%%.pgp}
+    if [ "${src}" == "${dst}" ]; then
+	continue;
+    fi;
+
+    if keybone decrypt -n "${src}" > "${dst}"; then
+        echo -e "\033[1;30m$src => $dst\033[0m"
+    else
+        echo "failed to decrypt $src"
+        exit 1
+    fi
+
+done <   <(find "${target}" -type f -path '*.pgp' -print0)

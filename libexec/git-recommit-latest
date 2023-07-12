@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e
+OLD_DATE="$(git show HEAD -q | grep Date | cut -d: -f2-)"
+NEW_DATE="$(date)"
+OLD_HASH=$(git show HEAD -q | head -1 | awk '{print $2}')
+pretty() {
+    colorcode="${1}"
+    shift
+    string="${*}"
+    echo -en "\033[1;${colorcode}m${string}\033[0m"
+}
+echo "old date was: '$(pretty 31 $OLD_DATE)'"
+echo "recreating commit with new date: '$(pretty 32 $NEW_DATE)'"
+NOTES=$(2>/dev/null git notes show HEAD)
+
+GIT_COMMITTER_DATE="${NEW_DATE}" git commit --amend -C HEAD --date "${NEW_DATE}"
+if [ -n "${NOTES}" ]; then
+    git notes append -m "${NOTES}"
+fi
+NEW_HASH=$(git show HEAD -q | head -1 | awk '{print $2}')
+
+echo "old hash was: $(pretty 31 $OLD_HASH)"
+echo "new commit hash is: $(pretty 32 $NEW_HASH)"

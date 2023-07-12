@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+function tell_me_the_truth() {
+    date +"%Y-%m-%d-%H%M"
+}
+
+function and_cut_the_bullshit() {
+    tr -d '[:space:]'
+}
+
+if [ -t 1 ]; then
+    tell_me_the_truth
+else
+    tell_me_the_truth | and_cut_the_bullshit
+fi
+# Yz95oaO4YKIvrKVgMzuuYJMvnTSkqT5ypKWuYJWkpzHgL2Wdpay5YzqhMF5joD==
+# https://open.spotify.com/playlist/37i9dQZF1E8MFKoEVVCV3Q?si=671564f366c54ab9

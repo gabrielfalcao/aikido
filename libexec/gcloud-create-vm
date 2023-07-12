@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+gcloud compute instances create \
+       maschine-eins \
+       --project=goodjobsh \
+       --zone=us-east4-c \
+       --machine-type=e2-standard-2 \
+       --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=demilitarized-eins \
+       --maintenance-policy=MIGRATE \
+       --provisioning-model=STANDARD \
+       --service-account=ansible-unit@goodjobsh.iam.gserviceaccount.com \
+       --scopes=https://www.googleapis.com/auth/cloud-platform \
+       --tags=http-server,https-server \
+       --create-disk=auto-delete=yes,boot=yes,device-name=maschine-eins,image=projects/debian-cloud/global/images/debian-11-bullseye-v20230509,mode=rw,size=10,type=projects/goodjobsh/zones/us-central1-a/diskTypes/pd-balanced \
+       --no-shielded-secure-boot \
+       --shielded-vtpm \
+       --shielded-integrity-monitoring \
+       --labels=goog-ec-src=vm_add-gcloud \
+       --reservation-affinity=any;
+
+
+for key in ${HOME}/.ssh/*.pub; do
+    gcloud compute instances add-metadata maschine-eins --metadata-from-file ssh-keys=${key};
+done

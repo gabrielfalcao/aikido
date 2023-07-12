@@ -1,0 +1,2 @@
+#!/bin/bash
+git describe --tags $(git rev-list --tags --date-order --reverse --max-count=1)
