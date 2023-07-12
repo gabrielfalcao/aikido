@@ -6,6 +6,7 @@ class Aikido < Formula
   # sha256 "30b6256bea0143caebd08256e0a605280afbbc5eef7ce692f84621eb232a9b31"
   license "GPL-3.0-or-later"
   head "https://github.com/gabrielfalcao/aikido.git", branch: "main"
+  include Language::Python::Virtualenv
 
   depends_on macos: :ventura
 
@@ -185,7 +186,6 @@ class Aikido < Formula
   depends_on formula: "xz"
   depends_on formula: "zeromq"
   depends_on formula: "zstd"
-
   depends_on cask: "bitwarden"
   depends_on cask: "blackhole-2ch"
   depends_on cask: "brave-browser"
@@ -198,12 +198,18 @@ class Aikido < Formula
   depends_on cask: "phoenix"
   depends_on cask: "spotify"
   depends_on cask: "vivaldi"
+  depends_on "rust" => :build
+  depends_on "python"
 
   @python_requirements = [
-    "aikido"
+    "ki-aikido"
   ]
   def install
+    aikido_git_path = File.join(ENV["HOME"], ".aikido")
+    virtualenv_install_with_resources
     pip_install @python_requirements
-    quiet_system "git", "clone", self.head, File.join(ENV["HOME"], ".aikido")
+    system "cargo", "install", *std_cargo_args
+    system "git", "clone", self.head, aikido_git_path
+    system "bash", File.join(aikido_git_path, "install.sh")
   end
 end
