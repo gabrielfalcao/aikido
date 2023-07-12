@@ -1,0 +1,12 @@
+*.mp4
+*.avi
+*.mpeg
+*.mpg
+*.wmv
+*.wav
+*.aiff
+*.mov
+.DS_Store
+*#*
+.#*
+.*#*

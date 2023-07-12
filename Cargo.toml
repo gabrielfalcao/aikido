@@ -1,0 +1,23 @@
+[package]
+name = "aikido"
+version = "0.0.1"
+edition = "2021"
+authors = ["Gabriel Falcão <gabriel@nacaolivre.org>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.26"
+clap = { version = "4.3.11", features = ["derive"] }
+gitoxide = "0.27.0"
+tera = "1.19.0"
+
+
+[lib]
+name = "aikido"
+path = "src/mod.rs"
+
+[[bin]]
+name = "aikido"
+path = "src/cli/mod.rs"
+bench = false
