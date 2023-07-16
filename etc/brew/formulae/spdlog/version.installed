@@ -1,0 +1,18 @@
+[
+  {
+    version: 1.12.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1689148851,
+    runtime_dependencies: [
+      {
+        full_name: fmt,
+        version: 10.0.0,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

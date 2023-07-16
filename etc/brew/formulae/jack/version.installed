@@ -1,0 +1,38 @@
+[
+  {
+    version: 1.9.22,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1688651150,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@3,
+        version: 3.1.1,
+        declared_directly: false
+      },
+      {
+        full_name: berkeley-db,
+        version: 18.1.40,
+        declared_directly: true
+      },
+      {
+        full_name: libsamplerate,
+        version: 0.2.2,
+        declared_directly: true
+      },
+      {
+        full_name: aften,
+        version: 0.0.8,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

@@ -1,6 +1,8 @@
         declared_directly: false
         declared_directly: true
         full_name: abseil,
+        full_name: adwaita-icon-theme,
+        full_name: aften,
         full_name: aom,
         full_name: apache-arrow,
         full_name: apr,
@@ -11,6 +13,7 @@
         full_name: atkmm@2.28,
         full_name: autoconf,
         full_name: aws-sdk-cpp,
+        full_name: bash,
         full_name: bdw-gc,
         full_name: berkeley-db,
         full_name: boost,
@@ -24,6 +27,7 @@
         full_name: cffi,
         full_name: cjson,
         full_name: cmocka,
+        full_name: cppzmq,
         full_name: cunit,
         full_name: dav1d,
         full_name: dbus,
@@ -38,7 +42,9 @@
         full_name: fdk-aac,
         full_name: ffmpeg,
         full_name: ffmpeg@4,
+        full_name: fftw,
         full_name: flac,
+        full_name: fmt,
         full_name: fontconfig,
         full_name: freetype,
         full_name: frei0r,
@@ -67,6 +73,7 @@
         full_name: grep,
         full_name: grpc,
         full_name: gsettings-desktop-schemas,
+        full_name: gsl,
         full_name: gtk+,
         full_name: gtk+3,
         full_name: gtk4,
@@ -77,15 +84,18 @@
         full_name: highway,
         full_name: hiredis,
         full_name: hunspell,
+        full_name: hwloc,
         full_name: icu4c,
         full_name: imath,
         full_name: isl,
+        full_name: jack,
         full_name: jasper,
         full_name: jbig2dec,
         full_name: jbig2enc,
         full_name: jpeg-turbo,
         full_name: jpeg-xl,
         full_name: json-glib,
+        full_name: krb5,
         full_name: lame,
         full_name: leptonica,
         full_name: libarchive,
@@ -96,12 +106,14 @@
         full_name: libbluray,
         full_name: libconfig,
         full_name: libcuefile,
+        full_name: libde265,
         full_name: libepoxy,
         full_name: libevent,
         full_name: libgcrypt,
         full_name: libgit2,
         full_name: libgnt,
         full_name: libgpg-error,
+        full_name: libheif,
         full_name: libidn,
         full_name: libidn2,
         full_name: libimagequant,
@@ -109,18 +121,23 @@
         full_name: libkeccak,
         full_name: libksba,
         full_name: liblinear,
+        full_name: liblqr,
         full_name: libmng,
         full_name: libmpc,
         full_name: libnghttp2,
         full_name: libogg,
+        full_name: libomp,
         full_name: libotr,
         full_name: libpcap,
         full_name: libpng,
         full_name: libpsl,
         full_name: libpthread-stubs,
         full_name: libraqm,
+        full_name: libraw,
         full_name: libreplaygain,
         full_name: librist,
+        full_name: librsvg,
+        full_name: librtlsdr,
         full_name: libsamplerate,
         full_name: libsass,
         full_name: libshout,
@@ -130,6 +147,8 @@
         full_name: libsoup,
         full_name: libsoxr,
         full_name: libssh2,
+        full_name: libsvg,
+        full_name: libsvg-cairo,
         full_name: libtasn1,
         full_name: libtiff,
         full_name: libtool,
@@ -152,6 +171,7 @@
         full_name: libxrender,
         full_name: libyaml,
         full_name: little-cms2,
+        full_name: log4cpp,
         full_name: lua,
         full_name: lz4,
         full_name: lzo,
@@ -170,6 +190,7 @@
         full_name: npth,
         full_name: numpy,
         full_name: oniguruma,
+        full_name: open-mpi,
         full_name: openblas,
         full_name: opencore-amr,
         full_name: openexr,
@@ -194,6 +215,7 @@
         full_name: pkg-config,
         full_name: pngquant,
         full_name: popt,
+        full_name: portaudio,
         full_name: protobuf,
         full_name: protobuf@21,
         full_name: py3cairo,
@@ -201,11 +223,14 @@
         full_name: pycparser,
         full_name: pygments,
         full_name: pygobject3,
+        full_name: pyqt@5,
         full_name: python@3.10,
         full_name: python@3.11,
+        full_name: pyyaml,
         full_name: qpdf,
         full_name: qrencode,
         full_name: qt@5,
+        full_name: qwt-qt5,
         full_name: rapidjson,
         full_name: rav1e,
         full_name: re2,
@@ -213,10 +238,14 @@
         full_name: rtmpdump,
         full_name: rubberband,
         full_name: sdl2,
+        full_name: shared-mime-info,
         full_name: six,
         full_name: smartmontools,
         full_name: snappy,
+        full_name: soapyrtlsdr,
+        full_name: soapysdr,
         full_name: source-highlight,
+        full_name: spdlog,
         full_name: speex,
         full_name: sqlite,
         full_name: srt,
@@ -231,10 +260,12 @@
         full_name: theora,
         full_name: thrift,
         full_name: tree,
+        full_name: uhd,
         full_name: unbound,
         full_name: unixodbc,
         full_name: unpaper,
         full_name: utf8proc,
+        full_name: volk,
         full_name: vulkan-headers,
         full_name: vulkan-loader,
         full_name: webp,
@@ -252,7 +283,9 @@
         full_name: zimg,
         full_name: zookeeper,
         full_name: zstd,
+        version: 0.0.8,
         version: 0.1.3,
+        version: 0.1.4,
         version: 0.1.5,
         version: 0.1.6,
         version: 0.10.1,
@@ -277,7 +310,9 @@
         version: 0.29.2,
         version: 0.3.21,
         version: 0.3.23,
+        version: 0.3.3,
         version: 0.4,
+        version: 0.4.2,
         version: 0.4.33,
         version: 0.4.34,
         version: 0.4.8,
@@ -339,6 +374,7 @@
         version: 1.15,
         version: 1.15.1,
         version: 1.16.0,
+        version: 1.16.2,
         version: 1.17.1,
         version: 1.19,
         version: 1.19.0,
@@ -346,12 +382,14 @@
         version: 1.2.0,
         version: 1.2.1,
         version: 1.2.4,
+        version: 1.21,
         version: 1.23,
         version: 1.23.0,
         version: 1.24.0,
         version: 1.24.2,
         version: 1.24.3,
         version: 1.25.0,
+        version: 1.25.1,
         version: 1.3.0,
         version: 1.3.1,
         version: 1.3.1.2,
@@ -412,6 +450,7 @@
         version: 1.8.6,
         version: 1.81.0,
         version: 1.82.0,
+        version: 1.9.22,
         version: 1.9.4,
         version: 10.0.0,
         version: 10.0.1,
@@ -425,9 +464,11 @@
         version: 12.0.1,
         version: 12.2.0,
         version: 13.1.0,
+        version: 16.0.6,
         version: 17.05,
         version: 18.1.40,
         version: 19.0.2,
+        version: 19.7.0,
         version: 2.0.2,
         version: 2.0.3,
         version: 2.1-3,
@@ -452,6 +493,7 @@
         version: 2.15,
         version: 2.15.1,
         version: 2.18.0,
+        version: 2.2,
         version: 2.2.2,
         version: 2.21,
         version: 2.24.33,
@@ -479,10 +521,12 @@
         version: 2.5.1,
         version: 2.5.5,
         version: 2.5.6,
+        version: 2.56.2,
         version: 2.6.3,
         version: 2.6.4,
         version: 2.6.5,
         version: 2.66.6,
+        version: 2.7.1,
         version: 2.71,
         version: 2.72.3,
         version: 2.74.3,
@@ -494,6 +538,7 @@
         version: 2.76.3,
         version: 2.76.4,
         version: 2.8.0,
+        version: 2.9.2,
         version: 20,
         version: 20.0.1,
         version: 20.2.0,
@@ -519,6 +564,7 @@
         version: 25.3.2,
         version: 25.3.2.2,
         version: 26.0.2,
+        version: 3.0.0,
         version: 3.0.4,
         version: 3.0.5,
         version: 3.0.7,
@@ -549,6 +595,7 @@
         version: 3.24.38,
         version: 3.24.7,
         version: 3.3.0,
+        version: 3.3.10,
         version: 3.4.0,
         version: 3.4.2,
         version: 3.40.1,
@@ -570,6 +617,8 @@
         version: 3.9.1,
         version: 4.0.0,
         version: 4.1.1,
+        version: 4.1.5,
+        version: 4.10.0,
         version: 4.10.1,
         version: 4.10.3,
         version: 4.10.4,
@@ -579,6 +628,7 @@
         version: 4.2.0-p9,
         version: 4.3.4,
         version: 4.4.0,
+        version: 4.4.0.0,
         version: 4.4.3,
         version: 4.4.4,
         version: 4.5.0,
@@ -587,8 +637,11 @@
         version: 44.0,
         version: 5.1,
         version: 5.1.0,
+        version: 5.15.10,
         version: 5.15.5,
+        version: 5.15.7,
         version: 5.2.1,
+        version: 5.2.15,
         version: 5.2.5,
         version: 5.2.7,
         version: 5.2.9,
@@ -603,6 +656,7 @@
         version: 5.4.6,
         version: 6.0,
         version: 6.0.0,
+        version: 6.2.0,
         version: 6.2.1,
         version: 6.4,
         version: 6.9.8,
@@ -613,6 +667,7 @@
         version: 7.3.0,
         version: 72.1,
         version: 73.2,
+        version: 8.0.0,
         version: 8.0.1,
         version: 8.1.2,
         version: 8.2.1,
@@ -1153,6 +1208,44 @@
     time: 1687666025,
     time: 1687666026,
     time: 1687666027,
+    time: 1688650686,
+    time: 1688651103,
+    time: 1688651107,
+    time: 1688651120,
+    time: 1688651128,
+    time: 1688651129,
+    time: 1688651139,
+    time: 1688651141,
+    time: 1688651150,
+    time: 1688651152,
+    time: 1688651155,
+    time: 1688651211,
+    time: 1688651224,
+    time: 1688651225,
+    time: 1688651226,
+    time: 1688651227,
+    time: 1688651228,
+    time: 1688651239,
+    time: 1688651252,
+    time: 1688750046,
+    time: 1688754480,
+    time: 1688756138,
+    time: 1688756826,
+    time: 1688756830,
+    time: 1688759117,
+    time: 1688811053,
+    time: 1688811075,
+    time: 1688820906,
+    time: 1688820907,
+    time: 1688821807,
+    time: 1688821809,
+    time: 1688821810,
+    time: 1688821812,
+    time: 1689124855,
+    time: 1689124875,
+    time: 1689126467,
+    time: 1689148851,
+    time: 1689148853,
     time: 1689274155,
     time: 1689274159,
     time: 1689274164,
@@ -1188,9 +1281,13 @@
     time: 1689275427,
     used_options: [],
     version: 0.0.28,
+    version: 0.0.8,
     version: 0.1.3,
+    version: 0.1.3_2,
     version: 0.1.4,
+    version: 0.1.4_2,
     version: 0.1.6,
+    version: 0.1.6_3,
     version: 0.1.8,
     version: 0.10.1,
     version: 0.10.1_1,
@@ -1224,12 +1321,15 @@
     version: 0.29_2,
     version: 0.3.0,
     version: 0.3.23,
+    version: 0.3.3,
     version: 0.32.0,
     version: 0.32.2,
     version: 0.33.0,
+    version: 0.39.0,
     version: 0.39.3,
     version: 0.4,
     version: 0.4.13,
+    version: 0.4.2_1,
     version: 0.4.33,
     version: 0.4.34,
     version: 0.4.8,
@@ -1241,6 +1341,7 @@
     version: 0.6.4,
     version: 0.6.6,
     version: 0.7.6,
+    version: 0.8.1_1,
     version: 0.8.1_2,
     version: 0.8.2,
     version: 0.9.0,
@@ -1256,6 +1357,7 @@
     version: 1.0.12,
     version: 1.0.13,
     version: 1.0.18_1,
+    version: 1.0.21,
     version: 1.0.26,
     version: 1.0.4,
     version: 1.0.8,
@@ -1286,6 +1388,7 @@
     version: 1.11.20,
     version: 1.11.60,
     version: 1.11.80,
+    version: 1.12.0,
     version: 1.13,
     version: 1.13.0,
     version: 1.13.1,
@@ -1300,6 +1403,7 @@
     version: 1.15_1,
     version: 1.16.0_3,
     version: 1.16.0_5,
+    version: 1.16.2,
     version: 1.16.5,
     version: 1.17.1,
     version: 1.17.1_1,
@@ -1318,6 +1422,7 @@
     version: 1.20.4,
     version: 1.21.3_1,
     version: 1.21.4,
+    version: 1.21_1,
     version: 1.22.1_2,
     version: 1.22.3,
     version: 1.22.3_2,
@@ -1329,6 +1434,7 @@
     version: 1.24.2,
     version: 1.24.3,
     version: 1.25.0,
+    version: 1.26.0_1,
     version: 1.27.2,
     version: 1.3.0,
     version: 1.3.0_1,
@@ -1400,6 +1506,7 @@
     version: 1.9,
     version: 1.9.1_1,
     version: 1.9.2,
+    version: 1.9.22,
     version: 1.9.4,
     version: 10.0.0,
     version: 10.0.1_1,
@@ -1424,10 +1531,13 @@
     version: 13.0.0,
     version: 13.1.0,
     version: 14.3.0_1,
+    version: 14.8_2,
+    version: 16.0.6,
     version: 17.04,
     version: 17.05,
     version: 18.1.40_1,
     version: 19.0.2,
+    version: 19.7.0,
     version: 2.0.15,
     version: 2.0.16,
     version: 2.0.2,
@@ -1443,6 +1553,7 @@
     version: 2.10.1,
     version: 2.10.4,
     version: 2.10.8,
+    version: 2.11,
     version: 2.13.0_1,
     version: 2.13.1,
     version: 2.14,
@@ -1455,6 +1566,7 @@
     version: 2.15.1,
     version: 2.18.0,
     version: 2.18.1,
+    version: 2.2,
     version: 2.2.0,
     version: 2.2.1,
     version: 2.2.2,
@@ -1468,6 +1580,7 @@
     version: 2.3.0,
     version: 2.3.1,
     version: 2.3.11,
+    version: 2.3.22,
     version: 2.3.3_4,
     version: 2.3.3_5,
     version: 2.3.4,
@@ -1497,9 +1610,11 @@
     version: 2.5.5,
     version: 2.5.6,
     version: 2.50.8_3,
+    version: 2.56.2,
     version: 2.6.4,
     version: 2.6.5,
     version: 2.66.6,
+    version: 2.7.1,
     version: 2.71,
     version: 2.74.5,
     version: 2.76.0,
@@ -1508,6 +1623,7 @@
     version: 2.76.3,
     version: 2.76.4,
     version: 2.8.0,
+    version: 2.9.2,
     version: 20,
     version: 20.0.1,
     version: 20.2.0,
@@ -1537,6 +1653,7 @@
     version: 25.3.2,
     version: 25.3.2.2,
     version: 26.0.2,
+    version: 3.0.0,
     version: 3.0.1,
     version: 3.0.4,
     version: 3.0.5,
@@ -1555,16 +1672,19 @@
     version: 3.10,
     version: 3.10.11,
     version: 3.10.12,
+    version: 3.10.6.0_3,
     version: 3.100,
     version: 3.11,
     version: 3.11.3,
     version: 3.11.4,
     version: 3.11.4_1,
     version: 3.12.0,
+    version: 3.12.1,
     version: 3.2.1,
     version: 3.2.2,
     version: 3.2.2.1,
     version: 3.2.2.1_1,
+    version: 3.2.2_1,
     version: 3.2.6,
     version: 3.24.37,
     version: 3.24.38,
@@ -1573,6 +1693,7 @@
     version: 3.26.3,
     version: 3.26.4,
     version: 3.3.0,
+    version: 3.3.10_1,
     version: 3.3.3,
     version: 3.4.0,
     version: 3.4.0_1,
@@ -1604,9 +1725,12 @@
     version: 3.8_1,
     version: 3.9,
     version: 3.9.1,
+    version: 3.9.2,
     version: 4.0.0,
     version: 4.0.0_1,
     version: 4.1.1,
+    version: 4.1.5,
+    version: 4.10.0,
     version: 4.10.1,
     version: 4.10.3_1,
     version: 4.10.4,
@@ -1620,6 +1744,7 @@
     version: 4.3.4,
     version: 4.33,
     version: 4.4,
+    version: 4.4.0.0_1,
     version: 4.4.0_1,
     version: 4.4.1,
     version: 4.4.4,
@@ -1634,6 +1759,7 @@
     version: 5.1,
     version: 5.1.0,
     version: 5.15.10,
+    version: 5.15.7_2,
     version: 5.15.8_1,
     version: 5.15.8_2,
     version: 5.15.8_3,
@@ -1659,10 +1785,13 @@
     version: 5.5.0,
     version: 5.6.0,
     version: 5.8.0,
+    version: 5.8.1_1,
     version: 5.9.0,
     version: 6.0,
     version: 6.0.0_1,
+    version: 6.0_1,
     version: 6.1.3,
+    version: 6.2.0,
     version: 6.2.1_1,
     version: 6.4,
     version: 6.5.1_1,
@@ -1673,6 +1802,7 @@
     version: 7.0.1,
     version: 7.0.11,
     version: 7.1.0,
+    version: 7.1.1-12,
     version: 7.3.0,
     version: 7.3.0_1,
     version: 7.3_1,
@@ -1705,6 +1835,8 @@
   depends_on formula: "" => ""
   depends_on formula: "abseil" => "[
   depends_on formula: "ack" => "[
+  depends_on formula: "adwaita-icon-theme" => "[
+  depends_on formula: "aften" => "[
   depends_on formula: "aom" => "[
   depends_on formula: "apache-arrow" => "[
   depends_on formula: "apache-arrow-glib" => "[
@@ -1724,6 +1856,8 @@
   depends_on formula: "aws-sdk-cpp" => "[
   depends_on formula: "bash" => "[
   depends_on formula: "bash-completion" => "[
+  depends_on formula: "bash-completion@2" => "[
+  depends_on formula: "bash-git-prompt" => "[
   depends_on formula: "bat" => "[
   depends_on formula: "bcrypt" => "[
   depends_on formula: "bdw-gc" => "[
@@ -1736,6 +1870,7 @@
   depends_on formula: "ca-certificates" => "[
   depends_on formula: "cairo" => "[
   depends_on formula: "cairomm@1.14" => "[
+  depends_on formula: "carthage" => "[
   depends_on formula: "ccache" => "[
   depends_on formula: "ceres-solver" => "[
   depends_on formula: "cffi" => "[
@@ -1743,8 +1878,10 @@
   depends_on formula: "cjson" => "[
   depends_on formula: "cmake" => "[
   depends_on formula: "cmocka" => "[
+  depends_on formula: "colordiff" => "[
   depends_on formula: "coredns" => "[
   depends_on formula: "coreutils" => "[
+  depends_on formula: "cppzmq" => "[
   depends_on formula: "crc32c" => "[
   depends_on formula: "cunit" => "[
   depends_on formula: "curl" => "[
@@ -1777,8 +1914,10 @@
   depends_on formula: "fdupes" => "[
   depends_on formula: "ffmpeg" => "[
   depends_on formula: "ffmpeg@4" => "[
+  depends_on formula: "fftw" => "[
   depends_on formula: "figlet" => "[
   depends_on formula: "flac" => "[
+  depends_on formula: "fmt" => "[
   depends_on formula: "fontconfig" => "[
   depends_on formula: "fprobe" => "[
   depends_on formula: "freetype" => "[
@@ -1807,7 +1946,9 @@
   depends_on formula: "gnu-sed" => "[
   depends_on formula: "gnu-tar" => "[
   depends_on formula: "gnu-time" => "[
+  depends_on formula: "gnu-which" => "[
   depends_on formula: "gnupg" => "[
+  depends_on formula: "gnuradio" => "[
   depends_on formula: "gnutls" => "[
   depends_on formula: "go" => "[
   depends_on formula: "gobject-introspection" => "[
@@ -1816,6 +1957,7 @@
   depends_on formula: "grep" => "[
   depends_on formula: "grpc" => "[
   depends_on formula: "gsettings-desktop-schemas" => "[
+  depends_on formula: "gsl" => "[
   depends_on formula: "gsmartcontrol" => "[
   depends_on formula: "gstreamer" => "[
   depends_on formula: "gtk+" => "[
@@ -1832,9 +1974,12 @@
   depends_on formula: "highway" => "[
   depends_on formula: "hiredis" => "[
   depends_on formula: "htop" => "[
+  depends_on formula: "hwloc" => "[
   depends_on formula: "icu4c" => "[
+  depends_on formula: "imagemagick" => "[
   depends_on formula: "imath" => "[
   depends_on formula: "isl" => "[
+  depends_on formula: "jack" => "[
   depends_on formula: "jasper" => "[
   depends_on formula: "jbig2dec" => "[
   depends_on formula: "jbig2enc" => "[
@@ -1845,6 +1990,7 @@
   depends_on formula: "json-glib" => "[
   depends_on formula: "k9s" => "[
   depends_on formula: "kafka" => "[
+  depends_on formula: "krb5" => "[
   depends_on formula: "kubernetes-cli" => "[
   depends_on formula: "kustomize" => "[
   depends_on formula: "lame" => "[
@@ -1857,6 +2003,7 @@
   depends_on formula: "libbluray" => "[
   depends_on formula: "libconfig" => "[
   depends_on formula: "libcuefile" => "[
+  depends_on formula: "libde265" => "[
   depends_on formula: "libdv" => "[
   depends_on formula: "libepoxy" => "[
   depends_on formula: "libev" => "[
@@ -1867,6 +2014,7 @@
   depends_on formula: "libgit2-glib" => "[
   depends_on formula: "libgnt" => "[
   depends_on formula: "libgpg-error" => "[
+  depends_on formula: "libheif" => "[
   depends_on formula: "libidn" => "[
   depends_on formula: "libidn2" => "[
   depends_on formula: "libimagequant" => "[
@@ -1874,6 +2022,7 @@
   depends_on formula: "libkeccak" => "[
   depends_on formula: "libksba" => "[
   depends_on formula: "liblinear" => "[
+  depends_on formula: "liblqr" => "[
   depends_on formula: "libmagic" => "[
   depends_on formula: "libmaxminddb" => "[
   depends_on formula: "libmicrohttpd" => "[
@@ -1881,19 +2030,24 @@
   depends_on formula: "libmpc" => "[
   depends_on formula: "libnghttp2" => "[
   depends_on formula: "libogg" => "[
+  depends_on formula: "libomp" => "[
   depends_on formula: "libotr" => "[
   depends_on formula: "libpcap" => "[
   depends_on formula: "libpng" => "[
   depends_on formula: "libpsl" => "[
   depends_on formula: "libpthread-stubs" => "[
   depends_on formula: "libraqm" => "[
+  depends_on formula: "libraw" => "[
   depends_on formula: "libreplaygain" => "[
   depends_on formula: "libressl" => "[
   depends_on formula: "librist" => "[
+  depends_on formula: "librsvg" => "[
+  depends_on formula: "librtlsdr" => "[
   depends_on formula: "libsamplerate" => "[
   depends_on formula: "libsass" => "[
   depends_on formula: "libshout" => "[
   depends_on formula: "libsigc++@2" => "[
+  depends_on formula: "libsigsegv" => "[
   depends_on formula: "libsmi" => "[
   depends_on formula: "libsndfile" => "[
   depends_on formula: "libsodium" => "[
@@ -1901,6 +2055,8 @@
   depends_on formula: "libsoxr" => "[
   depends_on formula: "libssh" => "[
   depends_on formula: "libssh2" => "[
+  depends_on formula: "libsvg" => "[
+  depends_on formula: "libsvg-cairo" => "[
   depends_on formula: "libtasn1" => "[
   depends_on formula: "libtiff" => "[
   depends_on formula: "libtool" => "[
@@ -1927,7 +2083,9 @@
   depends_on formula: "libyubikey" => "[
   depends_on formula: "libzip" => "[
   depends_on formula: "little-cms2" => "[
+  depends_on formula: "log4cpp" => "[
   depends_on formula: "lua" => "[
+  depends_on formula: "luarocks" => "[
   depends_on formula: "lz4" => "[
   depends_on formula: "lziprecover" => "[
   depends_on formula: "lzo" => "[
@@ -1956,6 +2114,7 @@
   depends_on formula: "ocrmypdf" => "[
   depends_on formula: "offlineimap" => "[
   depends_on formula: "oniguruma" => "[
+  depends_on formula: "open-mpi" => "[
   depends_on formula: "openblas" => "[
   depends_on formula: "opencore-amr" => "[
   depends_on formula: "opencv@3" => "[
@@ -1987,7 +2146,9 @@
   depends_on formula: "pkg-config-wrapper" => "[
   depends_on formula: "pngquant" => "[
   depends_on formula: "popt" => "[
+  depends_on formula: "portaudio" => "[
   depends_on formula: "postgresql@11" => "[
+  depends_on formula: "postgresql@14" => "[
   depends_on formula: "protobuf" => "[
   depends_on formula: "protobuf@21" => "[
   depends_on formula: "proxmark/proxmark3/arm-none-eabi-gcc" => "[
@@ -1995,14 +2156,19 @@
   depends_on formula: "py3cairo" => "[
   depends_on formula: "pybind11" => "[
   depends_on formula: "pycparser" => "[
+  depends_on formula: "pyenv" => "[
   depends_on formula: "pygments" => "[
   depends_on formula: "pygobject3" => "[
+  depends_on formula: "pyqt@5" => "[
   depends_on formula: "python@3.10" => "[
   depends_on formula: "python@3.11" => "[
+  depends_on formula: "pyyaml" => "[
   depends_on formula: "qpdf" => "[
   depends_on formula: "qrencode" => "[
   depends_on formula: "qt" => "[
   depends_on formula: "qt@5" => "[
+  depends_on formula: "qwt-qt5" => "[
+  depends_on formula: "rabbitmq" => "[
   depends_on formula: "rabbitmq-c" => "[
   depends_on formula: "rapidjson" => "[
   depends_on formula: "rav1e" => "[
@@ -2013,11 +2179,14 @@
   depends_on formula: "rocksdb" => "[
   depends_on formula: "rtmpdump" => "[
   depends_on formula: "rubberband" => "[
+  depends_on formula: "ruby" => "[
   depends_on formula: "rust" => "[
+  depends_on formula: "rustup-init" => "[
   depends_on formula: "s3cmd" => "[
   depends_on formula: "sassc" => "[
   depends_on formula: "sdl2" => "[
   depends_on formula: "sha3sum" => "[
+  depends_on formula: "shared-mime-info" => "[
   depends_on formula: "shellcheck" => "[
   depends_on formula: "simdjson" => "[
   depends_on formula: "simg2img" => "[
@@ -2026,7 +2195,10 @@
   depends_on formula: "smimesign" => "[
   depends_on formula: "snappy" => "[
   depends_on formula: "sng" => "[
+  depends_on formula: "soapyrtlsdr" => "[
+  depends_on formula: "soapysdr" => "[
   depends_on formula: "source-highlight" => "[
+  depends_on formula: "spdlog" => "[
   depends_on formula: "speex" => "[
   depends_on formula: "sphinx-doc" => "[
   depends_on formula: "sqlite" => "[
@@ -2040,7 +2212,9 @@
   depends_on formula: "ssss" => "[
   depends_on formula: "subversion" => "[
   depends_on formula: "suite-sparse" => "[
+  depends_on formula: "svg2png" => "[
   depends_on formula: "svt-av1" => "[
+  depends_on formula: "swift" => "[
   depends_on formula: "switchaudio-osx" => "[
   depends_on formula: "taglib" => "[
   depends_on formula: "tbb" => "[
@@ -2050,11 +2224,13 @@
   depends_on formula: "thrift" => "[
   depends_on formula: "transcrypt" => "[
   depends_on formula: "tree" => "[
+  depends_on formula: "uhd" => "[
   depends_on formula: "unbound" => "[
   depends_on formula: "unixodbc" => "[
   depends_on formula: "unpaper" => "[
   depends_on formula: "utf8proc" => "[
   depends_on formula: "util-macros" => "[
+  depends_on formula: "volk" => "[
   depends_on formula: "vulkan-headers" => "[
   depends_on formula: "vulkan-loader" => "[
   depends_on formula: "vulkan-tools" => "[

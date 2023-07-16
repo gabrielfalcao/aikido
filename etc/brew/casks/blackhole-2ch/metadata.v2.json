@@ -1,0 +1,60 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "blackhole-2ch",
+      "full_token": "blackhole-2ch",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "BlackHole 2ch"
+      ],
+      "desc": "Virtual Audio Driver",
+      "homepage": "https://existential.audio/blackhole/",
+      "url": "https://existential.audio/downloads/BlackHole2ch.v0.5.0.pkg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "0.5.0",
+      "installed": "0.5.0",
+      "outdated": false,
+      "sha256": "f042f31193a66d82e5a39afc429e3c1b8f1683f5996e7d8f9af5b6bb4603bfe6",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "com.apple.audio.AudioMIDISetup",
+              "pkgutil": "audio.existential.BlackHole2ch"
+            }
+          ]
+        },
+        {
+          "pkg": [
+            "BlackHole2ch.v0.5.0.pkg"
+          ]
+        },
+        {
+          "uninstall_postflight": null
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "40f76a2b5e5659cf456c84140e70987d1dae97eb",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/blackhole-2ch.rb",
+      "ruby_source_checksum": {
+        "sha256": "d9a477157692c2124ebcb79e8353db91bc21e66f79f7bb18e9b3e014cff23251"
+      }
+    }
+  ]
+}

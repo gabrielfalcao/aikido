@@ -16,10 +16,10 @@ stderr() {
     1>&2 echo -e "\033[1;38;5;220m$*\033[0m"
 }
 nstdout() {
-    echo -ne "\033[1;38;5;94m$*\033[0m"
+    echo -ne "\033[1;38;5;33m$*\033[0m"
 }
 stdout() {
-    echo -e "\033[1;38;5;94m$*\033[0m"
+    echo -e "\033[1;38;5;33m$*\033[0m"
 }
 
 show_usage() {
@@ -67,6 +67,7 @@ extract_and_save_metadata_from_brew() {
     for keg in $(brew list "--${kind}" -rt); do
         cache_path="${parent_cache_path}/${keg}"
         mkdir -p "${cache_path}"
+        nstdout "processing \033[1;38;5;220m${keg}..."
         keg_metadata_v2_path="${cache_path}/metadata.v2.json"
         if [ ! -e "${keg_metadata_v2_path}" ]; then
             brew info "--${kind}" --json=v2 "${keg}" > "${keg_metadata_v2_path}"
@@ -87,6 +88,7 @@ extract_and_save_metadata_from_brew() {
         version=$(cat "${cache_path}/version.installed")
         name=$(cat "${cache_path}/full_name")
         echo "  depends_on ${kind}: \"${name}\" => \"${version}\"" >> "${brew_metadata_path}/${plural_kind}.txt"
+        stdout " \033[1;38;5;112mOK"
     done
     sort -u "${brew_metadata_path}/${plural_kind}.txt" -o "${brew_metadata_path}/${plural_kind}.txt"
 }

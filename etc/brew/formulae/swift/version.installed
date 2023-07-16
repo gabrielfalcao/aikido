@@ -1,0 +1,48 @@
+[
+  {
+    version: 5.8.1_1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1688759117,
+    runtime_dependencies: [
+      {
+        full_name: mpdecimal,
+        version: 2.5.1,
+        declared_directly: false
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@3,
+        version: 3.1.1,
+        declared_directly: false
+      },
+      {
+        full_name: readline,
+        version: 8.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: sqlite,
+        version: 3.42.0,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: false
+      },
+      {
+        full_name: python@3.11,
+        version: 3.11.4,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]
