@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+figlet -f small "${@}" | gsed 's/^/# /g' | tee /dev/stdout | pbcopy
