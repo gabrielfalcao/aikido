@@ -1,0 +1,75 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "iterm2",
+      "full_token": "iterm2",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "iTerm2"
+      ],
+      "desc": "Terminal emulator as alternative to Apple's Terminal app",
+      "homepage": "https://www.iterm2.com/",
+      "url": "https://iterm2.com/downloads/stable/iTerm2-3_4_19.zip",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "3.4.19",
+      "installed": "3.4.19",
+      "outdated": false,
+      "sha256": "e06563714ea0582f8a69653ef5024957483c174d7387b0e8d70369db98406832",
+      "artifacts": [
+        {
+          "app": [
+            "iTerm.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/iTerm",
+                "~/Library/Application Support/iTerm2",
+                "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.googlecode.iterm2.sfl*",
+                "~/Library/Caches/com.googlecode.iterm2",
+                "~/Library/Cookies/com.googlecode.iterm2.binarycookies",
+                "~/Library/Preferences/com.googlecode.iterm2.plist",
+                "~/Library/Saved Application State/com.googlecode.iterm2.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.15"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/iterm2-beta",
+          "homebrew/cask-versions/iterm2-legacy",
+          "homebrew/cask-versions/iterm2-nightly"
+        ]
+      },
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/iterm2.rb",
+      "ruby_source_checksum": {
+        "sha256": "7045a9573ecaed2ca48bd57c80be83b9a58bcd4dafe8dbf8a3f1e744d938686b"
+      }
+    }
+  ]
+}

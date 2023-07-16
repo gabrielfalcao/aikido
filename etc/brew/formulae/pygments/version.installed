@@ -1,0 +1,22 @@
+[
+  {
+    version: 2.14.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1675688515,
+    runtime_dependencies: [],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 2.15.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496209,
+    runtime_dependencies: [],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

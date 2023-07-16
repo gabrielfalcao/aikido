@@ -1,0 +1,76 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "gimp",
+      "full_token": "gimp",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "GIMP",
+        "GNU Image Manipulation Program"
+      ],
+      "desc": "Free and open-source image editor",
+      "homepage": "https://www.gimp.org/",
+      "url": "https://download.gimp.org/gimp/v2.10/macos/gimp-2.10.34-1-arm64.dmg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "2.10.34-1",
+      "installed": "2.10.32",
+      "outdated": true,
+      "sha256": "208edf433b4423101f48f701324f981c39fb0dfbcaf645d835aeded6ebeac39d",
+      "artifacts": [
+        {
+          "preflight": null
+        },
+        {
+          "app": [
+            "GIMP.app"
+          ]
+        },
+        {
+          "binary": [
+            "/opt/homebrew/Caskroom/gimp/2.10.34-1/gimp.wrapper.sh",
+            {
+              "target": "gimp"
+            }
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/Gimp",
+                "~/Library/Preferences/org.gimp.gimp-2.10:.plist",
+                "~/Library/Saved Application State/org.gimp.gimp-2.10:.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/gimp-dev"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/gimp.rb",
+      "ruby_source_checksum": {
+        "sha256": "91b3d97a445627ab5cd969d3b1aa00c1f7a055578385b4f0d385627812e8d89b"
+      }
+    }
+  ]
+}

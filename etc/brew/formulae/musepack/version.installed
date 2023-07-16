@@ -1,0 +1,23 @@
+[
+  {
+    version: r475,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1681810588,
+    runtime_dependencies: [
+      {
+        full_name: libcuefile,
+        version: r475,
+        declared_directly: true
+      },
+      {
+        full_name: libreplaygain,
+        version: r475,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    version: 5.36.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1666674001,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2022-10-11,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1q,
+        declared_directly: false
+      },
+      {
+        full_name: berkeley-db,
+        version: 18.1.40,
+        declared_directly: true
+      },
+      {
+        full_name: gdbm,
+        version: 1.23,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: true
+  },
+  {
+    version: 5.36.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496266,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: false
+      },
+      {
+        full_name: berkeley-db,
+        version: 18.1.40,
+        declared_directly: true
+      },
+      {
+        full_name: gdbm,
+        version: 1.23,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: true
+  }
+]

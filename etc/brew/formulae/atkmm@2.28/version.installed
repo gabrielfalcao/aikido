@@ -1,0 +1,43 @@
+[
+  {
+    version: 2.28.3,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1684676577,
+    runtime_dependencies: [
+      {
+        full_name: pcre2,
+        version: 10.42,
+        declared_directly: false
+      },
+      {
+        full_name: gettext,
+        version: 0.21.1,
+        declared_directly: false
+      },
+      {
+        full_name: glib,
+        version: 2.76.2,
+        declared_directly: false
+      },
+      {
+        full_name: atk,
+        version: 2.38.0,
+        declared_directly: true
+      },
+      {
+        full_name: libsigc++@2,
+        version: 2.10.8,
+        declared_directly: false
+      },
+      {
+        full_name: glibmm@2.66,
+        version: 2.66.6,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

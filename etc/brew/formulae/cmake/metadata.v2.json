@@ -1,0 +1,187 @@
+{
+  "formulae": [
+    {
+      "name": "cmake",
+      "full_name": "cmake",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "Cross-platform make",
+      "license": "BSD-3-Clause",
+      "homepage": "https://www.cmake.org/",
+      "versions": {
+        "stable": "3.26.4",
+        "head": "HEAD",
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4.tar.gz",
+          "tag": null,
+          "revision": null,
+          "checksum": "313b6880c291bd4fe31c0aa51d6e62659282a521e695f30d5cc0d25abbd5c208"
+        },
+        "head": {
+          "url": "https://gitlab.kitware.com/cmake/cmake.git",
+          "branch": "master"
+        }
+      },
+      "revision": 0,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:68ab4f8a848bc38b041e837195de76e66b872da9d9e7fc40e23460aac7dae1bd",
+              "sha256": "68ab4f8a848bc38b041e837195de76e66b872da9d9e7fc40e23460aac7dae1bd"
+            },
+            "arm64_monterey": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:ca5d856950a397dd30286f291975628626559db8fe3a7eca7b0cd8b07a44f6e0",
+              "sha256": "ca5d856950a397dd30286f291975628626559db8fe3a7eca7b0cd8b07a44f6e0"
+            },
+            "arm64_big_sur": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:53f1290aa44b51fb4fb891a3e11b34b4f3761821d5f1d66314eb90770b46f439",
+              "sha256": "53f1290aa44b51fb4fb891a3e11b34b4f3761821d5f1d66314eb90770b46f439"
+            },
+            "ventura": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:7a48fae8706abac0d5c30e88c83bd8eed6fe44e0239ab30d1f20fd74433e5b30",
+              "sha256": "7a48fae8706abac0d5c30e88c83bd8eed6fe44e0239ab30d1f20fd74433e5b30"
+            },
+            "monterey": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:fed2e89cee2d4945288345eb98c9f04631446047f5b923f3a3d70f5289e4c73d",
+              "sha256": "fed2e89cee2d4945288345eb98c9f04631446047f5b923f3a3d70f5289e4c73d"
+            },
+            "big_sur": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:122d37e4f077d428327d055c2d749879dfb76077feeaef268787e7790a25c3fe",
+              "sha256": "122d37e4f077d428327d055c2d749879dfb76077feeaef268787e7790a25c3fe"
+            },
+            "x86_64_linux": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/cmake/blobs/sha256:dfdacde4ae0a01d5d07e70febc6b25cbbbf176042da8d34c669210cd457418d8",
+              "sha256": "dfdacde4ae0a01d5d07e70febc6b25cbbbf176042da8d34c669210cd457418d8"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+
+      ],
+      "dependencies": [
+
+      ],
+      "test_dependencies": [
+
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+        "ncurses"
+      ],
+      "uses_from_macos_bounds": [
+        {
+        }
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": "To install the CMake documentation, run:\n  brew install cmake-docs\n",
+      "installed": [
+        {
+          "version": "3.25.2",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1675411048,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": false
+        },
+        {
+          "version": "3.26.3",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1682133778,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": false
+        },
+        {
+          "version": "3.26.4",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1685496227,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": false
+        }
+      ],
+      "linked_keg": "3.26.4",
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "b71dbe7d1527b07d62648d0e7b15f6e0f10b2e9d",
+      "ruby_source_path": "Formula/cmake.rb",
+      "ruby_source_checksum": {
+        "sha256": "dea78310519ef6954df149340e5f6cb78c4683e50941c6ff7fbb04925a36a726"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}

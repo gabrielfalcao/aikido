@@ -1,0 +1,50 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "mame",
+      "full_token": "mame",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "MAME"
+      ],
+      "desc": "Port of the multi-purpose emulation framework",
+      "homepage": "https://mameosx.sourceforge.io/",
+      "url": "https://downloads.sourceforge.net/mameosx/MAMEOSX-0.135.dmg",
+      "url_specs": {
+        "verified": "downloads.sourceforge.net/mameosx/"
+      },
+      "appcast": null,
+      "version": "0.135",
+      "installed": "0.135",
+      "outdated": false,
+      "sha256": "fce1a45e53e0f6bc2ef20e5b6fc84bd48806f1bc2a38acec57fd9fafe7e2af7e",
+      "artifacts": [
+        {
+          "app": [
+            "MAME OS X.app"
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/mame.rb",
+      "ruby_source_checksum": {
+        "sha256": "ac9c015f5738bd709e1d6f27589f3c681f05b4027ad8142f167b56062e197600"
+      }
+    }
+  ]
+}

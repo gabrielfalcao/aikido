@@ -1,0 +1,182 @@
+{
+  "formulae": [
+    {
+      "name": "xz",
+      "full_name": "xz",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "General-purpose data compression with high compression ratio",
+      "license": "Public Domain and LGPL-2.1-or-later and GPL-2.0-or-later and GPL-3.0-or-later",
+      "homepage": "https://tukaani.org/xz/",
+      "versions": {
+        "stable": "5.4.3",
+        "head": null,
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://downloads.sourceforge.net/project/lzmautils/xz-5.4.3.tar.gz",
+          "tag": null,
+          "revision": null,
+          "checksum": "1c382e0bc2e4e0af58398a903dd62fff7e510171d2de47a1ebe06d1528e9b7e9"
+        }
+      },
+      "revision": 0,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:179cc5316bed5c452aa1658a2a100bc8cd1b210d79c0f2fffec4934fd1f4cd8a",
+              "sha256": "179cc5316bed5c452aa1658a2a100bc8cd1b210d79c0f2fffec4934fd1f4cd8a"
+            },
+            "arm64_monterey": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:c3ad39578242f6fbb2759e6acbcbb5af3b6aef6f77c6ed230ae3a83626353202",
+              "sha256": "c3ad39578242f6fbb2759e6acbcbb5af3b6aef6f77c6ed230ae3a83626353202"
+            },
+            "arm64_big_sur": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:f9d3283059582bf3eec0af86d8910e8409b0e1b092b7f018a9e7d6773f9ac4e4",
+              "sha256": "f9d3283059582bf3eec0af86d8910e8409b0e1b092b7f018a9e7d6773f9ac4e4"
+            },
+            "ventura": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:b9aebe3c04f5f17837a43f68ee0c276698b9a8dfad3aa4520f79f802f4f8832e",
+              "sha256": "b9aebe3c04f5f17837a43f68ee0c276698b9a8dfad3aa4520f79f802f4f8832e"
+            },
+            "monterey": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:1197fc939b8c9722ad7b36d8b38ddee54531f03d2f9f1c33f5ca91e843b13e62",
+              "sha256": "1197fc939b8c9722ad7b36d8b38ddee54531f03d2f9f1c33f5ca91e843b13e62"
+            },
+            "big_sur": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:cc402684eb7e9e81ea12b8721078c8fa1d36f2edd7ce41d0835282c00197fb0b",
+              "sha256": "cc402684eb7e9e81ea12b8721078c8fa1d36f2edd7ce41d0835282c00197fb0b"
+            },
+            "x86_64_linux": {
+              "cellar": "/home/linuxbrew/.linuxbrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:91c390f663972a9249fbbd98546bc2687afab99e5c740065d33cb474ed612bf5",
+              "sha256": "91c390f663972a9249fbbd98546bc2687afab99e5c740065d33cb474ed612bf5"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+
+      ],
+      "dependencies": [
+
+      ],
+      "test_dependencies": [
+
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+
+      ],
+      "uses_from_macos_bounds": [
+
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": null,
+      "installed": [
+        {
+          "version": "5.4.1",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1674001164,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": true
+        },
+        {
+          "version": "5.4.2",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1681810529,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": true
+        },
+        {
+          "version": "5.4.3",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1684676578,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": true
+        }
+      ],
+      "linked_keg": "5.4.3",
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "b71dbe7d1527b07d62648d0e7b15f6e0f10b2e9d",
+      "ruby_source_path": "Formula/xz.rb",
+      "ruby_source_checksum": {
+        "sha256": "e49a56f1fbc0e86254fc926de49d7abba9a12d9e1ee7c426d595b0bd07a5087a"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}

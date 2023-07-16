@@ -1,0 +1,34 @@
+[
+  {
+    version: 1.1.1t,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1676198846,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-01-10,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 1.1.1u,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685743997,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

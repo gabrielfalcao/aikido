@@ -1,0 +1,54 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "chromedriver",
+      "full_token": "chromedriver",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "ChromeDriver"
+      ],
+      "desc": "Automated testing of webapps for Google Chrome",
+      "homepage": "https://sites.google.com/chromium.org/driver/",
+      "url": "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_mac_arm64.zip",
+      "url_specs": {
+        "verified": "chromedriver.storage.googleapis.com/"
+      },
+      "appcast": null,
+      "version": "114.0.5735.90",
+      "installed": "113.0.5672.63",
+      "outdated": true,
+      "sha256": "14eb3a1642a829fcbc11ef22e113b2f6a2340c4f4e235e5494b414c4834fa47c",
+      "artifacts": [
+        {
+          "binary": [
+            "chromedriver"
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/chromedriver-beta"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/chromedriver.rb",
+      "ruby_source_checksum": {
+        "sha256": "835b22c059af16ee5a6bb549c77314407f007a61c51d5cba143dc57924540225"
+      }
+    }
+  ]
+}

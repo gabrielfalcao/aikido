@@ -1,0 +1,122 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "libreoffice",
+      "full_token": "libreoffice",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "LibreOffice"
+      ],
+      "desc": "Office suite",
+      "homepage": "https://www.libreoffice.org/",
+      "url": "https://download.documentfoundation.org/libreoffice/stable/7.5.4/mac/aarch64/LibreOffice_7.5.4_MacOS_aarch64.dmg",
+      "url_specs": {
+        "verified": "download.documentfoundation.org/libreoffice/stable/"
+      },
+      "appcast": null,
+      "version": "7.5.4",
+      "installed": "7.5.3",
+      "outdated": true,
+      "sha256": "f0a606ba5514f8a24094e51b167fa413f061e6a51af0c5ac090e9f35a7f0f53e",
+      "artifacts": [
+        {
+          "preflight": null
+        },
+        {
+          "app": [
+            "LibreOffice.app"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/regview"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/senddoc"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/uno"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/unoinfo"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/uri-encode"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/xpdfimport"
+          ]
+        },
+        {
+          "binary": [
+            "/opt/homebrew/Caskroom/libreoffice/7.5.4/soffice.wrapper.sh",
+            {
+              "target": "soffice"
+            }
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/unopkg"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/LibreOffice.app/Contents/MacOS/gengal"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/org.libreoffice.script.sfl*",
+                "~/Library/Application Support/LibreOffice",
+                "~/Library/Preferences/org.libreoffice.script.plist",
+                "~/Library/Saved Application State/org.libreoffice.script.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.14"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/libreoffice-still"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/libreoffice.rb",
+      "ruby_source_checksum": {
+        "sha256": "7bb4c3e460c38afd669510ff50427ea5773b5f79cd07da987f4125779f9197a9"
+      }
+    }
+  ]
+}

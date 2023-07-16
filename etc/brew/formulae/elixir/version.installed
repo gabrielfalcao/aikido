@@ -1,0 +1,245 @@
+[
+  {
+    version: 1.14.4,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1681810823,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-01-10,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: false
+      },
+      {
+        full_name: m4,
+        version: 1.4.19,
+        declared_directly: false
+      },
+      {
+        full_name: libtool,
+        version: 2.4.7,
+        declared_directly: false
+      },
+      {
+        full_name: unixodbc,
+        version: 2.3.11,
+        declared_directly: false
+      },
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.5.1,
+        declared_directly: false
+      },
+      {
+        full_name: libpng,
+        version: 1.6.39,
+        declared_directly: false
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.2,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: false
+      },
+      {
+        full_name: libtiff,
+        version: 4.4.0,
+        declared_directly: false
+      },
+      {
+        full_name: pcre2,
+        version: 10.42,
+        declared_directly: false
+      },
+      {
+        full_name: wxwidgets,
+        version: 3.2.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: erlang,
+        version: 25.3,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  },
+  {
+    version: 1.14.5,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496262,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: false
+      },
+      {
+        full_name: m4,
+        version: 1.4.19,
+        declared_directly: false
+      },
+      {
+        full_name: libtool,
+        version: 2.4.7,
+        declared_directly: false
+      },
+      {
+        full_name: unixodbc,
+        version: 2.3.11,
+        declared_directly: false
+      },
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.5.1,
+        declared_directly: false
+      },
+      {
+        full_name: libpng,
+        version: 1.6.39,
+        declared_directly: false
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: false
+      },
+      {
+        full_name: libtiff,
+        version: 4.5.0,
+        declared_directly: false
+      },
+      {
+        full_name: pcre2,
+        version: 10.42,
+        declared_directly: false
+      },
+      {
+        full_name: wxwidgets,
+        version: 3.2.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: erlang,
+        version: 25.3.2,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  },
+  {
+    version: 1.15.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1687595208,
+    runtime_dependencies: [
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1u,
+        declared_directly: false
+      },
+      {
+        full_name: m4,
+        version: 1.4.19,
+        declared_directly: false
+      },
+      {
+        full_name: libtool,
+        version: 2.4.7,
+        declared_directly: false
+      },
+      {
+        full_name: unixodbc,
+        version: 2.3.11,
+        declared_directly: false
+      },
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.5.1,
+        declared_directly: false
+      },
+      {
+        full_name: libpng,
+        version: 1.6.40,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: false
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: false
+      },
+      {
+        full_name: libtiff,
+        version: 4.5.1,
+        declared_directly: false
+      },
+      {
+        full_name: pcre2,
+        version: 10.42,
+        declared_directly: false
+      },
+      {
+        full_name: wxwidgets,
+        version: 3.2.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: erlang,
+        version: 25.3.2.2,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]

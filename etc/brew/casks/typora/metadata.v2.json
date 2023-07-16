@@ -1,0 +1,74 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "typora",
+      "full_token": "typora",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Typora"
+      ],
+      "desc": "Configurable document editor that supports Markdown",
+      "homepage": "https://typora.io/",
+      "url": "https://download.typora.io/mac/Typora-1.6.7.dmg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "1.6.7",
+      "installed": "1.5.9",
+      "outdated": false,
+      "sha256": "5879d8e21d04ae3c0562969dccb4c49bc404e2d65502cc6dac0c0fefaa24b697",
+      "artifacts": [
+        {
+          "app": [
+            "Typora.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/abnerworks.Typora",
+                "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/abnerworks.typora.sfl*",
+                "~/Library/Application Support/Typora",
+                "~/Library/Caches/abnerworks.Typora",
+                "~/Library/Cookies/abnerworks.Typora.binarycookies",
+                "~/Library/Preferences/abnerworks.Typora.plist",
+                "~/Library/Saved Application State/abnerworks.Typora.savedState",
+                "~/Library/WebKit/abnerworks.Typora"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.15"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/typora-dev"
+        ]
+      },
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/typora.rb",
+      "ruby_source_checksum": {
+        "sha256": "91c4b779069b7fc30bb9881eef53ec3c336fefa9decddcefc419d27b50c5b83e"
+      }
+    }
+  ]
+}

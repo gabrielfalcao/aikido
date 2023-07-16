@@ -1,0 +1,12 @@
+[
+  {
+    version: 20160926,
+    used_options: [],
+    built_as_bottle: false,
+    poured_from_bottle: false,
+    time: 1663545767,
+    runtime_dependencies: [],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

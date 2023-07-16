@@ -1,0 +1,297 @@
+[
+  {
+    "name": "openjdk@11",
+    "full_name": "openjdk@11",
+    "tap": "homebrew/core",
+    "oldname": null,
+    "oldnames": [
+
+    ],
+    "aliases": [
+      "java11"
+    ],
+    "versioned_formulae": [
+      "openjdk@17",
+      "openjdk@8"
+    ],
+    "desc": "Development kit for the Java programming language",
+    "license": "GPL-2.0-only",
+    "homepage": "https://openjdk.java.net/",
+    "versions": {
+      "stable": "11.0.19",
+      "head": null,
+      "bottle": true
+    },
+    "urls": {
+      "stable": {
+        "url": "https://github.com/openjdk/jdk11u/archive/refs/tags/jdk-11.0.19-ga.tar.gz",
+        "tag": null,
+        "revision": null,
+        "checksum": "5077e9713e59ccf92fbe58b9bb63e18294fb2110df644f476638e1528e5dfd46"
+      }
+    },
+    "revision": 0,
+    "version_scheme": 0,
+    "bottle": {
+      "stable": {
+        "rebuild": 0,
+        "root_url": "https://ghcr.io/v2/homebrew/core",
+        "files": {
+          "arm64_ventura": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:1bca4101ca2dc3aedfd920c05ffe5c574836a192ffffdcdf7474d97c818f819a",
+            "sha256": "1bca4101ca2dc3aedfd920c05ffe5c574836a192ffffdcdf7474d97c818f819a"
+          },
+          "arm64_monterey": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:bdd02ba57b1fef869bca1f123c273b34dbe1984eb8d8e95962eb90dacd5d556f",
+            "sha256": "bdd02ba57b1fef869bca1f123c273b34dbe1984eb8d8e95962eb90dacd5d556f"
+          },
+          "arm64_big_sur": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:929a29a68609b62ac5373245f13ff766a8148ceaccc0ce61a421e1bf7632116e",
+            "sha256": "929a29a68609b62ac5373245f13ff766a8148ceaccc0ce61a421e1bf7632116e"
+          },
+          "ventura": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:24d306338e44c638d980a9d028514025a5ccae7970bc473afef0417405b5eaf5",
+            "sha256": "24d306338e44c638d980a9d028514025a5ccae7970bc473afef0417405b5eaf5"
+          },
+          "monterey": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:d5a6dfc55086acfc311c0151114286358bf6bd3a66d1437cbacfd0a97e5a5e02",
+            "sha256": "d5a6dfc55086acfc311c0151114286358bf6bd3a66d1437cbacfd0a97e5a5e02"
+          },
+          "big_sur": {
+            "cellar": ":any",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:bd53dfd5ee78e1083bb9f9468f7556b1b6c18a5d7e3204a16a3b9c31bc8ba8c5",
+            "sha256": "bd53dfd5ee78e1083bb9f9468f7556b1b6c18a5d7e3204a16a3b9c31bc8ba8c5"
+          },
+          "x86_64_linux": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/openjdk/11/blobs/sha256:b331e6cb6f09444c013faa2a51aab34bbc4774aa9cd75ded199eac2eca0fe36f",
+            "sha256": "b331e6cb6f09444c013faa2a51aab34bbc4774aa9cd75ded199eac2eca0fe36f"
+          }
+        }
+      }
+    },
+    "keg_only": true,
+    "keg_only_reason": {
+      "reason": ":versioned_formula",
+      "explanation": ""
+    },
+    "options": [
+
+    ],
+    "build_dependencies": [
+      "autoconf",
+      "pkg-config"
+    ],
+    "dependencies": [
+      "giflib",
+      "harfbuzz",
+      "jpeg-turbo",
+      "libpng",
+      "little-cms2"
+    ],
+    "test_dependencies": [
+
+    ],
+    "recommended_dependencies": [
+
+    ],
+    "optional_dependencies": [
+
+    ],
+    "uses_from_macos": [
+      "cups",
+      "unzip",
+      "zip",
+      "zlib"
+    ],
+    "uses_from_macos_bounds": [
+      {
+      },
+      {
+      },
+      {
+      },
+      {
+      }
+    ],
+    "requirements": [
+
+    ],
+    "conflicts_with": [
+
+    ],
+    "conflicts_with_reasons": [
+
+    ],
+    "link_overwrite": [
+
+    ],
+    "caveats": "For the system Java wrappers to find this JDK, symlink it with\n  sudo ln -sfn $HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk\n",
+    "installed": [
+      {
+        "version": "11.0.19",
+        "used_options": [
+
+        ],
+        "built_as_bottle": true,
+        "poured_from_bottle": true,
+        "time": 1686240347,
+        "runtime_dependencies": [
+          {
+            "full_name": "giflib",
+            "version": "5.2.1",
+            "declared_directly": true
+          },
+          {
+            "full_name": "libpng",
+            "version": "1.6.39",
+            "declared_directly": true
+          },
+          {
+            "full_name": "freetype",
+            "version": "2.13.0",
+            "declared_directly": false
+          },
+          {
+            "full_name": "fontconfig",
+            "version": "2.14.2",
+            "declared_directly": false
+          },
+          {
+            "full_name": "pcre2",
+            "version": "10.42",
+            "declared_directly": false
+          },
+          {
+            "full_name": "gettext",
+            "version": "0.21.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "glib",
+            "version": "2.76.3",
+            "declared_directly": false
+          },
+          {
+            "full_name": "xorgproto",
+            "version": "2022.2",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libxau",
+            "version": "1.0.11",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libxdmcp",
+            "version": "1.1.4",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libxcb",
+            "version": "1.15",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libx11",
+            "version": "1.8.4",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libxext",
+            "version": "1.3.5",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libxrender",
+            "version": "0.9.11",
+            "declared_directly": false
+          },
+          {
+            "full_name": "lzo",
+            "version": "2.10",
+            "declared_directly": false
+          },
+          {
+            "full_name": "pixman",
+            "version": "0.42.2",
+            "declared_directly": false
+          },
+          {
+            "full_name": "cairo",
+            "version": "1.16.0",
+            "declared_directly": false
+          },
+          {
+            "full_name": "graphite2",
+            "version": "1.3.14",
+            "declared_directly": false
+          },
+          {
+            "full_name": "icu4c",
+            "version": "72.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "harfbuzz",
+            "version": "7.3.0",
+            "declared_directly": true
+          },
+          {
+            "full_name": "jpeg-turbo",
+            "version": "2.1.5.1",
+            "declared_directly": true
+          },
+          {
+            "full_name": "lz4",
+            "version": "1.9.4",
+            "declared_directly": false
+          },
+          {
+            "full_name": "xz",
+            "version": "5.4.3",
+            "declared_directly": false
+          },
+          {
+            "full_name": "zstd",
+            "version": "1.5.5",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libtiff",
+            "version": "4.5.0",
+            "declared_directly": false
+          },
+          {
+            "full_name": "little-cms2",
+            "version": "2.15",
+            "declared_directly": true
+          }
+        ],
+        "installed_as_dependency": true,
+        "installed_on_request": false
+      }
+    ],
+    "linked_keg": null,
+    "pinned": false,
+    "outdated": false,
+    "deprecated": false,
+    "deprecation_date": null,
+    "deprecation_reason": null,
+    "disabled": false,
+    "disable_date": null,
+    "disable_reason": null,
+    "post_install_defined": false,
+    "service": null,
+    "tap_git_head": "b71dbe7d1527b07d62648d0e7b15f6e0f10b2e9d",
+    "ruby_source_path": "Formula/openjdk@11.rb",
+    "ruby_source_checksum": {
+      "sha256": "df4f5549c183fafc9f72d982791f48e7bc5150355b9f207cfa874dcff474efa6"
+    }
+  }
+]

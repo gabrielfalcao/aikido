@@ -1,0 +1,18 @@
+[
+  {
+    version: 1.0.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1676954389,
+    runtime_dependencies: [
+      {
+        full_name: popt,
+        version: 1.19,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]

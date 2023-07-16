@@ -1,0 +1,166 @@
+[
+  {
+    version: 1.51.1_1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1676954352,
+    runtime_dependencies: [
+      {
+        full_name: abseil,
+        version: 20220623.1,
+        declared_directly: true
+      },
+      {
+        full_name: c-ares,
+        version: 1.19.0,
+        declared_directly: true
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-01-10,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: true
+      },
+      {
+        full_name: protobuf,
+        version: 21.12,
+        declared_directly: true
+      },
+      {
+        full_name: re2,
+        version: 20230201,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 1.54.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1681810783,
+    runtime_dependencies: [
+      {
+        full_name: abseil,
+        version: 20230125.2,
+        declared_directly: true
+      },
+      {
+        full_name: c-ares,
+        version: 1.19.0,
+        declared_directly: true
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-01-10,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: true
+      },
+      {
+        full_name: protobuf,
+        version: 21.12,
+        declared_directly: true
+      },
+      {
+        full_name: re2,
+        version: 20230301,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 1.54.2,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496232,
+    runtime_dependencies: [
+      {
+        full_name: abseil,
+        version: 20230125.3,
+        declared_directly: true
+      },
+      {
+        full_name: c-ares,
+        version: 1.19.1,
+        declared_directly: true
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1t,
+        declared_directly: true
+      },
+      {
+        full_name: protobuf,
+        version: 21.12,
+        declared_directly: true
+      },
+      {
+        full_name: re2,
+        version: 20230301,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 1.56.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1689274306,
+    runtime_dependencies: [
+      {
+        full_name: abseil,
+        version: 20230125.3,
+        declared_directly: true
+      },
+      {
+        full_name: c-ares,
+        version: 1.19.1,
+        declared_directly: true
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@3,
+        version: 3.1.1,
+        declared_directly: true
+      },
+      {
+        full_name: protobuf,
+        version: 23.4,
+        declared_directly: true
+      },
+      {
+        full_name: re2,
+        version: 20230701,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

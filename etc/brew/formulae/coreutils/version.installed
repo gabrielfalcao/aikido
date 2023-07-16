@@ -1,0 +1,34 @@
+[
+  {
+    version: 9.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1661291024,
+    runtime_dependencies: [
+      {
+        full_name: gmp,
+        version: 6.2.1,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  },
+  {
+    version: 9.3,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496471,
+    runtime_dependencies: [
+      {
+        full_name: gmp,
+        version: 6.2.1,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]

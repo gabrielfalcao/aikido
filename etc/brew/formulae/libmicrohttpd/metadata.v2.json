@@ -1,0 +1,326 @@
+{
+  "formulae": [
+    {
+      "name": "libmicrohttpd",
+      "full_name": "libmicrohttpd",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "Light HTTP/1.1 server library",
+      "license": "LGPL-2.1-or-later",
+      "homepage": "https://www.gnu.org/software/libmicrohttpd/",
+      "versions": {
+        "stable": "0.9.77",
+        "head": null,
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.77.tar.gz",
+          "tag": null,
+          "revision": null,
+          "checksum": "9e7023a151120060d2806a6ea4c13ca9933ece4eacfc5c9464d20edddb76b0a0"
+        }
+      },
+      "revision": 0,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:db5805160eb11ac4c60b5de2e9b29ac0a9f2a35db53cc0fc9b9a5c8d9dc6ba9c",
+              "sha256": "db5805160eb11ac4c60b5de2e9b29ac0a9f2a35db53cc0fc9b9a5c8d9dc6ba9c"
+            },
+            "arm64_monterey": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:d9038f31539af0dd9d376bfa304f30c755c9c61ca4f751048a4e02c81fb406f0",
+              "sha256": "d9038f31539af0dd9d376bfa304f30c755c9c61ca4f751048a4e02c81fb406f0"
+            },
+            "arm64_big_sur": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:a1ab5dd724062a0931c3c8b2545c6a282114b662a653b48dbf50b16ec26bb95d",
+              "sha256": "a1ab5dd724062a0931c3c8b2545c6a282114b662a653b48dbf50b16ec26bb95d"
+            },
+            "ventura": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:1dbaac9c6d165536ff5a7834227305e6aad50dd8c6583e1575e1b6eac3ca346d",
+              "sha256": "1dbaac9c6d165536ff5a7834227305e6aad50dd8c6583e1575e1b6eac3ca346d"
+            },
+            "monterey": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:117479b8d61630e7eefa071e1eb586af7af8d9db1dd4c78a34343a37c1d76d32",
+              "sha256": "117479b8d61630e7eefa071e1eb586af7af8d9db1dd4c78a34343a37c1d76d32"
+            },
+            "big_sur": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:c5a7c2d00dff286ff8c70c757b609a4c8f085019955885ca99da0f8537763409",
+              "sha256": "c5a7c2d00dff286ff8c70c757b609a4c8f085019955885ca99da0f8537763409"
+            },
+            "x86_64_linux": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/libmicrohttpd/blobs/sha256:b9d77426c489b76f16982e5d2e12ac46d96011d65022e82e03e8e220aa9332c0",
+              "sha256": "b9d77426c489b76f16982e5d2e12ac46d96011d65022e82e03e8e220aa9332c0"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+
+      ],
+      "dependencies": [
+        "gnutls"
+      ],
+      "test_dependencies": [
+
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+
+      ],
+      "uses_from_macos_bounds": [
+
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": null,
+      "installed": [
+        {
+          "version": "0.9.75",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1674457899,
+          "runtime_dependencies": [
+            {
+              "full_name": "ca-certificates",
+              "version": "2023-01-10",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gmp",
+              "version": "6.2.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "bdw-gc",
+              "version": "8.2.2",
+              "declared_directly": false
+            },
+            {
+              "full_name": "m4",
+              "version": "1.4.19",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libtool",
+              "version": "2.4.7",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libunistring",
+              "version": "1.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "pkg-config",
+              "version": "0.29.2",
+              "declared_directly": false
+            },
+            {
+              "full_name": "readline",
+              "version": "8.2.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "guile",
+              "version": "3.0.8",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gettext",
+              "version": "0.21.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libidn2",
+              "version": "2.3.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libtasn1",
+              "version": "4.19.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "nettle",
+              "version": "3.8.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "p11-kit",
+              "version": "0.24.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "openssl@1.1",
+              "version": "1.1.1s",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libevent",
+              "version": "2.1.12",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libnghttp2",
+              "version": "1.51.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "unbound",
+              "version": "1.17.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gnutls",
+              "version": "3.7.8",
+              "declared_directly": true
+            }
+          ],
+          "installed_as_dependency": false,
+          "installed_on_request": true
+        },
+        {
+          "version": "0.9.77",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1685496383,
+          "runtime_dependencies": [
+            {
+              "full_name": "ca-certificates",
+              "version": "2023-05-30",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gmp",
+              "version": "6.2.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libunistring",
+              "version": "1.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gettext",
+              "version": "0.21.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libidn2",
+              "version": "2.3.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libtasn1",
+              "version": "4.19.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "nettle",
+              "version": "3.9",
+              "declared_directly": false
+            },
+            {
+              "full_name": "p11-kit",
+              "version": "0.24.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "openssl@1.1",
+              "version": "1.1.1t",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libevent",
+              "version": "2.1.12",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libnghttp2",
+              "version": "1.53.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "unbound",
+              "version": "1.17.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gnutls",
+              "version": "3.8.0",
+              "declared_directly": true
+            }
+          ],
+          "installed_as_dependency": false,
+          "installed_on_request": true
+        }
+      ],
+      "linked_keg": "0.9.77",
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "b71dbe7d1527b07d62648d0e7b15f6e0f10b2e9d",
+      "ruby_source_path": "Formula/libmicrohttpd.rb",
+      "ruby_source_checksum": {
+        "sha256": "dadcf3700212ff90bb9f9f2813d9ba892c5ea2c93f993caf687e38d0f512ce0a"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}

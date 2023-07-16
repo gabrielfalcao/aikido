@@ -1,0 +1,143 @@
+[
+  {
+    version: 1.7.4,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1687379656,
+    runtime_dependencies: [
+      {
+        full_name: gnu-getopt,
+        version: 2.39,
+        declared_directly: true
+      },
+      {
+        full_name: ca-certificates,
+        version: 2023-05-30,
+        declared_directly: false
+      },
+      {
+        full_name: gmp,
+        version: 6.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: libunistring,
+        version: 1.1,
+        declared_directly: false
+      },
+      {
+        full_name: gettext,
+        version: 0.21.1,
+        declared_directly: false
+      },
+      {
+        full_name: libidn2,
+        version: 2.3.4,
+        declared_directly: false
+      },
+      {
+        full_name: libtasn1,
+        version: 4.19.0,
+        declared_directly: false
+      },
+      {
+        full_name: nettle,
+        version: 3.9.1,
+        declared_directly: false
+      },
+      {
+        full_name: p11-kit,
+        version: 0.24.1,
+        declared_directly: false
+      },
+      {
+        full_name: openssl@1.1,
+        version: 1.1.1u,
+        declared_directly: false
+      },
+      {
+        full_name: libevent,
+        version: 2.1.12,
+        declared_directly: false
+      },
+      {
+        full_name: libnghttp2,
+        version: 1.54.0,
+        declared_directly: false
+      },
+      {
+        full_name: unbound,
+        version: 1.17.1,
+        declared_directly: false
+      },
+      {
+        full_name: gnutls,
+        version: 3.8.0,
+        declared_directly: false
+      },
+      {
+        full_name: libgpg-error,
+        version: 1.47,
+        declared_directly: false
+      },
+      {
+        full_name: libassuan,
+        version: 2.5.6,
+        declared_directly: false
+      },
+      {
+        full_name: libgcrypt,
+        version: 1.10.2,
+        declared_directly: false
+      },
+      {
+        full_name: libksba,
+        version: 1.6.4,
+        declared_directly: false
+      },
+      {
+        full_name: libusb,
+        version: 1.0.26,
+        declared_directly: false
+      },
+      {
+        full_name: npth,
+        version: 1.6,
+        declared_directly: false
+      },
+      {
+        full_name: pinentry,
+        version: 1.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: readline,
+        version: 8.2.1,
+        declared_directly: false
+      },
+      {
+        full_name: gnupg,
+        version: 2.4.2,
+        declared_directly: true
+      },
+      {
+        full_name: libpng,
+        version: 1.6.39,
+        declared_directly: false
+      },
+      {
+        full_name: qrencode,
+        version: 4.1.1,
+        declared_directly: true
+      },
+      {
+        full_name: tree,
+        version: 2.1.1,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]

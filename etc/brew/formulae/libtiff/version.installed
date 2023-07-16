@@ -1,0 +1,80 @@
+[
+  {
+    version: 4.4.0_1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1663545720,
+    runtime_dependencies: [
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.4,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 4.5.0,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1684676580,
+    runtime_dependencies: [
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.5.1,
+        declared_directly: true
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  },
+  {
+    version: 4.5.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1687595011,
+    runtime_dependencies: [
+      {
+        full_name: jpeg-turbo,
+        version: 2.1.5.1,
+        declared_directly: true
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: true
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: true,
+    installed_on_request: false
+  }
+]

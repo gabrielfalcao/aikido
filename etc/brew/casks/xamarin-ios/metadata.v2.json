@@ -1,0 +1,70 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "xamarin-ios",
+      "full_token": "xamarin-ios",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Xamarin.iOS"
+      ],
+      "desc": "Gives .NET developers complete access to iOS, watchOS, and tvOS SDK's",
+      "homepage": "https://dotnet.microsoft.com/en-us/apps/xamarin",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/b4928191-de3d-42cb-a24f-709e5d71626c/ac849f1f644aee58ed4e7a79cb35a14e/xamarin.ios-16.4.0.6.pkg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "16.4.0.6,b4928191-de3d-42cb-a24f-709e5d71626c,ac849f1f644aee58ed4e7a79cb35a14e",
+      "installed": "16.4.0.6,b4928191-de3d-42cb-a24f-709e5d71626c,ac849f1f644aee58ed4e7a79cb35a14e",
+      "outdated": false,
+      "sha256": "1266b991cb5bf2f9ebcca7c79d5d1d9d702cd76ca2b135a43949d6235f8d1a46",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "pkgutil": [
+                "com.xamarin.xamarin.ios.pkg",
+                "com.xamarin.xamarin-ios-build-host.pkg",
+                "com.xamarin.monotouch.pkg"
+              ]
+            }
+          ]
+        },
+        {
+          "pkg": [
+            "xamarin.ios-16.4.0.6.pkg"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "/Developer/MonoTouch",
+                "/Library/Frameworks/Xamarin.iOS.framework"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/xamarin-ios.rb",
+      "ruby_source_checksum": {
+        "sha256": "56bff4ae631e3b13a9b0cf0b02328824fa560f1068a74162596d27ec0e7b75ae"
+      }
+    }
+  ]
+}

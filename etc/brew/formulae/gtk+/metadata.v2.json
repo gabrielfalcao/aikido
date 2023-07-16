@@ -1,0 +1,302 @@
+{
+  "formulae": [
+    {
+      "name": "gtk+",
+      "full_name": "gtk+",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+        "gtk"
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "GUI toolkit",
+      "license": "LGPL-2.0-or-later",
+      "homepage": "https://gtk.org/",
+      "versions": {
+        "stable": "2.24.33",
+        "head": null,
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://download.gnome.org/sources/gtk+/2.24/gtk+-2.24.33.tar.xz",
+          "tag": null,
+          "revision": null,
+          "checksum": "ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da"
+        }
+      },
+      "revision": 1,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:09d870f69784624a4585fd4778d622441689350d4ef444f658e5e8be0edb644c",
+              "sha256": "09d870f69784624a4585fd4778d622441689350d4ef444f658e5e8be0edb644c"
+            },
+            "arm64_monterey": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:9c86b442ae42c6842b04c5f2fba9014cf92da4ce1b6730821d400b1549fb9c4c",
+              "sha256": "9c86b442ae42c6842b04c5f2fba9014cf92da4ce1b6730821d400b1549fb9c4c"
+            },
+            "arm64_big_sur": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:7f1fa14922a06171f2827daa56e7973721de2257a7920e8091081fedb641d63b",
+              "sha256": "7f1fa14922a06171f2827daa56e7973721de2257a7920e8091081fedb641d63b"
+            },
+            "ventura": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:336771ce80cf6413d18c87666abf8ff030faf96a8530c1f5e4185184d80d791b",
+              "sha256": "336771ce80cf6413d18c87666abf8ff030faf96a8530c1f5e4185184d80d791b"
+            },
+            "monterey": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:b9e663b0c11f3fbd74d92aacf6246202b600dc4346de26f43516d1531d88b60b",
+              "sha256": "b9e663b0c11f3fbd74d92aacf6246202b600dc4346de26f43516d1531d88b60b"
+            },
+            "big_sur": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:3eb689a0bf93bff2991160daa62cd31bea4ee77791ae216f2d6b30d5305ce6b4",
+              "sha256": "3eb689a0bf93bff2991160daa62cd31bea4ee77791ae216f2d6b30d5305ce6b4"
+            },
+            "x86_64_linux": {
+              "cellar": "/home/linuxbrew/.linuxbrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/gtkx/blobs/sha256:3ccb9319c9550fd10cedb09ef7cfc51ed8ffd71b1698aa66d143d83f5c1b895a",
+              "sha256": "3ccb9319c9550fd10cedb09ef7cfc51ed8ffd71b1698aa66d143d83f5c1b895a"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+        "gobject-introspection",
+        "pkg-config"
+      ],
+      "dependencies": [
+        "atk",
+        "gdk-pixbuf",
+        "hicolor-icon-theme",
+        "pango"
+      ],
+      "test_dependencies": [
+        "pkg-config"
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+
+      ],
+      "uses_from_macos_bounds": [
+
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": "To avoid a conflict with `gtk+3` formula, `gtk-update-icon-cache` is installed at\n  $HOMEBREW_PREFIX/opt/gtk+/libexec/gtk-update-icon-cache\nA versioned symlink `gtk2-update-icon-cache` is linked for convenience.\n",
+      "installed": [
+        {
+          "version": "2.24.33_1",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1676198854,
+          "runtime_dependencies": [
+            {
+              "full_name": "pcre2",
+              "version": "10.42",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gettext",
+              "version": "0.21.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "glib",
+              "version": "2.74.5",
+              "declared_directly": false
+            },
+            {
+              "full_name": "atk",
+              "version": "2.38.0",
+              "declared_directly": true
+            },
+            {
+              "full_name": "jpeg-turbo",
+              "version": "2.1.5.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libpng",
+              "version": "1.6.39",
+              "declared_directly": false
+            },
+            {
+              "full_name": "lz4",
+              "version": "1.9.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "xz",
+              "version": "5.4.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "zstd",
+              "version": "1.5.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libtiff",
+              "version": "4.4.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "gdk-pixbuf",
+              "version": "2.42.10",
+              "declared_directly": true
+            },
+            {
+              "full_name": "hicolor-icon-theme",
+              "version": "0.17",
+              "declared_directly": true
+            },
+            {
+              "full_name": "freetype",
+              "version": "2.13.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "fontconfig",
+              "version": "2.14.2",
+              "declared_directly": false
+            },
+            {
+              "full_name": "xorgproto",
+              "version": "2022.2",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libxau",
+              "version": "1.0.11",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libxdmcp",
+              "version": "1.1.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libxcb",
+              "version": "1.15",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libx11",
+              "version": "1.8.4",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libxext",
+              "version": "1.3.5",
+              "declared_directly": false
+            },
+            {
+              "full_name": "libxrender",
+              "version": "0.9.11",
+              "declared_directly": false
+            },
+            {
+              "full_name": "lzo",
+              "version": "2.10",
+              "declared_directly": false
+            },
+            {
+              "full_name": "pixman",
+              "version": "0.42.2",
+              "declared_directly": false
+            },
+            {
+              "full_name": "cairo",
+              "version": "1.16.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "fribidi",
+              "version": "1.0.12",
+              "declared_directly": false
+            },
+            {
+              "full_name": "graphite2",
+              "version": "1.3.14",
+              "declared_directly": false
+            },
+            {
+              "full_name": "icu4c",
+              "version": "72.1",
+              "declared_directly": false
+            },
+            {
+              "full_name": "harfbuzz",
+              "version": "6.0.0",
+              "declared_directly": false
+            },
+            {
+              "full_name": "pango",
+              "version": "1.50.12",
+              "declared_directly": true
+            }
+          ],
+          "installed_as_dependency": true,
+          "installed_on_request": false
+        }
+      ],
+      "linked_keg": "2.24.33_1",
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "b71dbe7d1527b07d62648d0e7b15f6e0f10b2e9d",
+      "ruby_source_path": "Formula/gtk+.rb",
+      "ruby_source_checksum": {
+        "sha256": "4b25d8ba067110c891cd6a5b9d1699ce813316ef81e56340261fc579fa3df9fd"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}

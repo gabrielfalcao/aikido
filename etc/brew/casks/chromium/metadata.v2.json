@@ -1,0 +1,78 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "chromium",
+      "full_token": "chromium",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Chromium"
+      ],
+      "desc": "Free and open-source web browser",
+      "homepage": "https://www.chromium.org/Home",
+      "url": "https://download-chromium.appspot.com/dl/Mac_Arm?type=snapshots",
+      "url_specs": {
+        "verified": "download-chromium.appspot.com/dl/"
+      },
+      "appcast": null,
+      "version": "latest",
+      "installed": "latest",
+      "outdated": false,
+      "sha256": "no_check",
+      "artifacts": [
+        {
+          "preflight": null
+        },
+        {
+          "app": [
+            "chrome-mac/Chromium.app"
+          ]
+        },
+        {
+          "binary": [
+            "/opt/homebrew/Caskroom/chromium/latest/chromium.wrapper.sh",
+            {
+              "target": "chromium"
+            }
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/Chromium",
+                "~/Library/Caches/Chromium",
+                "~/Library/Preferences/org.chromium.Chromium.plist",
+                "~/Library/Saved Application State/org.chromium.Chromium.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": {
+        "cask": [
+          "eloston-chromium",
+          "freesmug-chromium"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/chromium.rb",
+      "ruby_source_checksum": {
+        "sha256": "01b0c5276c3032fe348117b4082fa4cbfd2a42babc729f283ab7beb317c8b047"
+      }
+    }
+  ]
+}

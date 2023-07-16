@@ -1,0 +1,95 @@
+[
+  {
+    version: 4.7.4,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1674963713,
+    runtime_dependencies: [
+      {
+        full_name: hiredis,
+        version: 1.1.0,
+        declared_directly: true
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.1,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.2,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  },
+  {
+    version: 4.8,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1681810822,
+    runtime_dependencies: [
+      {
+        full_name: hiredis,
+        version: 1.1.0,
+        declared_directly: true
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.2,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  },
+  {
+    version: 4.8.1,
+    used_options: [],
+    built_as_bottle: true,
+    poured_from_bottle: true,
+    time: 1685496473,
+    runtime_dependencies: [
+      {
+        full_name: hiredis,
+        version: 1.1.0,
+        declared_directly: true
+      },
+      {
+        full_name: lz4,
+        version: 1.9.4,
+        declared_directly: false
+      },
+      {
+        full_name: xz,
+        version: 5.4.3,
+        declared_directly: false
+      },
+      {
+        full_name: zstd,
+        version: 1.5.5,
+        declared_directly: true
+      }
+    ],
+    installed_as_dependency: false,
+    installed_on_request: true
+  }
+]

@@ -1,0 +1,87 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "little-snitch",
+      "full_token": "little-snitch",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Little Snitch"
+      ],
+      "desc": "Host-based application firewall",
+      "homepage": "https://www.obdev.at/products/littlesnitch/index.html",
+      "url": "https://www.obdev.at/downloads/littlesnitch/LittleSnitch-5.6.dmg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "5.6",
+      "installed": "5.4.1",
+      "outdated": false,
+      "sha256": "c424847fd9ec3eedca81a846f1944acbee492a7e8775cb1f5ad540658f81eda7",
+      "artifacts": [
+        {
+          "app": [
+            "Little Snitch.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "/Library/Application Support/Objective Development/Little Snitch",
+                "/Library/Caches/at.obdev.LittleSnitchConfiguration",
+                "/Library/Little Snitch",
+                "/Library/Logs/LittleSnitchDaemon.log",
+                "~/Library/Application Support/Little Snitch",
+                "~/Library/Caches/at.obdev.LittleSnitchAgent",
+                "~/Library/Caches/at.obdev.LittleSnitchConfiguration",
+                "~/Library/Caches/at.obdev.LittleSnitchHelper",
+                "~/Library/Caches/at.obdev.LittleSnitchSoftwareUpdate",
+                "~/Library/Caches/com.apple.helpd/Generated/at.obdev.LittleSnitchConfiguration.help*",
+                "~/Library/Caches/com.apple.helpd/SDMHelpData/Other/English/HelpSDMIndexFile/at.obdev.LittleSnitchConfiguration.help*",
+                "~/Library/Logs/Little Snitch Agent.log",
+                "~/Library/Logs/Little Snitch Helper.log",
+                "~/Library/Logs/Little Snitch Installer.log",
+                "~/Library/Logs/Little Snitch Network Monitor.log",
+                "~/Library/Preferences/at.obdev.LittleSnitchAgent.plist",
+                "~/Library/Preferences/at.obdev.LittleSnitchConfiguration.plist",
+                "~/Library/Preferences/at.obdev.LittleSnitchInstaller.plist",
+                "~/Library/Preferences/at.obdev.LittleSnitchNetworkMonitor.plist",
+                "~/Library/Preferences/at.obdev.LittleSnitchSoftwareUpdate.plist",
+                "~/Library/Saved Application State/at.obdev.LittleSnitchInstaller.savedState",
+                "~/Library/WebKit/at.obdev.LittleSnitchConfiguration",
+                "/Library/Extensions/LittleSnitch.kext",
+                "/Library/StagedExtensions/Library/Extensions/LittleSnitch.kext"
+              ],
+              "rmdir": "/Library/Application Support/Objective Development"
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "11"
+          ]
+        }
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "340cf851b4c9622a88a15a45fa6c93763e6cacd0",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/little-snitch.rb",
+      "ruby_source_checksum": {
+        "sha256": "a87251f75e001f7084bb85ed13fbb1f63a329e0618af2e9c552efe2cc41a779b"
+      }
+    }
+  ]
+}
