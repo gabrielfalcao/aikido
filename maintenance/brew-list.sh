@@ -76,7 +76,7 @@ extract_and_save_metadata_from_brew() {
     fi
 
     # figlet -f small FORMULAE | gsed 's/^/  # /g'
-    parent_cache_path="${brew_metadata_path}/${plural_kind}"
+    parent_cache_path="${brew_metadata_path}/${plural_kind}/$(hostname | cut -d. -f1)"
     mkdir -p "${parent_cache_path}"
     for keg in $(brew list "--${kind}" -rt); do
         cache_path="${parent_cache_path}/${keg}"
