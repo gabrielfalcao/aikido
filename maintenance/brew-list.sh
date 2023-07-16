@@ -15,6 +15,12 @@ fail() {
 stderr() {
     1>&2 echo -e "\033[1;38;5;220m$*\033[0m"
 }
+nstdout() {
+    echo -ne "\033[1;38;5;94m$*\033[0m"
+}
+stdout() {
+    echo -e "\033[1;38;5;94m$*\033[0m"
+}
 
 show_usage() {
     why="$@"
@@ -51,23 +57,34 @@ extract_and_save_metadata_from_brew() {
         fail stderr "invalid parameter ${kind}\n should be either 'cask' or 'formula'"
     fi
     plural_kind="${kind}s"
+    if [ "${kind}" = "formula" ]; then
+        plural_kind="formulae"
+    fi
+
     # figlet -f small FORMULAS | gsed 's/^/  # /g'
     parent_cache_path="${brew_metadata_path}/${plural_kind}"
     mkdir -p "${parent_cache_path}"
     for keg in $(brew list "--${kind}" -rt); do
         cache_path="${parent_cache_path}/${keg}"
         mkdir -p "${cache_path}"
-        keg_metadata_path="${cache_path}/metadata.json"
-        if [ ! -e "${keg_metadata_path}" ]; then
-            brew info --json "${keg}" > "${keg_metadata_path}"
+        keg_metadata_v2_path="${cache_path}/metadata.v2.json"
+        if [ ! -e "${keg_metadata_v2_path}" ]; then
+            brew info "--${kind}" --json=v2 "${keg}" > "${keg_metadata_v2_path}"
         fi
-        $gq ".[0].tap" < "${keg_metadata_path}" >> "${brew_taps_path}"
+        if [ "${kind}" = "formula" ]; then
+            keg_metadata_v1_path="${cache_path}/metadata.v1.json";
+            if [ ! -e "${keg_metadata_v1_path}" ]; then
+                brew info "--${kind}" --json=v1 "${keg}" > "${keg_metadata_v1_path}"
+            fi
+        fi
+
+        $gq ".${plural_kind}[0].tap" < "${keg_metadata_v2_path}" >> "${brew_taps_path}"
         for attribute in "full_name" "linked_keg" "homepage"; do
-            $gq ".[0].${attribute}" < "${keg_metadata_path}" | filter > "${cache_path}/${attribute}"
+            $gq ".${plural_kind}[0].${attribute}" < "${keg_metadata_v2_path}" | filter > "${cache_path}/${attribute}"
         done
-        $gq ".[0].installed[0].version" < "${keg_metadata_path}" | filter > "${cache_path}/installed.version"
-        version=$(cat "${cache_path}/installed.version")
-        homepage=$(cat "${cache_path}/homepage")
+        $gq ".${plural_kind}[0].installed" < "${keg_metadata_v2_path}" | filter > "${cache_path}/version.installed"
+        $gq ".${plural_kind}[0].version" < "${keg_metadata_v2_path}" | filter > "${cache_path}/version.latest"
+        version=$(cat "${cache_path}/version.installed")
         name=$(cat "${cache_path}/full_name")
         echo "  depends_on ${kind}: \"${name}\" => \"${version}\"" >> "${brew_metadata_path}/${plural_kind}.txt"
     done
