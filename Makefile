@@ -5,8 +5,8 @@ RUST_LIBEXEC_DEBUG	:= $(GIT_ROOT)/target/debug
 RUST_LIBEXEC_RELEASE	:= $(GIT_ROOT)/target/debug
 RUST_LIBEXEC		:= $(realpath $(RUST_LIBEXEC_DEBUG) $(RUST_LIBEXEC_RELEASE))
 
-PYTHON_PACKAGE_NAME	:= src
-PYTHON_CLI_NAME		:= aikido
+PYTHON_PACKAGE_NAME	:= ki_aikido
+PYTHON_CLI_NAME		:= ki-aikido
 RUST_CLI_NAME		:= aikido
 REQUIREMENTS_FILE	:= development.txt
 
@@ -35,11 +35,11 @@ venv: | $(VENV)
 develop: | $(VENV)/bin/python $(VENV)/bin/pip
 
 # installs the requirements and the package dependencies
-setup: | $(PYTHON_CLI_PATH)
+setup: | $(PYTHON_CLI_PATH) $(VENV)
 
 # Convenience target to ensure that the venv exists and all
 # requirements are installed
-dependencies:
+dependencies: $(VENV)
 	@rm -f $(PYTHON_CLI_PATH) # remove PYTHON_CLI_PATH to trigger pip install
 	$(MAKE) develop setup
 
@@ -112,7 +112,7 @@ $(VENV): | $(REQUIREMENTS_PATH)  # creates $(VENV) folder if does not exist
 	echo "Creating virtualenv in $(VENV_ROOT)" && python3 -mvenv $(VENV)
 
 # installs pip and setuptools in their latest version, creates virtualenv if necessary
-$(VENV)/bin/python $(VENV)/bin/pip: # installs latest pip
+$(VENV)/bin/python $(VENV)/bin/pip: $(VENV) # installs latest pip
 	@test -e $(VENV)/bin/python || $(MAKE) $(VENV)
 	@test -e $(VENV)/bin/pip || $(MAKE) $(VENV)
 	@echo "Installing latest version of pip and setuptools"

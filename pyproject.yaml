@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ki-aikido"
+authors = [
+        {name = "Gabriel Falcão", email = "gabriel@nacaolivre.org"},
+]
+description = "set of tools for the self-defense of MacOS users"
+readme = "README.rst"
+requires-python = ">=3.7"
+license = {text = "GPL-3.0-or-later"}
+dynamic = ["version", "dependencies", "classifiers"]
+
+
+[project.scripts]
+ki-aikido = "ki_aikido.cli:mate"
