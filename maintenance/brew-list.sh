@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC3037
-# bash_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9.]\+\).*,\1,g')
-# bash_major_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9]\+\).*,\1,g')
-# if [ ${bash_major_version} -lt 5 ]; then
-#     1>&2 echo -ne "\033[1;38;5;160mERROR: "
-#     1>&2 echo -e "\033[1;38;5;220mThis script has been thoroughly tested with bash version 5+ but you are currently running ${bash_version}\033[0m"
-#     exit 1
-# fi
 
 PROGRAM=`basename $0`
 script_path=$(echo $(cd $(dirname $0) && pwd))
@@ -54,7 +47,7 @@ filter() {
     tr -d '"' | gsed 's/^null$//g'
 }
 gq() {
-    $gq "${*}" | filter
+    2>/dev/null $gq "${*}" | filter
 }
 
 
@@ -76,7 +69,7 @@ extract_and_save_metadata_from_brew() {
     fi
 
     # figlet -f small FORMULAE | gsed 's/^/  # /g'
-    parent_cache_path="${brew_metadata_path}/${plural_kind}/$(hostname | cut -d. -f1)"
+    parent_cache_path="${brew_metadata_path}/${plural_kind}/$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')"
     mkdir -p "${parent_cache_path}"
     for keg in $(brew list "--${kind}" -rt); do
         cache_path="${parent_cache_path}/${keg}"
@@ -116,13 +109,3 @@ elif [ "$1" = "-c" ] || [ "$1" = "--casks" ]; then
 else
     fail show_usage "invalid argument \033[1;38;5;154m$1"
 fi
-
-# ...TK
-# formulae=0
-# casks=0
-# while getopts "w:,width:" opt; do
-#     case $opt in
-#         f|formulae)  formulae=1;;
-#         c|casks)  casks=1;;
-#     esac
-# done
