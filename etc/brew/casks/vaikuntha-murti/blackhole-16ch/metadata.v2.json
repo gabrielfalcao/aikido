@@ -1,0 +1,60 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "blackhole-16ch",
+      "full_token": "blackhole-16ch",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "BlackHole 16ch"
+      ],
+      "desc": "Virtual Audio Driver",
+      "homepage": "https://existential.audio/blackhole/",
+      "url": "https://existential.audio/downloads/BlackHole16ch.v0.5.0.pkg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "0.5.0",
+      "installed": "0.5.0",
+      "outdated": false,
+      "sha256": "573240f711010fd527698e1c63291487eee53ac1fd9e2f8ade0bf337abafcc83",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "com.apple.audio.AudioMIDISetup",
+              "pkgutil": "audio.existential.BlackHole16ch"
+            }
+          ]
+        },
+        {
+          "pkg": [
+            "BlackHole16ch.v0.5.0.pkg"
+          ]
+        },
+        {
+          "uninstall_postflight": null
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "a09e7b3d135da5f2b4e963eb3c7cfe0a16bfe8da",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/blackhole-16ch.rb",
+      "ruby_source_checksum": {
+        "sha256": "b966ef40dc723d25b5a80ffdba5b98da75b56956bd6b489c9d010adb9820a2f5"
+      }
+    }
+  ]
+}

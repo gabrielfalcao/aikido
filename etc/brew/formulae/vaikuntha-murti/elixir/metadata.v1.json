@@ -1,0 +1,222 @@
+[
+  {
+    "name": "elixir",
+    "full_name": "elixir",
+    "tap": "homebrew/core",
+    "oldname": null,
+    "oldnames": [
+
+    ],
+    "aliases": [
+
+    ],
+    "versioned_formulae": [
+
+    ],
+    "desc": "Functional metaprogramming aware language built on Erlang VM",
+    "license": "Apache-2.0",
+    "homepage": "https://elixir-lang.org/",
+    "versions": {
+      "stable": "1.15.3",
+      "head": "HEAD",
+      "bottle": true
+    },
+    "urls": {
+      "stable": {
+        "url": "https://github.com/elixir-lang/elixir/archive/v1.15.3.tar.gz",
+        "tag": null,
+        "revision": null,
+        "checksum": "7dc895b09132d344948e05976bfbcdadf0884cda2a26ad4bda095b622d98aeef"
+      },
+      "head": {
+        "url": "https://github.com/elixir-lang/elixir.git",
+        "branch": "main"
+      }
+    },
+    "revision": 0,
+    "version_scheme": 0,
+    "bottle": {
+      "stable": {
+        "rebuild": 0,
+        "root_url": "https://ghcr.io/v2/homebrew/core",
+        "files": {
+          "arm64_ventura": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:e890d9e3b5426ccfa557e5351b815c02e8a4173547799c87199b01a824f4b45b",
+            "sha256": "e890d9e3b5426ccfa557e5351b815c02e8a4173547799c87199b01a824f4b45b"
+          },
+          "arm64_monterey": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:1605af0837e7021276b47b3be04dc52136232323a17b183422b915b229ad106e",
+            "sha256": "1605af0837e7021276b47b3be04dc52136232323a17b183422b915b229ad106e"
+          },
+          "arm64_big_sur": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:ebb7bd03e52f02f3a5ee525baa5f63fd597838b8e25f121807084b5b5af2fcb6",
+            "sha256": "ebb7bd03e52f02f3a5ee525baa5f63fd597838b8e25f121807084b5b5af2fcb6"
+          },
+          "ventura": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:717f14a156eeb6787ce49f6b5f862f8200a852c581556b7364e3c66ad69295f1",
+            "sha256": "717f14a156eeb6787ce49f6b5f862f8200a852c581556b7364e3c66ad69295f1"
+          },
+          "monterey": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:ee9f7ef329f3e3bb44776d5251b4fc1c92c4407f4baacd360a294850cf322620",
+            "sha256": "ee9f7ef329f3e3bb44776d5251b4fc1c92c4407f4baacd360a294850cf322620"
+          },
+          "big_sur": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:7ebade3976164e1c74dfed975a47fd0ec16d3225b1056c1fdc2939692877cd57",
+            "sha256": "7ebade3976164e1c74dfed975a47fd0ec16d3225b1056c1fdc2939692877cd57"
+          },
+          "x86_64_linux": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/elixir/blobs/sha256:72df1b4eea4eae2a6d3224c25cd3f200941491bd2e9ddcbe3e58273edc397e71",
+            "sha256": "72df1b4eea4eae2a6d3224c25cd3f200941491bd2e9ddcbe3e58273edc397e71"
+          }
+        }
+      }
+    },
+    "keg_only": false,
+    "keg_only_reason": null,
+    "options": [
+
+    ],
+    "build_dependencies": [
+
+    ],
+    "dependencies": [
+      "erlang"
+    ],
+    "test_dependencies": [
+
+    ],
+    "recommended_dependencies": [
+
+    ],
+    "optional_dependencies": [
+
+    ],
+    "uses_from_macos": [
+
+    ],
+    "uses_from_macos_bounds": [
+
+    ],
+    "requirements": [
+
+    ],
+    "conflicts_with": [
+
+    ],
+    "conflicts_with_reasons": [
+
+    ],
+    "link_overwrite": [
+
+    ],
+    "caveats": null,
+    "installed": [
+      {
+        "version": "1.15.2",
+        "used_options": [
+
+        ],
+        "built_as_bottle": true,
+        "poured_from_bottle": true,
+        "time": 1688756833,
+        "runtime_dependencies": [
+          {
+            "full_name": "ca-certificates",
+            "version": "2023-05-30",
+            "declared_directly": false
+          },
+          {
+            "full_name": "openssl@3",
+            "version": "3.1.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "m4",
+            "version": "1.4.19",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libtool",
+            "version": "2.4.7",
+            "declared_directly": false
+          },
+          {
+            "full_name": "unixodbc",
+            "version": "2.3.11",
+            "declared_directly": false
+          },
+          {
+            "full_name": "jpeg-turbo",
+            "version": "2.1.5.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libpng",
+            "version": "1.6.40",
+            "declared_directly": false
+          },
+          {
+            "full_name": "xz",
+            "version": "5.4.3",
+            "declared_directly": false
+          },
+          {
+            "full_name": "lz4",
+            "version": "1.9.4",
+            "declared_directly": false
+          },
+          {
+            "full_name": "zstd",
+            "version": "1.5.5",
+            "declared_directly": false
+          },
+          {
+            "full_name": "libtiff",
+            "version": "4.5.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "pcre2",
+            "version": "10.42",
+            "declared_directly": false
+          },
+          {
+            "full_name": "wxwidgets",
+            "version": "3.2.2.1",
+            "declared_directly": false
+          },
+          {
+            "full_name": "erlang",
+            "version": "26.0.2",
+            "declared_directly": true
+          }
+        ],
+        "installed_as_dependency": false,
+        "installed_on_request": true
+      }
+    ],
+    "linked_keg": "1.15.2",
+    "pinned": false,
+    "outdated": true,
+    "deprecated": false,
+    "deprecation_date": null,
+    "deprecation_reason": null,
+    "disabled": false,
+    "disable_date": null,
+    "disable_reason": null,
+    "post_install_defined": false,
+    "service": null,
+    "tap_git_head": "6c93bd1a9ea6d85411784cf18b506c7d40baed97",
+    "ruby_source_path": "Formula/elixir.rb",
+    "ruby_source_checksum": {
+      "sha256": "40f0e48e909722c08e605f0422c4816ff64e41d478bdc2e4ea3a970efc5b8270"
+    }
+  }
+]

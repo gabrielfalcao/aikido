@@ -1925,9 +1925,11 @@
   depends_on formula: "cjson" => "1.7.15"
   depends_on formula: "cjson" => "[
   depends_on formula: "cmake" => "3.25.2"
+  depends_on formula: "cmake" => "3.26.4"
   depends_on formula: "cmake" => "[
   depends_on formula: "cmocka" => "1.1.5"
   depends_on formula: "cmocka" => "[
+  depends_on formula: "colordiff" => "1.0.21"
   depends_on formula: "colordiff" => "[
   depends_on formula: "coredns" => "1.10.1"
   depends_on formula: "coredns" => "[
@@ -2056,6 +2058,7 @@
   depends_on formula: "git-lfs" => "[
   depends_on formula: "glib" => "2.74.5"
   depends_on formula: "glib" => "2.76.4 2.76.3"
+  depends_on formula: "glib" => "2.76.4"
   depends_on formula: "glib" => "[
   depends_on formula: "glib-networking" => "2.76.0"
   depends_on formula: "glib-networking" => "[
@@ -2083,6 +2086,7 @@
   depends_on formula: "gnupg" => "2.4.3"
   depends_on formula: "gnupg" => "[
   depends_on formula: "gnuradio" => "3.10.6.0_2"
+  depends_on formula: "gnuradio" => "3.10.6.0_3"
   depends_on formula: "gnuradio" => "[
   depends_on formula: "gnutls" => "3.8.0"
   depends_on formula: "gnutls" => "[
@@ -2122,6 +2126,7 @@
   depends_on formula: "hak5/wifi-coconut/wifi-coconut" => "[
   depends_on formula: "harfbuzz" => "6.0.0_1"
   depends_on formula: "harfbuzz" => "7.3.0_1"
+  depends_on formula: "harfbuzz" => "8.0.0"
   depends_on formula: "harfbuzz" => "[
   depends_on formula: "helm" => "3.12.0"
   depends_on formula: "helm" => "[
@@ -2424,6 +2429,7 @@
   depends_on formula: "npth" => "[
   depends_on formula: "numpy" => "1.24.2"
   depends_on formula: "numpy" => "1.25.0"
+  depends_on formula: "numpy" => "1.25.1"
   depends_on formula: "numpy" => "[
   depends_on formula: "nvm" => "0.39.3"
   depends_on formula: "nvm" => "[
@@ -2453,6 +2459,7 @@
   depends_on formula: "openjpeg" => "[
   depends_on formula: "openldap" => "2.6.4"
   depends_on formula: "openldap" => "2.6.4_1"
+  depends_on formula: "openldap" => "2.6.5"
   depends_on formula: "openldap" => "[
   depends_on formula: "openssl@1.1" => "1.1.1t"
   depends_on formula: "openssl@1.1" => "[
@@ -2471,6 +2478,7 @@
   depends_on formula: "p7zip" => "17.04"
   depends_on formula: "p7zip" => "[
   depends_on formula: "pandoc" => "3.0.1"
+  depends_on formula: "pandoc" => "3.1.5"
   depends_on formula: "pandoc" => "[
   depends_on formula: "pango" => "1.50.14"
   depends_on formula: "pango" => "[
@@ -2500,6 +2508,7 @@
   depends_on formula: "pkg-config" => "0.29.2_3"
   depends_on formula: "pkg-config" => "[
   depends_on formula: "pkg-config-wrapper" => "0.2.12"
+  depends_on formula: "pkg-config-wrapper" => "0.2.13"
   depends_on formula: "pkg-config-wrapper" => "[
   depends_on formula: "pngquant" => "2.18.0"
   depends_on formula: "pngquant" => "[
@@ -2526,6 +2535,7 @@
   depends_on formula: "pybind11" => "[
   depends_on formula: "pycparser" => "2.21"
   depends_on formula: "pycparser" => "[
+  depends_on formula: "pyenv" => "2.3.22"
   depends_on formula: "pyenv" => "[
   depends_on formula: "pygments" => "2.14.0"
   depends_on formula: "pygments" => "2.15.1_1"
@@ -2566,6 +2576,7 @@
   depends_on formula: "readline" => "[
   depends_on formula: "redis" => "7.0.11"
   depends_on formula: "redis" => "7.0.11_1"
+  depends_on formula: "redis" => "7.0.12"
   depends_on formula: "redis" => "[
   depends_on formula: "ripgrep" => "13.0.0"
   depends_on formula: "ripgrep" => "[
@@ -2579,7 +2590,9 @@
   depends_on formula: "ruby" => "3.2.2_1"
   depends_on formula: "ruby" => "[
   depends_on formula: "rust" => "1.67.0"
+  depends_on formula: "rust" => "1.70.0"
   depends_on formula: "rust" => "[
+  depends_on formula: "rustup-init" => "1.26.0_1"
   depends_on formula: "rustup-init" => "[
   depends_on formula: "s3cmd" => "2.3.0"
   depends_on formula: "s3cmd" => "[
@@ -2614,6 +2627,7 @@
   depends_on formula: "source-highlight" => "3.1.9_5"
   depends_on formula: "source-highlight" => "[
   depends_on formula: "spdlog" => "1.11.0_1"
+  depends_on formula: "spdlog" => "1.12.0"
   depends_on formula: "spdlog" => "[
   depends_on formula: "speex" => "1.2.1"
   depends_on formula: "speex" => "[

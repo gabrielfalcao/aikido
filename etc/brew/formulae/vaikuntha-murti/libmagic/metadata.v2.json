@@ -1,0 +1,155 @@
+{
+  "formulae": [
+    {
+      "name": "libmagic",
+      "full_name": "libmagic",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "Implementation of the file(1) command",
+      "license": "Cannot Represent",
+      "homepage": "https://www.darwinsys.com/file/",
+      "versions": {
+        "stable": "5.44",
+        "head": null,
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://astron.com/pub/file/file-5.44.tar.gz",
+          "tag": null,
+          "revision": null,
+          "checksum": "3751c7fba8dbc831cb8d7cc8aff21035459b8ce5155ef8b0880a27d028475f3b"
+        }
+      },
+      "revision": 0,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 1,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:f75b57b1eb21b7adae66433ab7fdc21ebc2d8140270f76be325d6fce3058c395",
+              "sha256": "f75b57b1eb21b7adae66433ab7fdc21ebc2d8140270f76be325d6fce3058c395"
+            },
+            "arm64_monterey": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:f5367d8a930f6ac8bb72fab66d0596490e1fc33a7f723701492426812dca87d8",
+              "sha256": "f5367d8a930f6ac8bb72fab66d0596490e1fc33a7f723701492426812dca87d8"
+            },
+            "arm64_big_sur": {
+              "cellar": "/opt/homebrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:a1a3b47eeeacdebbcf3a94f65ca27d995e60e867fae6bab8b2bd5b9774424f99",
+              "sha256": "a1a3b47eeeacdebbcf3a94f65ca27d995e60e867fae6bab8b2bd5b9774424f99"
+            },
+            "ventura": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:b010a3c8c7df5041caaff99ce844a9939f7f2529e4fe51e9817aa442a6949498",
+              "sha256": "b010a3c8c7df5041caaff99ce844a9939f7f2529e4fe51e9817aa442a6949498"
+            },
+            "monterey": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:cf47bc2045224fc2c4dad701a80e7819883a447ee817d27a6197ff6fc751488d",
+              "sha256": "cf47bc2045224fc2c4dad701a80e7819883a447ee817d27a6197ff6fc751488d"
+            },
+            "big_sur": {
+              "cellar": "/usr/local/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:96bdcf33b2fd96db377b5a8952f56e7433bf17634b3e9cefef9b68ac775ca385",
+              "sha256": "96bdcf33b2fd96db377b5a8952f56e7433bf17634b3e9cefef9b68ac775ca385"
+            },
+            "x86_64_linux": {
+              "cellar": "/home/linuxbrew/.linuxbrew/Cellar",
+              "url": "https://ghcr.io/v2/homebrew/core/libmagic/blobs/sha256:b0c07cbb8b16858ff3c762efe68dcb7be0f03139d40559e89766c104df06d6e4",
+              "sha256": "b0c07cbb8b16858ff3c762efe68dcb7be0f03139d40559e89766c104df06d6e4"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+
+      ],
+      "dependencies": [
+
+      ],
+      "test_dependencies": [
+        "pkg-config"
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+        "zlib"
+      ],
+      "uses_from_macos_bounds": [
+        {
+        }
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": null,
+      "installed": [
+        {
+          "version": "5.44",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1689469273,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": false,
+          "installed_on_request": true
+        }
+      ],
+      "linked_keg": "5.44",
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "6c93bd1a9ea6d85411784cf18b506c7d40baed97",
+      "ruby_source_path": "Formula/libmagic.rb",
+      "ruby_source_checksum": {
+        "sha256": "c00f75071b72f94a76dd26985cdb36890dcb529ffad6a1185818cb845dd61795"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}
