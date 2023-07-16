@@ -38,7 +38,7 @@ show_usage() {
 USAGE: $PROGRAM [-fc]
     where:
 
-    -f/--formulas prints out formulas
+    -f/--formulae prints out formulae
     -c/--casks    prints out casks"
 EOF
 }
@@ -75,7 +75,7 @@ extract_and_save_metadata_from_brew() {
         plural_kind="formulae"
     fi
 
-    # figlet -f small FORMULAS | gsed 's/^/  # /g'
+    # figlet -f small FORMULAE | gsed 's/^/  # /g'
     parent_cache_path="${brew_metadata_path}/${plural_kind}"
     mkdir -p "${parent_cache_path}"
     for keg in $(brew list "--${kind}" -rt); do
@@ -109,7 +109,7 @@ extract_and_save_metadata_from_brew() {
 }
 
 set -eu
-if [ "$1" = "-f" ] || [ "$1" = "--formulas" ]; then
+if [ "$1" = "-f" ] || [ "$1" = "--formulae" ]; then
     extract_and_save_metadata_from_brew "formula"
 elif [ "$1" = "-c" ] || [ "$1" = "--casks" ]; then
     extract_and_save_metadata_from_brew "cask"
@@ -118,11 +118,11 @@ else
 fi
 
 # ...TK
-# formulas=0
+# formulae=0
 # casks=0
 # while getopts "w:,width:" opt; do
 #     case $opt in
-#         f|formulas)  formulas=1;;
+#         f|formulae)  formulae=1;;
 #         c|casks)  casks=1;;
 #     esac
 # done
