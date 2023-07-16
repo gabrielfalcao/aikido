@@ -97,7 +97,7 @@ extract_and_save_metadata_from_brew() {
         for attribute in "full_name" "linked_keg" "homepage"; do
             gq ".${plural_kind}[0].${attribute}" < "${keg_metadata_v2_path}" > "${cache_path}/${attribute}"
         done
-        gq ".${plural_kind}[0].installed" < "${keg_metadata_v2_path}" > "${cache_path}/version.installed"
+        gq ".${plural_kind}[0].installed[0].version,.${plural_kind}[0].version" < "${keg_metadata_v2_path}" > "${cache_path}/version.installed"
         gq ".${plural_kind}[0].version" < "${keg_metadata_v2_path}" > "${cache_path}/version.latest"
         version=$(cat "${cache_path}/version.installed")
         name=$(cat "${cache_path}/full_name")
