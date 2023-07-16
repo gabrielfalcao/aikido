@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if gq="$(which jq)"; then
+    function gq() {
+        2>/dev/null $gq "${*}" | tr -d '"' | gsed 's/^null$//g'
+    }
+fi
+
+gq ${*}
