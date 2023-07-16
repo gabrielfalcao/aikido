@@ -1,0 +1,123 @@
+[
+  {
+    "name": "nvm",
+    "full_name": "nvm",
+    "tap": "homebrew/core",
+    "oldname": null,
+    "oldnames": [
+
+    ],
+    "aliases": [
+
+    ],
+    "versioned_formulae": [
+
+    ],
+    "desc": "Manage multiple Node.js versions",
+    "license": "MIT",
+    "homepage": "https://github.com/nvm-sh/nvm",
+    "versions": {
+      "stable": "0.39.3",
+      "head": "HEAD",
+      "bottle": true
+    },
+    "urls": {
+      "stable": {
+        "url": "https://github.com/nvm-sh/nvm/archive/v0.39.3.tar.gz",
+        "tag": null,
+        "revision": null,
+        "checksum": "2ab9ef6659ebce9686e82728f1eb857a3c2e91af2a631490ddb89eeb283aa540"
+      },
+      "head": {
+        "url": "https://github.com/nvm-sh/nvm.git",
+        "branch": "master"
+      }
+    },
+    "revision": 0,
+    "version_scheme": 0,
+    "bottle": {
+      "stable": {
+        "rebuild": 0,
+        "root_url": "https://ghcr.io/v2/homebrew/core",
+        "files": {
+          "all": {
+            "cellar": ":any_skip_relocation",
+            "url": "https://ghcr.io/v2/homebrew/core/nvm/blobs/sha256:c866a2944863d309ea36c2ce9b2d8fbf8acea06d848654a1f5e9974d6f6c1d14",
+            "sha256": "c866a2944863d309ea36c2ce9b2d8fbf8acea06d848654a1f5e9974d6f6c1d14"
+          }
+        }
+      }
+    },
+    "keg_only": false,
+    "keg_only_reason": null,
+    "options": [
+
+    ],
+    "build_dependencies": [
+
+    ],
+    "dependencies": [
+
+    ],
+    "test_dependencies": [
+
+    ],
+    "recommended_dependencies": [
+
+    ],
+    "optional_dependencies": [
+
+    ],
+    "uses_from_macos": [
+
+    ],
+    "uses_from_macos_bounds": [
+
+    ],
+    "requirements": [
+
+    ],
+    "conflicts_with": [
+
+    ],
+    "conflicts_with_reasons": [
+
+    ],
+    "link_overwrite": [
+
+    ],
+    "caveats": "Please note that upstream has asked us to make explicit managing\nnvm via Homebrew is unsupported by them and you should check any\nproblems against the standard nvm install method prior to reporting.\n\nYou should create NVM's working directory if it doesn't exist:\n  mkdir ~/.nvm\n\nAdd the following to your shell profile e.g. ~/.profile or ~/.zshrc:\n  export NVM_DIR=\"$HOME/.nvm\"\n  [ -s \"$HOMEBREW_PREFIX/opt/nvm/nvm.sh\" ] && \\. \"$HOMEBREW_PREFIX/opt/nvm/nvm.sh\"  # This loads nvm\n  [ -s \"$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm\" ] && \\. \"$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm\"  # This loads nvm bash_completion\n\nYou can set $NVM_DIR to any location, but leaving it unchanged from\n$HOMEBREW_PREFIX/opt/nvm will destroy any nvm-installed Node installations\nupon upgrade/reinstall.\n\nType `nvm help` for further information.\n",
+    "installed": [
+      {
+        "version": "0.39.3",
+        "used_options": [
+
+        ],
+        "built_as_bottle": true,
+        "poured_from_bottle": true,
+        "time": 1675414107,
+        "runtime_dependencies": [
+
+        ],
+        "installed_as_dependency": false,
+        "installed_on_request": true
+      }
+    ],
+    "linked_keg": "0.39.3",
+    "pinned": false,
+    "outdated": false,
+    "deprecated": false,
+    "deprecation_date": null,
+    "deprecation_reason": null,
+    "disabled": false,
+    "disable_date": null,
+    "disable_reason": null,
+    "post_install_defined": false,
+    "service": null,
+    "tap_git_head": "3d9c544ead07ae31eb5497c1cd145119171a043a",
+    "ruby_source_path": "Formula/nvm.rb",
+    "ruby_source_checksum": {
+      "sha256": "ebd717fe5067e6d23655d08a8614865fe2e40151db27fa9ae8822040020029d0"
+    }
+  }
+]

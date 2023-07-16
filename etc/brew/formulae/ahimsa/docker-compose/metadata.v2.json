@@ -1,0 +1,158 @@
+{
+  "formulae": [
+    {
+      "name": "docker-compose",
+      "full_name": "docker-compose",
+      "tap": "homebrew/core",
+      "oldname": null,
+      "oldnames": [
+
+      ],
+      "aliases": [
+
+      ],
+      "versioned_formulae": [
+
+      ],
+      "desc": "Isolated development environments using Docker",
+      "license": "Apache-2.0",
+      "homepage": "https://docs.docker.com/compose/",
+      "versions": {
+        "stable": "2.20.0",
+        "head": "HEAD",
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://github.com/docker/compose/archive/v2.20.0.tar.gz",
+          "tag": null,
+          "revision": null,
+          "checksum": "983b372bfedfa832699fa18b6b9dc559ea42b3f0a97eff5d5f4f3994954993fe"
+        },
+        "head": {
+          "url": "https://github.com/docker/compose.git",
+          "branch": "v2"
+        }
+      },
+      "revision": 0,
+      "version_scheme": 0,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_ventura": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:dbaf2a4701696d4bbcd90074d7a8e62e203bf9bce72541ccecc8a8e0fafcdb55",
+              "sha256": "dbaf2a4701696d4bbcd90074d7a8e62e203bf9bce72541ccecc8a8e0fafcdb55"
+            },
+            "arm64_monterey": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:52f0e00f2c5651b8f7b58caec291ac9428c80d9b90b817608782360bbbd3df8a",
+              "sha256": "52f0e00f2c5651b8f7b58caec291ac9428c80d9b90b817608782360bbbd3df8a"
+            },
+            "arm64_big_sur": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:4deae0450f8204ad68c3588632ea18b28194817075819c83a743f7c961f212b4",
+              "sha256": "4deae0450f8204ad68c3588632ea18b28194817075819c83a743f7c961f212b4"
+            },
+            "ventura": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:677a800c524d133cc727334ba316365f59a8b2691cd7de81f915955fe4a772eb",
+              "sha256": "677a800c524d133cc727334ba316365f59a8b2691cd7de81f915955fe4a772eb"
+            },
+            "monterey": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:3dc898a6093d3ba4eb45be7bffe528dd6a937440414975d7c7a01b002c103548",
+              "sha256": "3dc898a6093d3ba4eb45be7bffe528dd6a937440414975d7c7a01b002c103548"
+            },
+            "big_sur": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:1e7b2df1c959472454e6c239265e8e3b60f82b86bd48335c4eee2c2aa5c03ddf",
+              "sha256": "1e7b2df1c959472454e6c239265e8e3b60f82b86bd48335c4eee2c2aa5c03ddf"
+            },
+            "x86_64_linux": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/docker-compose/blobs/sha256:cc7c0eba81e106f8830be5cc9e01905acdae009cdb0dee4592c21d2fbbcef0a4",
+              "sha256": "cc7c0eba81e106f8830be5cc9e01905acdae009cdb0dee4592c21d2fbbcef0a4"
+            }
+          }
+        }
+      },
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [
+
+      ],
+      "build_dependencies": [
+        "go"
+      ],
+      "dependencies": [
+
+      ],
+      "test_dependencies": [
+
+      ],
+      "recommended_dependencies": [
+
+      ],
+      "optional_dependencies": [
+
+      ],
+      "uses_from_macos": [
+
+      ],
+      "uses_from_macos_bounds": [
+
+      ],
+      "requirements": [
+
+      ],
+      "conflicts_with": [
+
+      ],
+      "conflicts_with_reasons": [
+
+      ],
+      "link_overwrite": [
+
+      ],
+      "caveats": "Compose is now a Docker plugin. For Docker to find this plugin, symlink it:\n  mkdir -p ~/.docker/cli-plugins\n  ln -sfn $HOMEBREW_PREFIX/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose\n",
+      "installed": [
+        {
+          "version": "2.18.1",
+          "used_options": [
+
+          ],
+          "built_as_bottle": true,
+          "poured_from_bottle": true,
+          "time": 1684655602,
+          "runtime_dependencies": [
+
+          ],
+          "installed_as_dependency": false,
+          "installed_on_request": true
+        }
+      ],
+      "linked_keg": "2.18.1",
+      "pinned": false,
+      "outdated": true,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "3d9c544ead07ae31eb5497c1cd145119171a043a",
+      "ruby_source_path": "Formula/docker-compose.rb",
+      "ruby_source_checksum": {
+        "sha256": "a7350c41de8f0793c5ed88d2dea19be60ef05a6b42073abb64c6b190b339204b"
+      }
+    }
+  ],
+  "casks": [
+
+  ]
+}

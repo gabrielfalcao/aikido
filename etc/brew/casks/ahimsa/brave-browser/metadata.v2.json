@@ -1,0 +1,69 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "brave-browser",
+      "full_token": "brave-browser",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Brave"
+      ],
+      "desc": "Web browser focusing on privacy",
+      "homepage": "https://brave.com/",
+      "url": "https://updates-cdn.bravesoftware.com/sparkle/Brave-Browser/stable-arm64/152.130/Brave-Browser-arm64.dmg",
+      "url_specs": {
+        "verified": "updates-cdn.bravesoftware.com/sparkle/Brave-Browser/"
+      },
+      "appcast": null,
+      "version": "1.52.130.0,152.130",
+      "installed": "1.46.144.0,146.144",
+      "outdated": false,
+      "sha256": "acbeb2da6e6eb56e801979def77e5db35e249b7242a2ae43263658057f52d5f7",
+      "artifacts": [
+        {
+          "app": [
+            "Brave Browser.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/BraveSoftware/Brave-Browser",
+                "~/Library/Caches/BraveSoftware",
+                "~/Library/Caches/com.brave.Browser",
+                "~/Library/HTTPStorages/com.brave.Browser",
+                "~/Library/Preferences/com.brave.Browser.plist",
+                "~/Library/Saved Application State/com.brave.Browser.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.13"
+          ]
+        }
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/brave-browser.rb",
+      "ruby_source_checksum": {
+        "sha256": "73de494ba7173785bf1fa07358444c31cfb6e1d9b949f1d35d7e6bad68345167"
+      }
+    }
+  ]
+}

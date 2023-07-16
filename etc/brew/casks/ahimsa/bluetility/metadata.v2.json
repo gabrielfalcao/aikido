@@ -1,0 +1,59 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "bluetility",
+      "full_token": "bluetility",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Bluetility"
+      ],
+      "desc": "Bluetooth Low Energy browser",
+      "homepage": "https://github.com/jnross/Bluetility",
+      "url": "https://github.com/jnross/Bluetility/releases/download/1.5.1/Bluetility.app.zip",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "1.5.1",
+      "installed": "1.5",
+      "outdated": true,
+      "sha256": "05ab67bf4ea75d7c6f533f8396b1f532978be1fe643523c31fa22a77f52215bc",
+      "artifacts": [
+        {
+          "app": [
+            "Bluetility.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Preferences/com.rossible.Bluetility.plist",
+                "~/Library/Saved Application State/com.rossible.Bluetility.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/bluetility.rb",
+      "ruby_source_checksum": {
+        "sha256": "ffe9d2f9367b1c92427c470da52c19c012a3a1b727ba4d19f90d3ad559ea969e"
+      }
+    }
+  ]
+}

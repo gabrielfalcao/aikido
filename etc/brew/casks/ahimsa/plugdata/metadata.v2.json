@@ -1,0 +1,76 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "plugdata",
+      "full_token": "plugdata",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "PlugData"
+      ],
+      "desc": "Plugin wrapper for PureData",
+      "homepage": "https://github.com/timothyschoen/PlugData",
+      "url": "https://github.com/timothyschoen/PlugData/releases/download/v0.7.1/plugdata-macOS-Universal.pkg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "0.7.1",
+      "installed": "0.7.0",
+      "outdated": false,
+      "sha256": "fb294db389790196ca2c5a7a096a00bae5e77a4da3425f2d4e83d989f7ec909e",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "pkgutil": [
+                "com.plugdata.app.pkg.plugdata",
+                "com.plugdata.au.pkg.plugdata",
+                "com.plugdata.clap.pkg.plugdata",
+                "com.plugdata.lv2.pkg.plugdata",
+                "com.plugdata.vst3.pkg.plugdata"
+              ]
+            }
+          ]
+        },
+        {
+          "pkg": [
+            "plugdata-macOS-Universal.pkg"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/PlugData.settings",
+                "~/Library/Caches/PlugData",
+                "~/Library/Caches/com.PlugData.PlugDataStandalone",
+                "~/Library/HTTPStorages/com.PlugData.PlugDataStandalone",
+                "~/Library/PlugData",
+                "~/Library/Preferences/com.PlugData.PlugDataStandalone.plist"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/plugdata.rb",
+      "ruby_source_checksum": {
+        "sha256": "baaa2e25eb23127f66fce63d0208a71e3ab840604cf6db296e0e608bcfaafcb3"
+      }
+    }
+  ]
+}

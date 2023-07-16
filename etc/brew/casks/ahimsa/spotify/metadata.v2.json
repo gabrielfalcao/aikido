@@ -1,0 +1,80 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "spotify",
+      "full_token": "spotify",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Spotify"
+      ],
+      "desc": "Music streaming service",
+      "homepage": "https://www.spotify.com/",
+      "url": "https://download.scdn.co/SpotifyARM64.dmg",
+      "url_specs": {
+        "verified": "download.scdn.co/"
+      },
+      "appcast": null,
+      "version": "1.2.15.828,79f41970,492",
+      "installed": "1.1.94.872,7a9200fe,18",
+      "outdated": false,
+      "sha256": "no_check",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "com.spotify.client",
+              "launchctl": "com.spotify.webhelper"
+            }
+          ]
+        },
+        {
+          "app": [
+            "Spotify.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/Spotify",
+                "~/Library/Caches/com.spotify.client.helper",
+                "~/Library/Caches/com.spotify.client",
+                "~/Library/Cookies/com.spotify.client.binarycookies",
+                "~/Library/HTTPStorages/com.spotify.client",
+                "~/Library/Logs/Spotify",
+                "~/Library/Preferences/com.spotify.client.helper.plist",
+                "~/Library/Preferences/com.spotify.client.plist",
+                "~/Library/Saved Application State/com.spotify.client.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.11"
+          ]
+        }
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/spotify.rb",
+      "ruby_source_checksum": {
+        "sha256": "3e6a7ad6a913f8de7b32f055a4a29d303ad5be7f147e5b05d59f97bcf6241ca7"
+      }
+    }
+  ]
+}

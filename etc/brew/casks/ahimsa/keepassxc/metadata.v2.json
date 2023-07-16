@@ -1,0 +1,86 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "keepassxc",
+      "full_token": "keepassxc",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "KeePassXC"
+      ],
+      "desc": "Password manager app",
+      "homepage": "https://keepassxc.org/",
+      "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.7.5/KeePassXC-2.7.5-arm64.dmg",
+      "url_specs": {
+        "verified": "github.com/keepassxreboot/keepassxc/"
+      },
+      "appcast": null,
+      "version": "2.7.5",
+      "installed": "2.7.5",
+      "outdated": false,
+      "sha256": "7be9323219ceaa489deb9135ed24ca65e71b44a899ba07bedeb0eee1317cfd57",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "org.keepassxc.keepassxc"
+            }
+          ]
+        },
+        {
+          "app": [
+            "KeePassXC.app"
+          ]
+        },
+        {
+          "binary": [
+            "/Applications/KeePassXC.app/Contents/MacOS/keepassxc-cli"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/.keepassxc",
+                "~/Library/Application Support/CrashReporter/KeePassXC_*.plist",
+                "~/Library/Application Support/keepassxc",
+                "~/Library/Caches/org.keepassx.keepassxc",
+                "~/Library/Logs/DiagnosticReports/KeePassXC_*.crash",
+                "~/Library/Preferences/org.keepassx.keepassxc.plist",
+                "~/Library/Saved Application State/org.keepassx.keepassxc.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.13"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/keepassxc-beta"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/keepassxc.rb",
+      "ruby_source_checksum": {
+        "sha256": "74caf7e97527d2e96de7582c9b09e5ea9209592687acecf603c3abc65b32d1c9"
+      }
+    }
+  ]
+}

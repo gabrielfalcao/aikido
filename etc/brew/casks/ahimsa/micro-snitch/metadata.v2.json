@@ -1,0 +1,76 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "micro-snitch",
+      "full_token": "micro-snitch",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Micro Snitch"
+      ],
+      "desc": "Monitors and reports any microphone and camera activity",
+      "homepage": "https://www.obdev.at/products/microsnitch/index.html",
+      "url": "https://www.obdev.at/downloads/MicroSnitch/MicroSnitch-1.6.dmg",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "1.6",
+      "installed": "1.5.1",
+      "outdated": false,
+      "sha256": "1db8247eb47a717b86c8ea5623403781e062747bb831ad907741eb747d0c5a45",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "at.obdev.MicroSnitch",
+              "launchctl": "at.obdev.MicroSnitchOpenAtLoginHelper"
+            }
+          ]
+        },
+        {
+          "app": [
+            "Micro Snitch.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/at.obdev.MicroSnitchOpenAtLoginHelper",
+                "~/Library/Application Support/Micro Snitch",
+                "~/Library/Caches/at.obdev.MicroSnitch",
+                "~/Library/Containers/at.obdev.MicroSnitchOpenAtLoginHelper",
+                "~/Library/Logs/Micro Snitch.log",
+                "~/Library/Preferences/at.obdev.MicroSnitch.plist"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.11"
+          ]
+        }
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/micro-snitch.rb",
+      "ruby_source_checksum": {
+        "sha256": "563c4a173ca9a84859d2caeb67b797ad82ee4a337adf5371ed318fe797e61c5b"
+      }
+    }
+  ]
+}

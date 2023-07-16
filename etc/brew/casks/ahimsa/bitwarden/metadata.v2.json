@@ -1,0 +1,76 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "bitwarden",
+      "full_token": "bitwarden",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Bitwarden"
+      ],
+      "desc": "Desktop password and login vault",
+      "homepage": "https://bitwarden.com/",
+      "url": "https://github.com/bitwarden/clients/releases/download/desktop-v2023.7.0/Bitwarden-2023.7.0-universal.dmg",
+      "url_specs": {
+        "verified": "github.com/bitwarden/clients/"
+      },
+      "appcast": null,
+      "version": "2023.7.0",
+      "installed": "2022.8.1",
+      "outdated": false,
+      "sha256": "0a842f5d4a93a53c9feb3e7b7e1a6a0fb51863aca5370cc3c5f6e913481cbb5f",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": [
+                "com.bitwarden.desktop",
+                "com.bitwarden.desktop.helper"
+              ]
+            }
+          ]
+        },
+        {
+          "app": [
+            "Bitwarden.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Support/Bitwarden",
+                "~/Library/Caches/com.bitwarden.desktop",
+                "~/Library/Caches/com.bitwarden.desktop.ShipIt",
+                "~/Library/Logs/Bitwarden",
+                "~/Library/Preferences/ByHost/com.bitwarden.desktop.ShipIt.*.plist",
+                "~/Library/Preferences/com.bitwarden.desktop.helper.plist",
+                "~/Library/Preferences/com.bitwarden.desktop.plist",
+                "~/Library/Saved Application State/com.bitwarden.desktop.savedState"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/bitwarden.rb",
+      "ruby_source_checksum": {
+        "sha256": "02872b357a1ae54a9d144eb5f68b1ecb0163fdb1423d136998e0ea73f7cda522"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "slack",
+      "full_token": "slack",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "Slack"
+      ],
+      "desc": "Team communication and collaboration software",
+      "homepage": "https://slack.com/",
+      "url": "https://downloads.slack-edge.com/releases/macos/4.33.73/prod/arm64/Slack-4.33.73-macOS.dmg",
+      "url_specs": {
+        "verified": "downloads.slack-edge.com/releases/macos/"
+      },
+      "appcast": null,
+      "version": "4.33.73",
+      "installed": "4.32.127",
+      "outdated": false,
+      "sha256": "970c2afd38bd75c09590faa911c5d3e0e81766ed02d9ef1b018b2b5f82d64397",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "quit": "com.tinyspeck.slackmacgap"
+            }
+          ]
+        },
+        {
+          "app": [
+            "Slack.app"
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": [
+                "~/Library/Application Scripts/com.tinyspeck.slackmacgap",
+                "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.tinyspeck.slackmacgap.sfl*",
+                "~/Library/Application Support/Slack",
+                "~/Library/Caches/com.tinyspeck.slackmacgap",
+                "~/Library/Caches/com.tinyspeck.slackmacgap.ShipIt",
+                "~/Library/Containers/com.tinyspeck.slackmacgap",
+                "~/Library/Containers/com.tinyspeck.slackmacgap.SlackCallsService",
+                "~/Library/Cookies/com.tinyspeck.slackmacgap.binarycookies",
+                "~/Library/Group Containers/*.com.tinyspeck.slackmacgap",
+                "~/Library/Group Containers/*.slack",
+                "~/Library/HTTPStorages/com.tinyspeck.slackmacgap*",
+                "~/Library/Logs/Slack",
+                "~/Library/Preferences/ByHost/com.tinyspeck.slackmacgap.ShipIt.*.plist",
+                "~/Library/Preferences/com.tinyspeck.slackmacgap.helper.plist",
+                "~/Library/Preferences/com.tinyspeck.slackmacgap.plist",
+                "~/Library/Saved Application State/com.tinyspeck.slackmacgap.savedState",
+                "~/Library/WebKit/com.tinyspeck.slackmacgap"
+              ]
+            }
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+        "macos": {
+          ">=": [
+            "10.14"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "homebrew/cask-versions/slack-beta"
+        ]
+      },
+      "container": null,
+      "auto_updates": true,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/slack.rb",
+      "ruby_source_checksum": {
+        "sha256": "f845b990664e6de11b15226862de8c1f5741637e3adaa941a7ee389d8eabb14c"
+      }
+    }
+  ]
+}

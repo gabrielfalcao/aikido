@@ -1,0 +1,70 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "rar",
+      "full_token": "rar",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "RAR Archiver"
+      ],
+      "desc": "Archive manager for data compression and backups",
+      "homepage": "https://www.rarlab.com/",
+      "url": "https://www.rarlab.com/rar/rarmacos-arm-622.tar.gz",
+      "url_specs": {
+      },
+      "appcast": null,
+      "version": "6.22",
+      "installed": "6.21",
+      "outdated": true,
+      "sha256": "b4e70883b424a5c0743164e41dbefe6da544c20128a6049a26fa20ce6de51a54",
+      "artifacts": [
+        {
+          "artifact": [
+            "rar/default.sfx",
+            {
+              "target": "/opt/homebrew/lib/default.sfx"
+            }
+          ]
+        },
+        {
+          "artifact": [
+            "rar/rarfiles.lst",
+            {
+              "target": "/opt/homebrew/etc/rarfiles.lst"
+            }
+          ]
+        },
+        {
+          "binary": [
+            "rar/rar"
+          ]
+        },
+        {
+          "binary": [
+            "rar/unrar"
+          ]
+        }
+      ],
+      "caveats": null,
+      "depends_on": {
+      },
+      "conflicts_with": null,
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/rar.rb",
+      "ruby_source_checksum": {
+        "sha256": "621ef5b809a8c4cfcb4f4a52eb14bc8f445b63a38e4e5ae61388d3aee4a93520"
+      }
+    }
+  ]
+}

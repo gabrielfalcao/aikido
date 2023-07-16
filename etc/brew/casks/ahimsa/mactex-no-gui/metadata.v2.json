@@ -1,0 +1,108 @@
+{
+  "formulae": [
+
+  ],
+  "casks": [
+    {
+      "token": "mactex-no-gui",
+      "full_token": "mactex-no-gui",
+      "old_tokens": [
+
+      ],
+      "tap": "homebrew/cask",
+      "name": [
+        "MacTeX"
+      ],
+      "desc": "Full TeX Live distribution without GUI applications",
+      "homepage": "https://www.tug.org/mactex/",
+      "url": "https://mirror.ctan.org/systems/mac/mactex/mactex-20230314.pkg",
+      "url_specs": {
+        "verified": "mirror.ctan.org/systems/mac/mactex/"
+      },
+      "appcast": null,
+      "version": "2023.0314",
+      "installed": "2023.0314",
+      "outdated": false,
+      "sha256": "57304ece58618f0dfc6a41be39d1d6e8f688d81247c84a89eb1cc788b280050b",
+      "artifacts": [
+        {
+          "uninstall": [
+            {
+              "pkgutil": "org.tug.mactex.texlive2023",
+              "delete": [
+                "/usr/local/texlive/2023",
+                "/Library/TeX",
+                "/etc/paths.d/TeX",
+                "/etc/manpaths.d/TeX"
+              ]
+            }
+          ]
+        },
+        {
+          "pkg": [
+            "mactex-20230314.pkg",
+            {
+              "choices": [
+                {
+                  "choiceIdentifier": "org.tug.mactex.ghostscript10.00",
+                  "choiceAttribute": "selected",
+                  "attributeSetting": 0
+                },
+                {
+                  "choiceIdentifier": "org.tug.mactex.ghostscript10.00-libgs",
+                  "choiceAttribute": "selected",
+                  "attributeSetting": 0
+                },
+                {
+                  "choiceIdentifier": "org.tug.mactex.gui2023",
+                  "choiceAttribute": "selected",
+                  "attributeSetting": 0
+                },
+                {
+                  "choiceIdentifier": "org.tug.mactex.texlive2023",
+                  "choiceAttribute": "selected",
+                  "attributeSetting": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "zap": [
+            {
+              "trash": "/usr/local/texlive/texmf-local",
+              "rmdir": "/usr/local/texlive"
+            }
+          ]
+        }
+      ],
+      "caveats": "You must restart your terminal window for the installation of MacTeX CLI\ntools to take effect.\n\nAlternatively, Bash and Zsh users can run the command:\n\n  eval \"$(/usr/libexec/path_helper)\"\n",
+      "depends_on": {
+        "formula": [
+          "ghostscript"
+        ],
+        "macos": {
+          ">=": [
+            "10.14"
+          ]
+        }
+      },
+      "conflicts_with": {
+        "cask": [
+          "basictex",
+          "mactex"
+        ]
+      },
+      "container": null,
+      "auto_updates": null,
+      "tap_git_head": "1c57fb5f302b540c8746b1b5829abb999bf9d30e",
+      "languages": [
+
+      ],
+      "ruby_source_path": "Casks/mactex-no-gui.rb",
+      "ruby_source_checksum": {
+        "sha256": "da5545aebf2334d84701fbdf1291c459404e26d6ca66218914c688e4ea0f5eb6"
+      }
+    }
+  ]
+}
