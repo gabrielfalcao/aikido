@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC3037
+bash_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9.]\+\).*,\1,g')
+bash_major_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9]\+\).*,\1,g')
+if [ ${bash_major_version} -lt 5 ]; then
+    1>&2 echo -ne "\033[1;38;5;160mERROR: "
+    1>&2 echo -e "\033[1;38;5;220mThis script has been thoroughly tested with bash version 5+ but you are currently running ${bash_version}\033[0m"
+    exit 1
+fi
 
 PROGRAM=`basename $0`
 script_path=$(echo $(cd $(dirname $0) && pwd))
@@ -35,15 +42,22 @@ USAGE: $PROGRAM [-fc]
     -c/--casks    prints out casks"
 EOF
 }
+
 fail_no_args() {
     exit 1
 }
 if [ -z "$1" ]; then
     fail show_usage "missing args"
 fi
+
 filter() {
     tr -d '"' | gsed 's/^null$//g'
 }
+gq() {
+    $gq "${*}" | filter
+}
+
+
 string_matches_regex() {
     regex="$1"
     shift
@@ -79,18 +93,19 @@ extract_and_save_metadata_from_brew() {
             fi
         fi
 
-        $gq ".${plural_kind}[0].tap" < "${keg_metadata_v2_path}" >> "${brew_taps_path}"
+        gq ".${plural_kind}[0].tap" < "${keg_metadata_v2_path}" >> "${brew_taps_path}"
         for attribute in "full_name" "linked_keg" "homepage"; do
-            $gq ".${plural_kind}[0].${attribute}" < "${keg_metadata_v2_path}" | filter > "${cache_path}/${attribute}"
+            gq ".${plural_kind}[0].${attribute}" < "${keg_metadata_v2_path}" > "${cache_path}/${attribute}"
         done
-        $gq ".${plural_kind}[0].installed" < "${keg_metadata_v2_path}" | filter > "${cache_path}/version.installed"
-        $gq ".${plural_kind}[0].version" < "${keg_metadata_v2_path}" | filter > "${cache_path}/version.latest"
+        gq ".${plural_kind}[0].installed" < "${keg_metadata_v2_path}" > "${cache_path}/version.installed"
+        gq ".${plural_kind}[0].version" < "${keg_metadata_v2_path}" > "${cache_path}/version.latest"
         version=$(cat "${cache_path}/version.installed")
         name=$(cat "${cache_path}/full_name")
         echo "  depends_on ${kind}: \"${name}\" => \"${version}\"" >> "${brew_metadata_path}/${plural_kind}.txt"
         stdout " \033[1;38;5;112mOK"
     done
     sort -u "${brew_metadata_path}/${plural_kind}.txt" -o "${brew_metadata_path}/${plural_kind}.txt"
+    sort -u "${brew_taps_path}" -o "${brew_taps_path}"
 }
 
 set -eu
