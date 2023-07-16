@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC3037
-bash_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9.]\+\).*,\1,g')
-bash_major_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9]\+\).*,\1,g')
-if [ ${bash_major_version} -lt 5 ]; then
-    1>&2 echo -ne "\033[1;38;5;160mERROR: "
-    1>&2 echo -e "\033[1;38;5;220mThis script has been thoroughly tested with bash version 5+ but you are currently running ${bash_version}\033[0m"
-    exit 1
-fi
+# bash_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9.]\+\).*,\1,g')
+# bash_major_version=$(bash --version | awk '{ print $4 }' | head -1 | sed 's,\([0-9]\+\).*,\1,g')
+# if [ ${bash_major_version} -lt 5 ]; then
+#     1>&2 echo -ne "\033[1;38;5;160mERROR: "
+#     1>&2 echo -e "\033[1;38;5;220mThis script has been thoroughly tested with bash version 5+ but you are currently running ${bash_version}\033[0m"
+#     exit 1
+# fi
 
 PROGRAM=`basename $0`
 script_path=$(echo $(cd $(dirname $0) && pwd))
