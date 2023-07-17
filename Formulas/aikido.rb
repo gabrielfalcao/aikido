@@ -9,7 +9,6 @@ class Aikido < Formula
   include Language::Python::Virtualenv
 
   depends_on macos: :ventura
-
   
   depends_on formula: "rubberband"
   depends_on formula: "libpsl"

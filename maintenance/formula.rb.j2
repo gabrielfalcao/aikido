@@ -9,7 +9,6 @@ class Aikido < Formula
   include Language::Python::Virtualenv
 
   depends_on macos: :ventura
-
   {% for meta in formulae %}
   depends_on formula: "{{ meta.formulae[0].full_name }}"{% endfor %}
   {% for meta in casks %}
