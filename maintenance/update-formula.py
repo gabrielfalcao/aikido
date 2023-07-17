@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 
 here = Path(__file__).parent.absolute()
-target_path = here.parent.joinpath('Formulas')
+target_path = here.parent
 env = Environment(loader=FileSystemLoader(here))
 
 
