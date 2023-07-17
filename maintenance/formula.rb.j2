@@ -1,0 +1,32 @@
+class Aikido < Formula
+  desc "Homebrew dependencies for swiftly installing a new MacOS machine with all dependencies for Gabriel Falcão's Aikido"
+  homepage "https://github.com/gabrielfalcao/aikido"
+  # ...TK
+  # url "https://github.com/gabrielfalcao/aikido/archive/v0.0.1.tar.gz"
+  # sha256 "30b6256bea0143caebd08256e0a605280afbbc5eef7ce692f84621eb232a9b31"
+  license "GPL-3.0-or-later"
+  head "https://github.com/gabrielfalcao/aikido.git", branch: "main"
+  include Language::Python::Virtualenv
+
+  depends_on macos: :ventura
+
+  {% for meta in formulae %}
+  depends_on formula: "{{ meta.formulae[0].full_name }}"{% endfor %}
+  {% for meta in casks %}
+  depends_on cask: "{{ meta.casks[0].full_token }}"{% endfor %}
+
+  depends_on "rust" => :build
+  depends_on "python"
+
+  @python_requirements = [
+    "ki-aikido"
+  ]
+  def install
+    aikido_git_path = File.join(ENV["HOME"], ".aikido")
+    virtualenv_install_with_resources
+    pip_install @python_requirements
+    system "cargo", "install", *std_cargo_args
+    system "git", "clone", self.head, aikido_git_path
+    system "bash", File.join(aikido_git_path, "install.sh")
+  end
+end

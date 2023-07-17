@@ -87,7 +87,7 @@ extract_and_save_metadata_from_brew() {
         fi
 
         gq ".${plural_kind}[0].tap" < "${keg_metadata_v2_path}" >> "${brew_taps_path}"
-        for attribute in "full_name" "linked_keg" "homepage"; do
+        for attribute in "full_name" "full_token" "linked_keg" "homepage"; do
             gq ".${plural_kind}[0].${attribute}" < "${keg_metadata_v2_path}" > "${cache_path}/${attribute}"
         done
         gq ".${plural_kind}[0].installed[0].version,.${plural_kind}[0].version" < "${keg_metadata_v2_path}" > "${cache_path}/version.installed"
