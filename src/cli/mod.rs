@@ -1,5 +1,5 @@
 #![allow(unused)]
-use aikido::brew::list::{command as brew_list, Kind};
+use aikido::pcap::list::{command as pcap_list, Kind};
 use aikido::Error;
 use clap::{Args, Parser, Subcommand};
 
@@ -12,12 +12,12 @@ struct Climate {
 }
 
 #[derive(Subcommand)]
-enum Brew {
-    Freeze(BrewList),
+enum Pcap {
+    Freeze(PcapList),
 }
 
 #[derive(Args)]
-struct BrewList {
+struct PcapList {
     #[arg(short, long)]
     output_file: Option<String>,
 }
@@ -25,7 +25,7 @@ struct BrewList {
 #[derive(Subcommand)]
 enum Change {
     #[command(subcommand)]
-    Brew(Brew),
+    Pcap(Pcap),
 }
 
 fn default_output_file() -> String {
@@ -35,12 +35,10 @@ fn default_output_file() -> String {
 fn main() {
     let climate = Climate::parse();
     let command = match climate.change {
-        Change::Brew(instruction) => {
+        Change::Pcap(instruction) => {
             match instruction {
-                Brew::Freeze(args) => {
-                    let formulas = brew_list(Kind::Formula).unwrap();
-                    // println!("{:?}", output_file);
-                    println!("{:?}", formulas);
+                Pcap::Freeze(args) => {
+
                 }
             }
         }

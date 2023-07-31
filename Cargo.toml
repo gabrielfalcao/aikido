@@ -13,6 +13,8 @@ documentation = "https://docs.rs/aikido"
 chrono = "0.4.26"
 clap = { version = "4.3.11", features = ["derive"] }
 gitoxide = "0.27.0"
+mac_address = { version = "1.1.5", features = ["serde"] }
+pcap-parser = { version = "0.14.0", features = ["serialize", "data", "cookie-factory"] }
 tera = "1.19.0"
 
 
