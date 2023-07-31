@@ -19,7 +19,7 @@ pub fn command(format: Format) -> Result<Vec<String>, Error> {
         Format::Yaml => "--yaml",
         Format::Json => "--json",
     };
-    match Command::new("pcap").arg("list").arg(format).output() {
+    match Command::new("oui").arg("parse").arg(format).output() {
         Ok(rs) => {
             if rs.status.success() {
                 Ok(String::from_utf8(rs.stdout)?.split("\n").map(|x| x.to_string()).filter(|x| x.len() > 0).collect())
@@ -29,7 +29,7 @@ pub fn command(format: Format) -> Result<Vec<String>, Error> {
                         Some(c) => c,
                         None => 0x54,
                     },
-                    format!("failed to run `pcap list {}`: {}", format, String::from_utf8(rs.stderr)?),
+                    format!("failed to run `oui parse {}`: {}", format, String::from_utf8(rs.stderr)?),
                 )))
             }
         }

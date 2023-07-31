@@ -12,9 +12,15 @@ documentation = "https://docs.rs/aikido"
 [dependencies]
 chrono = "0.4.26"
 clap = { version = "4.3.11", features = ["derive"] }
+eui48 = { version = "1.1.0", features = ["serde_json", "serde", "serde_bytes", "disp_hexstring"] }
 gitoxide = "0.27.0"
 mac_address = { version = "1.1.5", features = ["serde"] }
+oui = "0.8.1"
 pcap-parser = { version = "0.14.0", features = ["serialize", "data", "cookie-factory"] }
+serde = { version = "1.0.179", features = ["derive", "alloc", "rc"] }
+serde_json = { version = "1.0.104", features = ["alloc", "preserve_order", "float_roundtrip"] }
+serde_yaml = "0.9.25"
+shellexpand = { version = "3.1.0", features = ["path", "os_str_bytes", "full"] }
 tera = "1.19.0"
 
 

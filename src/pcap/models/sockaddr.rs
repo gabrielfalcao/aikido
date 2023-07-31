@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SockAddr {
-    hardwareAddress: MacAddress,
-    ipv4address: Ipv4address,
-    ipv6address: Ipv6address,
+    hardware: MacAddress,
+    ipv4: Ipv4Addr,
+    ipv6: Ipv6Addr,
 }
 
 impl std::fmt::Display for SockAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "mac: {}\nip: {}\nipv6: {}\n", self.hardwareAddress, self.ipv4address, ipv6address)
+        write!(f, "mac: {}\nip: {}\nipv6: {}\n", self.hardware, self.ipv4, self.ipv6)
     }
 }
