@@ -8,8 +8,15 @@ import argparse
 import pytz as tz
 from hashlib import sha512
 from datetime import datetime
+from crc import Calculator, Crc32
 
 from pathlib import Path
+
+
+def crc_color(string, config):
+    calc = Calculator(config)
+    checksum = hex(calc.checksum(string.encode('utf-8')))[2:] * 4
+    return checksum[:8]
 
 
 def hex_to_int(string):
@@ -153,6 +160,7 @@ XORGGRGB = dict(
         ("MediumTurquoise", "72 209 204"),
         ("turquoise", "64 224 208"),
         ("cyan", "0 255 255"),
+        ("olive", "136 132 68"),
         ("aqua", "0 255 255"),
         ("light cyan", "224 255 255"),
         ("LightCyan", "224 255 255"),
@@ -906,6 +914,8 @@ TANGO = dict(
         ("scarlet_red_1", "239 41 41"),
     ]
 )
+ALL_COLORS = XORGGRGB.copy()
+ALL_COLORS.update(TANGO)
 
 
 def resolve_command(*rgb):
@@ -1095,6 +1105,9 @@ def timehex(t):
         for k, v in ctx.items()
         if isinstance(v, (str, datetime))
     }
+    for config in (Crc32.POSIX, Crc32.AUTOSAR, Crc32.BZIP2, Crc32.CRC32):
+        yield parse_rgb_from_hex(crc_color(t.strftime("%Y-%m-%d"), config))
+
     for k in combos:
         b = k.format(**ctx)
         if achtbyte.match(b):
@@ -1110,20 +1123,33 @@ def color(pattern):
 
     if is_hex(word):
         chosen_color = parse_rgb_from_hex(word)
+        change_iterm2_tab_color(chosen_color)
+        return
 
-    elif pattern:
-        pattern = r"^[^0-9a-fA-F]+$".join(map(str, pattern))
+    elif isinstance(pattern, list):
+        for pattern in pattern:
+            regex = re.compile(r"^[^0-9a-fA-F]{6}$")
 
-        regex = re.compile(pattern)
-        matches = list(
-            filter(
-                lambda O: bool(O[1]), zip(TANGO.keys(), map(regex.search, TANGO.keys()))
-            )
-        )
+            if regex.search(pattern):
+                chosen_color = rgb_tuple(pattern)
+                break
+
+            if not regex.search(pattern):
+                matches.extend(list(
+                    filter(
+                        lambda O: bool(O[1]), zip(ALL_COLORS.keys(), map(regex.search, ALL_COLORS.keys()))
+                    )
+                ))
+            regex = re.compile(pattern, re.I)
+            matches.extend(list(
+                filter(
+                    lambda O: bool(O[1]), zip(TANGO.keys(), map(regex.search, TANGO.keys()))
+                )
+            ))
 
     for name, matched in matches:
         if matched:
-            chosen_color = rgb_tuple(TANGO[name])
+            chosen_color = rgb_tuple(ALL_COLORS[name])
             break
 
     if not chosen_color:
