@@ -58,6 +58,8 @@ test tests: $(PYTHON_CLI_PATH) # runs all tests
 check:
 	cargo check
 
+e2e: # XXX: ...TK
+
 # -> unit tests
 unit: | $(VENV)/bin/pytest $(PYTHON_CLI_PATH)  # runs only unit tests
 	@$(VENV)/bin/pytest tests/unit

@@ -24,11 +24,41 @@ shellexpand = { version = "3.1.0", features = ["path", "os_str_bytes", "full"] }
 tera = "1.19.0"
 
 
+[[bin]]
+name = "aikido"
+path = "src/cli/mod.rs"
+bench = false
+
 [lib]
 name = "aikido"
 path = "src/mod.rs"
 
 [[bin]]
-name = "aikido"
-path = "src/cli/mod.rs"
+name = "slugify-filenames"
+path = "src/slugify-filenames.rs"
+bench = false
+
+[[bin]]
+name = "slug"
+path = "src/slugify.rs"
+bench = false
+
+[[bin]]
+name = "aes-256-cbc"
+path = "src/aes256.rs"
+bench = false
+
+[[bin]]
+name = "bip39"
+path = "src/bip39.rs"
+bench = false
+
+[[bin]]
+name = "ipleak"
+path = "src/ipleak.rs"
+bench = false
+
+[[bin]]
+name = "obfuskat3"
+path = "src/obfuskate.rs"
 bench = false
