@@ -1174,8 +1174,18 @@ def todayz(tz=None):
 
 
 def name(parts):
-    name = " ".join(map(str, parts))
-    sys.stdout.write("\033]0;{}\007".format(name))
+    pwd = Path(os.getcwd()).absolute()
+    cwd = pwd.name
+    name = " ".join(map(str, parts)).strip()
+    pfc = "\033"
+    sfc = "\007"
+    command = {
+        "%pwd": f"{pfc}]0;{pwd}{sfc}",
+        "%cwd": f"{pfc}]0;{cwd}{sfc}",
+        "%pwd%": f"{pfc}]0;{pwd}{sfc}",
+        "%cwd%": f"{pfc}]0;{cwd}{sfc}",
+    }.get(name.lower(), f"{pfc}]0;{name}{sfc}")
+    sys.stdout.write(command)
 
 
 def today(tz=None):
