@@ -21,6 +21,7 @@ indicatif = "0.17.6"
 mac_address = { version = "1.1.5", features = ["serde"] }
 oui = "0.8.1"
 pcap-parser = { version = "0.14.0", features = ["serialize", "data", "cookie-factory"] }
+rand = { version = "0.8.5", features = ["serde"] }
 serde = { version = "1.0.179", features = ["derive", "alloc", "rc"] }
 serde_json = { version = "1.0.104", features = ["alloc", "preserve_order", "float_roundtrip"] }
 serde_yaml = "0.9.25"
@@ -36,33 +37,3 @@ bench = false
 [lib]
 name = "aikido"
 path = "src/mod.rs"
-
-[[bin]]
-name = "slugify-filenames"
-path = "src/slugify-filenames.rs"
-bench = false
-
-[[bin]]
-name = "slug"
-path = "src/slugify.rs"
-bench = false
-
-[[bin]]
-name = "aes-256-cbc"
-path = "src/aes256.rs"
-bench = false
-
-[[bin]]
-name = "bip39"
-path = "src/bip39.rs"
-bench = false
-
-[[bin]]
-name = "ipleak"
-path = "src/ipleak.rs"
-bench = false
-
-[[bin]]
-name = "obfuskat3"
-path = "src/obfuskate.rs"
-bench = false

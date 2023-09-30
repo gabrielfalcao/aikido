@@ -124,41 +124,6 @@ pub fn read_file(filename: &str) -> Result<String, Error> {
     Ok(text)
 }
 
-/// Encodes &[u8] to a base64 string
-///
-/// # Example
-///
-/// ```
-/// use toolz::ioutils::b64encode;
-/// assert_eq!("SGVsbG8=", b64encode(b"Hello"));
-/// ```
-pub fn b64encode(bytes: &[u8]) -> String {
-    base64::encode(bytes)
-}
-
-/// Encodes base64 string into a Vec<8>
-///
-/// # Example
-///
-/// ```
-/// use toolz::ioutils::b64decode;
-/// assert_eq!(b"Hello".to_vec(), b64decode(b"SGVsbG8=").unwrap());
-/// ```
-pub fn b64decode(bytes: &[u8]) -> Result<Vec<u8>, Error> {
-    let bytes = match base64::decode(&bytes) {
-        Ok(bytes) => Ok(bytes),
-        Err(error) => {
-            return Err(Error::with_message(format!(
-                "{}{}",
-                style("base64 decode failed").color256(colors::ERR_MSG),
-                style(format!("\n\t{}", error)).color256(colors::ERR_HLT),
-            )));
-        }
-    };
-    bytes
-}
-
-/// Reads the given filename as Vec<u8>
 pub fn read_bytes(filename: &str) -> Result<Vec<u8>, Error> {
     let f = match open_read(filename) {
         Ok(file) => file,

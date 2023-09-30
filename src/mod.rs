@@ -8,6 +8,5 @@ pub mod ioutils;
 pub mod logger;
 pub mod oui;
 pub mod pcap;
-pub mod progress;
 
 pub use errors::{Error, Result};

@@ -61,6 +61,7 @@ dependencies = [
  "mac_address",
  "oui",
  "pcap-parser",
+ "rand",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -2554,6 +2555,7 @@ dependencies = [
  "libc",
  "rand_chacha",
  "rand_core",
+ "serde",
 ]
 
 [[package]]
