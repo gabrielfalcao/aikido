@@ -54,6 +54,7 @@ struct BrewList {
 }
 #[derive(Subcommand)]
 enum Oui {
+    #[command(about = "Parse QRCode from image in the local filesystem")]
     Parse(OuiParse),
 }
 
@@ -72,7 +73,7 @@ enum Change {
     // Brew(Brew),
     // #[command(subcommand)]
     // Pcap(Pcap),
-    #[command(subcommand)]
+    #[command(subcommand, about = "QRCode Operations")]
     Oui(Oui),
 }
 
