@@ -5,12 +5,49 @@ import sys
 import time
 import random
 import argparse
+
 import pytz as tz
-from hashlib import sha512
+from hashlib import sha512, sha3_384
 from datetime import datetime
 from crc import Calculator, Crc32
 
 from pathlib import Path
+
+
+C_INTEL_COLORS = [
+    "D8778B",
+    "58108C",
+    "808FE8",
+    "180D2C",
+    "B87EE5",
+    "001A3F",
+    "D8365F",
+    "4851CF",
+    "443B32",
+    "24FD0D",
+    "30E1F1",
+]
+
+CODING_ENVIRONMENTS = (
+    ("Python", ["setup.py", "pyproject.toml"]),
+    ("Rust", ["Cargo.toml"]),
+    ("Typescript", ["tsconfig.json", "tsconfig.node.json"]),
+    ("Javascript", ["package.json"]),
+)
+
+
+def guess_programming_language(path: Path) -> Path:
+    for name, filenames in CODING_ENVIRONMENTS:
+        for fname in filenames:
+            if path.joinpath(fname).is_file():
+                return name
+
+
+def of_git_dir(path: Path) -> Path:
+    while not path.joinpath('.git').is_dir():
+        path = path.parent
+
+    return path
 
 
 def crc_color(string, config):
@@ -1164,7 +1201,7 @@ def todayz(tz=None):
     mere_coincidence = f"{now.year}"
     # y = mere_coincidence.replace('20', '19')
     # todayz = timehex(t=y)
-    for chosen_color in timehex(t=now):
+    for (i, chosen_color) in enumerate(timehex(t=now)):
         if not tz:
             return chosen_color
             break
@@ -1176,7 +1213,11 @@ def todayz(tz=None):
 def name(parts):
     pwd = Path(os.getcwd()).absolute()
     cwd = pwd.name
-    name = " ".join(map(str, parts)).strip()
+    if isinstance(parts, str):
+        name = parts
+    else:
+        name = " ".join(map(str, parts)).strip()
+
     pfc = "\033"
     sfc = "\007"
     command = {
@@ -1199,6 +1240,25 @@ def todayx(tz=None):
 def timehexe(tz=None):
     e = datetime.now(tz=tz)  # inherit from TZ env var :P
     print(" ".join(map(print, timehex(datetime.now(tz=tz)))))
+
+
+def cintel():
+    color = parse_rgb_from_hex(random.choice(C_INTEL_COLORS))
+    change_iterm2_tab_color(color)
+
+
+def devdir(hour: bool = False, minute: bool = False, second: bool = False):
+    now = datetime.utcnow()
+    hour = hour and now.hour or 0
+    minute = minute and now.minute or 0
+    second = second and now.second or 0
+    cwd = Path(os.getcwd()).absolute()
+    rgb = sha3_384(str(cwd).encode('utf-8')).hexdigest()[hour+minute+second:hour+minute+second+6]
+    git_root = of_git_dir(cwd)
+    language = guess_programming_language(git_root)
+    tabname = " ".join(filter(bool, [git_root.name, language]))
+    name(tabname)
+    color(rgb)
 
 
 parser = argparse.ArgumentParser(description="iterm2 utility")
@@ -1226,6 +1286,16 @@ parser_tab_timehex.set_defaults(func=timehexe)
 
 parser_tab_todayz = subparsers.add_parser("todayz", help="")
 parser_tab_todayz.set_defaults(func=todayx)
+
+parser_tab_intel = subparsers.add_parser("intel", help="")
+parser_tab_intel.set_defaults(func=cintel)
+
+parser_tab_dir = subparsers.add_parser("dir", help="")
+parser_tab_dir.add_argument('-H', '--hour', action='store_true')
+parser_tab_dir.add_argument('-M', '--minute', action='store_true')
+parser_tab_dir.add_argument('-S', '--second', action='store_true')
+
+parser_tab_dir.set_defaults(func=devdir)
 
 
 class Helper(BaseException):
